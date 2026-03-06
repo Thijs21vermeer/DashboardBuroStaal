@@ -1,10 +1,12 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Eye, ArrowRight, RefreshCw } from 'lucide-react';
-import { baseUrl } from '../../lib/base-url';
+import { getBaseUrl } from '../../lib/base-url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
+import { mockKennisItems, mockTrends, mockNews } from '../../data/mockData';
 
 const MOCK_STATS = {
   aantalKennisitems: 42,
@@ -52,21 +54,19 @@ export function Overview({ onNavigate }: OverviewProps) {
   const [featured, setFeatured] = useState<any[]>(MOCK_FEATURED);
   const [trends, setTrends] = useState<any[]>(MOCK_TRENDS);
   const [news, setNews] = useState<any[]>(MOCK_NEWS);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    setLoading(true);
     try {
       // Try to fetch real data, but fall back to mock data on error
       const [kennisRes, casesRes, trendsRes, newsRes] = await Promise.all([
-        fetch(`${baseUrl}/api/kennisitems`).catch(() => null),
-        fetch(`${baseUrl}/api/cases`).catch(() => null),
-        fetch(`${baseUrl}/api/trends`).catch(() => null),
-        fetch(`${baseUrl}/api/nieuws`).catch(() => null),
+        fetch(`${getBaseUrl()}/api/kennisitems`).catch(() => null),
+        fetch(`${getBaseUrl()}/api/cases`).catch(() => null),
+        fetch(`${getBaseUrl()}/api/trends`).catch(() => null),
+        fetch(`${getBaseUrl()}/api/nieuws`).catch(() => null),
       ]);
 
       if (kennisRes?.ok) {
@@ -90,10 +90,7 @@ export function Overview({ onNavigate }: OverviewProps) {
         setNews(newsData.slice(0, 5));
       }
     } catch (error) {
-      console.error('Error loading data:', error);
       // Keep mock data on error
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -369,6 +366,9 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
+
 
 
 

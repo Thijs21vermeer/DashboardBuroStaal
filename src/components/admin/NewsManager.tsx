@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, Search, RefreshCw, Calendar } from 'lucide-react';
-import { baseUrl } from '../../lib/base-url';
+import { getBaseUrl } from '../../lib/base-url';
 import { mockNews } from '../../data/mockData';
 import type { NewsItem } from '../../types';
 
@@ -31,7 +31,7 @@ export default function NewsManager() {
 
   const loadItems = async () => {
     try {
-      const response = await fetch(`${baseUrl}/api/nieuws`);
+      const response = await fetch(`${getBaseUrl()}/api/nieuws`);
       const data = await response.json() as NewsItem[];
       
       if (data.length === 0) {
@@ -56,7 +56,7 @@ export default function NewsManager() {
 
     try {
       if (editingItem) {
-        const response = await fetch(`${baseUrl}/api/nieuws/${editingItem.id}`, {
+        const response = await fetch(`${getBaseUrl()}/api/nieuws/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newsData),
@@ -64,7 +64,7 @@ export default function NewsManager() {
         const updated = await response.json() as NewsItem;
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
       } else {
-        const response = await fetch(`${baseUrl}/api/nieuws`, {
+        const response = await fetch(`${getBaseUrl()}/api/nieuws`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newsData),
@@ -96,7 +96,7 @@ export default function NewsManager() {
     if (!confirm('Weet je zeker dat je dit nieuwsitem wilt verwijderen?')) return;
     
     try {
-      await fetch(`${baseUrl}/api/nieuws/${id}`, {
+      await fetch(`${getBaseUrl()}/api/nieuws/${id}`, {
         method: 'DELETE',
       });
       setItems(items.filter(i => i.id !== id));
@@ -305,6 +305,8 @@ export default function NewsManager() {
     </div>
   );
 }
+
+
 
 
 

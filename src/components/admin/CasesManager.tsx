@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
-import { baseUrl } from '../../lib/base-url';
+import { getBaseUrl } from '../../lib/base-url';
 import { mockCases } from '../../data/mockData';
 import type { CaseStudy } from '../../types';
 
@@ -33,7 +33,7 @@ export default function CasesManager() {
 
   const loadItems = async () => {
     try {
-      const response = await fetch(`${baseUrl}/api/cases`);
+      const response = await fetch(`${getBaseUrl()}/api/cases`);
       const data: CaseStudy[] = await response.json();
       
       if (data.length === 0) {
@@ -60,7 +60,7 @@ export default function CasesManager() {
 
     try {
       if (editingItem) {
-        const response = await fetch(`${baseUrl}/api/cases/${editingItem.id}`, {
+        const response = await fetch(`${getBaseUrl()}/api/cases/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(caseData),
@@ -68,7 +68,7 @@ export default function CasesManager() {
         const updated = await response.json() as CaseStudy;
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
       } else {
-        const response = await fetch(`${baseUrl}/api/cases`, {
+        const response = await fetch(`${getBaseUrl()}/api/cases`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(caseData),
@@ -103,7 +103,7 @@ export default function CasesManager() {
     if (!confirm('Weet je zeker dat je deze case wilt verwijderen?')) return;
     
     try {
-      await fetch(`${baseUrl}/api/cases/${id}`, {
+      await fetch(`${getBaseUrl()}/api/cases/${id}`, {
         method: 'DELETE',
       });
       setItems(items.filter(i => i.id !== id));
@@ -311,6 +311,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

@@ -4,42 +4,9 @@ import Dashboard from '../components/Dashboard';
 ---
 
 <MainLayout pageClass="dashboard">
-  <!-- Fallback content dat zichtbaar is voor debug -->
-  <div id="fallback" style="position: fixed; top: 0; left: 0; right: 0; background: #7ef769; color: black; padding: 1rem; z-index: 9999; text-align: center;">
-    ⏳ Dashboard aan het laden...
-  </div>
-  
-  <Dashboard client:only="react" />
-  
-  <script>
-    // Verberg fallback na 2 seconden als React geladen is
-    setTimeout(() => {
-      const fallback = document.getElementById('fallback');
-      const dashboard = document.querySelector('[class*="min-h-screen"]');
-      
-      console.log('Fallback element:', fallback);
-      console.log('Dashboard element:', dashboard);
-      
-      if (dashboard && fallback) {
-        fallback.style.display = 'none';
-        console.log('✅ Dashboard successfully loaded!');
-      } else {
-        if (fallback) {
-          fallback.innerHTML = '❌ Dashboard component failed to load. Check console for errors.';
-          fallback.style.background = '#ff4444';
-          fallback.style.color = 'white';
-        }
-        console.error('❌ Dashboard did not render');
-      }
-    }, 3000);
-    
-    // Log any errors
-    window.addEventListener('error', (e) => {
-      console.error('Global error:', e.error);
-    });
-    
-    window.addEventListener('unhandledrejection', (e) => {
-      console.error('Unhandled promise rejection:', e.reason);
-    });
-  </script>
+<Dashboard client:only="react">
+  <div></div>
+</Dashboard>
 </MainLayout>
+
+

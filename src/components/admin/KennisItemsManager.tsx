@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -10,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
-import { baseUrl } from '../../lib/base-url';
+import { getBaseUrl } from '../../lib/base-url';
 import { mockKennisItems } from '../../data/mockData';
 import type { KennisItem } from '../../types';
 
@@ -35,6 +32,7 @@ export default function KennisItemsManager() {
 
   const loadItems = async () => {
     try {
+      const baseUrl = getBaseUrl();
       const response = await fetch(`${baseUrl}/api/kennisitems`);
       const data = await response.json() as KennisItem[];
       
@@ -61,7 +59,7 @@ export default function KennisItemsManager() {
     try {
       if (editingItem) {
         // Update existing item
-        const response = await fetch(`${baseUrl}/api/kennisitems/${editingItem.id}`, {
+        const response = await fetch(`${getBaseUrl()}/api/kennisitems/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(itemData),
@@ -70,7 +68,7 @@ export default function KennisItemsManager() {
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
       } else {
         // Create new item
-        const response = await fetch(`${baseUrl}/api/kennisitems`, {
+        const response = await fetch(`${getBaseUrl()}/api/kennisitems`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(itemData),
@@ -104,7 +102,7 @@ export default function KennisItemsManager() {
     if (!confirm('Weet je zeker dat je dit item wilt verwijderen?')) return;
     
     try {
-      await fetch(`${baseUrl}/api/kennisitems/${id}`, {
+      await fetch(`${getBaseUrl()}/api/kennisitems/${id}`, {
         method: 'DELETE',
       });
       setItems(items.filter(i => i.id !== id));
@@ -305,6 +303,8 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
 
 
 

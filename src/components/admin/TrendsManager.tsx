@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -10,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
-import { baseUrl } from '../../lib/base-url';
+import { getBaseUrl } from '../../lib/base-url';
 import { mockTrends } from '../../data/mockData';
 import type { Trend } from '../../types';
 
@@ -35,7 +32,7 @@ export default function TrendsManager() {
 
   const loadItems = async () => {
     try {
-      const response = await fetch(`${baseUrl}/api/trends`);
+      const response = await fetch(`${getBaseUrl()}/api/trends`);
       const data = await response.json() as Trend[];
       
       if (data.length === 0) {
@@ -60,7 +57,7 @@ export default function TrendsManager() {
 
     try {
       if (editingItem) {
-        const response = await fetch(`${baseUrl}/api/trends/${editingItem.id}`, {
+        const response = await fetch(`${getBaseUrl()}/api/trends/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(trendData),
@@ -68,7 +65,7 @@ export default function TrendsManager() {
         const updated = await response.json() as Trend;
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
       } else {
-        const response = await fetch(`${baseUrl}/api/trends`, {
+        const response = await fetch(`${getBaseUrl()}/api/trends`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(trendData),
@@ -102,7 +99,7 @@ export default function TrendsManager() {
     if (!confirm('Weet je zeker dat je deze trend wilt verwijderen?')) return;
     
     try {
-      await fetch(`${baseUrl}/api/trends/${id}`, {
+      await fetch(`${getBaseUrl()}/api/trends/${id}`, {
         method: 'DELETE',
       });
       setItems(items.filter(i => i.id !== id));
@@ -311,6 +308,7 @@ export default function TrendsManager() {
     </div>
   );
 }
+
 
 
 

@@ -6,6 +6,7 @@ import { CasesPage } from './kennisbank/CasesPage';
 import { TrendsPage } from './kennisbank/TrendsPage';
 import { TeamPage } from './kennisbank/TeamPage';
 import { NewsPage } from './kennisbank/NewsPage';
+import { LoginForm } from './auth/LoginForm';
 
 export interface FilterState {
   klant: string;
@@ -18,8 +19,25 @@ export interface FilterState {
 export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
 
 export default function Dashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [currentPage, setCurrentPage] = useState<PageType>('overzicht');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleLogin = (password: string) => {
+    // Simpele authenticatie - in productie zou dit via een API gaan
+    if (password === 'BurostaalDB') {
+      setIsAuthenticated(true);
+      setLoginError('');
+    } else {
+      setLoginError('Ongeldig wachtwoord');
+    }
+  };
+
+  // Toon login scherm als niet ingelogd
+  if (!isAuthenticated) {
+    return <LoginForm onLogin={handleLogin} error={loginError} />;
+  }
 
   const renderContent = () => {
     switch (currentPage) {
@@ -59,6 +77,8 @@ export default function Dashboard() {
     </div>
   );
 }
+
+
 
 
 

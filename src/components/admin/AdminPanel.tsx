@@ -5,8 +5,45 @@ import CasesManager from './CasesManager';
 import TrendsManager from './TrendsManager';
 import NewsManager from './NewsManager';
 import { Settings, Database, ArrowLeft } from 'lucide-react';
+import React from 'react';
 
 export default function AdminPanel() {
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    // Test if we can access the API
+    const testAPI = async () => {
+      try {
+        const response = await fetch('/api/kennisitems');
+        if (!response.ok) {
+          console.warn('API test failed, will use mock data');
+        }
+      } catch (err) {
+        console.error('API connection error:', err);
+      }
+    };
+    testAPI();
+  }, []);
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white p-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-xl font-bold text-red-800 mb-2">Error</h2>
+            <p className="text-red-600">{error}</p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 bg-red-600 hover:bg-red-700"
+            >
+              Herlaad pagina
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -72,6 +109,7 @@ export default function AdminPanel() {
     </div>
   );
 }
+
 
 
 
