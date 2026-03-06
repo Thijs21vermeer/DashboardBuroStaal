@@ -1,0 +1,16 @@
+{
+  "name": "astro",
+  "compatibility_date": "2024-09-02",
+  "compatibility_flags": ["nodejs_compat"],
+  
+  // Azure SQL Configuration (alleen)
+  // Zorg dat deze environment variables zijn ingesteld:
+  // - AZURE_SQL_SERVER
+  // - AZURE_SQL_DATABASE
+  // - AZURE_SQL_USER
+  // - AZURE_SQL_PASSWORD
+  
+  "observability": {
+    "enabled": true
+  }
+}
