@@ -47,3 +47,4 @@ local.settings.json
 # Misc
 *.tsbuildinfo
 .cache/
+lost+found/
