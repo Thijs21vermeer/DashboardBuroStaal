@@ -1,21 +1,40 @@
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Newspaper, Calendar, User, TrendingUp, Award, Rocket, PartyPopper, Briefcase, Users, RefreshCw } from 'lucide-react';
-import { mockInternNews } from '../../data/mockData';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Button } from '../ui/button';
+import { baseUrl } from '../../lib/base-url';
+import { NewsDetail } from './NewsDetail';
 
 export function NewsPage() {
-  const [newsItems, setNewsItems] = useState(mockInternNews);
+  const [newsItems, setNewsItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategorie, setSelectedCategorie] = useState<string>('alle');
+  const [selectedNewsId, setSelectedNewsId] = useState<number | null>(null);
 
-  const loadNews = () => {
-    // In de toekomst wordt dit een API call
-    setNewsItems([...mockInternNews]);
+  const loadNews = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${baseUrl}/api/nieuws`);
+      if (response.ok) {
+        const data = await response.json();
+        setNewsItems(data);
+      }
+    } catch (error) {
+      console.error('Fout bij laden nieuws:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    loadNews();
+  }, []);
 
   // Filter nieuws op categorie
   const filteredNews = selectedCategorie === 'alle' 
@@ -81,6 +100,16 @@ export function NewsPage() {
         return 'bg-gray-500 text-white';
     }
   };
+
+  // Show detail view if news is selected
+  if (selectedNewsId !== null) {
+    return (
+      <NewsDetail 
+        newsId={selectedNewsId} 
+        onBack={() => setSelectedNewsId(null)} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -165,11 +194,21 @@ export function NewsPage() {
           Nieuwste Updates
         </h2>
         
+        {/* Loading State */}
+        {loading ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-[#280bc4]" />
+              <p className="text-gray-600">Nieuws laden...</p>
+            </CardContent>
+          </Card>
+        ) : sortedNews.length > 0 ? (
         <div className="space-y-4">
           {sortedNews.map((item) => (
             <Card 
               key={item.id}
-              className="hover:shadow-lg transition-all border-l-4 hover:border-l-[#280bc4]"
+              className="hover:shadow-lg transition-all border-l-4 hover:border-l-[#280bc4] cursor-pointer group"
+              onClick={() => setSelectedNewsId(item.id)}
               style={{ 
                 borderLeftColor: item.categorie.toLowerCase() === 'succes' ? '#7ef769' : 
                                 item.categorie.toLowerCase() === 'team' ? '#280bc4' : 
@@ -213,9 +252,9 @@ export function NewsPage() {
                 )}
 
                 {/* Tags (indien aanwezig) */}
-                {item.tags && item.tags.length > 0 && (
+                {item.tags && Array.isArray(item.tags) && item.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 pt-2 border-t">
-                    {item.tags.map((tag) => (
+                    {item.tags.map((tag: string) => (
                       <Badge 
                         key={tag}
                         variant="outline"
@@ -230,10 +269,11 @@ export function NewsPage() {
             </Card>
           ))}
         </div>
+        ) : null}
       </div>
 
       {/* Empty State (indien geen nieuws) */}
-      {totalItems === 0 && (
+      {!loading && totalItems === 0 && (
         <Card className="text-center py-12">
           <CardContent>
             <Newspaper className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -249,6 +289,11 @@ export function NewsPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

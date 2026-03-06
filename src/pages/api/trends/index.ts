@@ -12,7 +12,7 @@ function mapDbToTrend(dbRecord: any): Trend {
     beschrijving: dbRecord.beschrijving,
     relevantie: dbRecord.relevantie as 'Hoog' | 'Middel' | 'Laag',
     bronnen: dbRecord.bronnen ? JSON.parse(dbRecord.bronnen) : [],
-    datum: dbRecord.datum,
+    datum: dbRecord.datum_toegevoegd,
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
     impact: dbRecord.impact || '',
   };
@@ -22,7 +22,7 @@ function mapDbToTrend(dbRecord: any): Trend {
 export const GET: APIRoute = async () => {
   try {
     const dbPool = await getPool();
-    const result = await dbPool.request().query('SELECT * FROM Trends ORDER BY datum DESC');
+    const result = await dbPool.request().query('SELECT * FROM Trends ORDER BY datum_toegevoegd DESC');
     
     // Map database records to TypeScript types
     const trends = result.recordset.map(mapDbToTrend);
@@ -70,6 +70,8 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create trend');
   }
 };
+
+
 
 
 

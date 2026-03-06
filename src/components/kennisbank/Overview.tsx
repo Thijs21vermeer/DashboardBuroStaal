@@ -1,3 +1,5 @@
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Eye, ArrowRight, RefreshCw } from 'lucide-react';
@@ -105,7 +107,7 @@ export function Overview({ onNavigate }: OverviewProps) {
       <div className="bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 rounded-xl shadow-lg p-8 md:p-12 text-white">
         <div className="max-w-4xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Kennisbank Buro Staal
+            Dashboard Buro Staal
           </h1>
           <p className="text-xl md:text-2xl mb-6 text-white/90">
             Al onze kennis, cases en trends op één plek
@@ -274,7 +276,7 @@ export function Overview({ onNavigate }: OverviewProps) {
                     <h4 className="font-semibold text-gray-900">{trend.titel}</h4>
                     <Badge 
                       variant={trend.relevantie === 'Hoog' ? 'default' : 'secondary'}
-                      className={trend.relevantie === 'Hoog' ? 'bg-[#280bc4]' : ''}
+                      className={trend.relevantie === 'Hoog' ? 'bg-[#280bc4] text-white' : ''}
                     >
                       {trend.relevantie}
                     </Badge>
@@ -347,6 +349,8 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
 
 
 

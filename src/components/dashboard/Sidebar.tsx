@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, BookOpen, TrendingUp, Users, Newspaper, Settings, Briefcase } from 'lucide-react';
+import { Home, BookOpen, TrendingUp, Users, Newspaper, Settings, Briefcase, LogOut } from 'lucide-react';
 import { baseUrl } from '../../lib/base-url';
 import { 
   ChevronLeft,
@@ -13,6 +13,7 @@ interface SidebarProps {
   setCurrentPage: (page: PageType) => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  onLogout: () => void;
 }
 
 interface NavItem {
@@ -22,7 +23,7 @@ interface NavItem {
   description: string;
 }
 
-export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen }: SidebarProps) {
+export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogout }: SidebarProps) {
   const navItems: NavItem[] = [
     {
       id: 'overzicht',
@@ -131,7 +132,7 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen }: Side
             </nav>
 
             {/* Admin Button */}
-            <div className="p-3 border-t border-gray-200">
+            <div className="p-3 border-t border-gray-200 space-y-2">
               <a
                 href={`${baseUrl}/admin`}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all bg-gradient-to-r from-black to-[#280bc4] text-white hover:shadow-lg hover:scale-[1.02]"
@@ -142,6 +143,20 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen }: Side
                   <div className="text-xs text-white/80">Content beheren</div>
                 </div>
               </a>
+
+              <button
+                onClick={() => {
+                  onLogout();
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all bg-red-500 text-white hover:bg-red-600 hover:shadow-lg hover:scale-[1.02]"
+              >
+                <LogOut className="w-5 h-5" />
+                <div className="flex-1 text-left">
+                  <div className="font-medium text-sm">Uitloggen</div>
+                  <div className="text-xs text-white/80">Veilig afsluiten</div>
+                </div>
+              </button>
             </div>
           </div>
         </aside>
@@ -157,6 +172,9 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen }: Side
     </>
   );
 }
+
+
+
 
 
 

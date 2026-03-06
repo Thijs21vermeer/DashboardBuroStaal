@@ -1,4 +1,5 @@
 
+
 @import "tailwindcss";
 @import "../../generated/webflow.css";
 @import "tw-animate-css";
@@ -205,6 +206,12 @@
   opacity: 0.9;
 }
 
+/* Ensure blue buttons always have white text */
+:is(a, button)[class*="bg-[#280bc4]"]:not([class*="text-"]),
+:is(a, button).bg-primary:not([class*="text-"]) {
+  color: white !important;
+}
+
 /* Login animaties */
 @keyframes blob {
   0% {
@@ -232,3 +239,4 @@
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+

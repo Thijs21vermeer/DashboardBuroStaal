@@ -1,8 +1,11 @@
 
+
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Briefcase, TrendingUp, Users, ArrowRight, Target, CheckCircle2, RefreshCw, Building2, Filter, Award } from 'lucide-react';
-import { mockCases } from '../../data/mockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -14,26 +17,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { baseUrl } from '../../lib/base-url';
+import { CaseDetail } from './CaseDetail';
 
 export function CasesPage() {
-  const [cases, setCases] = useState(mockCases);
+  const [cases, setCases] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustrie, setSelectedIndustrie] = useState<string>('alle');
   const [selectedType, setSelectedType] = useState<string>('alle');
   const [sortBy, setSortBy] = useState<'recent' | 'bedrijf' | 'resultaat' | 'featured'>('recent');
+  const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null);
 
-  const loadCases = () => {
-    // In de toekomst wordt dit een API call
-    setCases([...mockCases]);
+  const loadCases = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${baseUrl}/api/cases`);
+      if (response.ok) {
+        const data = await response.json();
+        setCases(data);
+      }
+    } catch (error) {
+      console.error('Fout bij laden cases:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    loadCases();
+  }, []);
 
   // Verzamel alle unieke industrieën en types
   const allIndustries = Array.from(
-    new Set(cases.map(c => c.industrie))
+    new Set(cases.map(c => c.industrie).filter(Boolean))
   ).sort();
 
   const allTypes = Array.from(
-    new Set(cases.map(c => c.type))
+    new Set(cases.map(c => c.type).filter(Boolean))
   ).sort();
 
   // Filter en sorteer cases
@@ -43,7 +64,7 @@ export function CasesPage() {
         caseItem.titel.toLowerCase().includes(searchQuery.toLowerCase()) ||
         caseItem.klant.toLowerCase().includes(searchQuery.toLowerCase()) ||
         caseItem.uitdaging.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        caseItem.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        (caseItem.tags || []).some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
       const matchesIndustrie = selectedIndustrie === 'alle' || caseItem.industrie === selectedIndustrie;
 
@@ -66,6 +87,16 @@ export function CasesPage() {
   const hasActiveFilters = 
     searchQuery !== '' || 
     selectedIndustrie !== 'alle';
+
+  // Show detail view if case is selected
+  if (selectedCaseId !== null) {
+    return (
+      <CaseDetail 
+        caseId={selectedCaseId} 
+        onBack={() => setSelectedCaseId(null)} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -200,8 +231,15 @@ export function CasesPage() {
         </h2>
       </div>
 
-      {/* Cases Grid */}
-      {filteredCases.length === 0 ? (
+      {/* Loading State */}
+      {loading ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-[#280bc4]" />
+            <p className="text-gray-600">Cases laden...</p>
+          </CardContent>
+        </Card>
+      ) : filteredCases.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-gray-600 text-lg">
@@ -209,111 +247,88 @@ export function CasesPage() {
             </p>
             <Button 
               onClick={resetFilters}
-              className="mt-4 bg-[#280bc4] hover:bg-[#280bc4]/90"
+              className="mt-4 bg-[#280bc4] hover:bg-[#280bc4]/90 text-white"
             >
               Reset filters
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCases.map((caseItem) => (
             <Card 
               key={caseItem.id} 
-              className="hover:shadow-xl transition-all cursor-pointer group border-2 hover:border-[#280bc4]"
+              className="hover:shadow-xl transition-all cursor-pointer group border-2 hover:border-[#280bc4] flex flex-col"
+              onClick={() => setSelectedCaseId(caseItem.id)}
             >
-              <CardHeader>
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      {caseItem.featured && (
-                        <Badge className="bg-[#7ef769] text-black">
-                          <Award className="w-3 h-3 mr-1" />
-                          Featured
-                        </Badge>
-                      )}
-                      <Badge variant="outline" className="font-medium">
-                        {caseItem.industrie}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-2xl group-hover:text-[#280bc4] transition-colors mb-2">
-                      {caseItem.titel}
-                    </CardTitle>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Building2 className="w-4 h-4" />
-                      <span className="font-medium">{caseItem.klant}</span>
-                    </div>
-                  </div>
+              <CardHeader className="pb-3">
+                <div className="flex flex-wrap items-start gap-2 mb-2">
+                  {caseItem.featured && (
+                    <Badge className="bg-[#7ef769] text-black text-xs">
+                      <Award className="w-3 h-3 mr-1" />
+                      Featured
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="text-xs">
+                    {caseItem.industrie}
+                  </Badge>
+                </div>
+                <CardTitle className="text-lg group-hover:text-[#280bc4] transition-colors line-clamp-2">
+                  {caseItem.titel}
+                </CardTitle>
+                <div className="flex items-center gap-2 text-gray-600 text-sm pt-1">
+                  <Building2 className="w-3 h-3" />
+                  <span className="font-medium">{caseItem.klant}</span>
                 </div>
               </CardHeader>
               
-              <CardContent className="space-y-6">
-                {/* Challenge & Solution in two columns */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Challenge */}
-                  <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-[#280bc4]">
-                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <Target className="w-4 h-4 text-[#280bc4]" />
-                      Uitdaging
-                    </h4>
-                    <p className="text-gray-700 text-sm leading-relaxed">
-                      {caseItem.uitdaging}
-                    </p>
-                  </div>
+              <CardContent className="space-y-3 flex-1 flex flex-col">
+                {/* Brief Description */}
+                <p className="text-sm text-gray-600 line-clamp-3 flex-1">
+                  {caseItem.uitdaging}
+                </p>
 
-                  {/* Solution */}
-                  <div className="bg-gradient-to-br from-[#280bc4]/5 to-[#7ef769]/5 rounded-lg p-4 border-l-4 border-[#7ef769]">
-                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-[#7ef769]" />
-                      Oplossing
-                    </h4>
-                    <p className="text-gray-700 text-sm leading-relaxed">
-                      {caseItem.oplossing}
-                    </p>
+                {/* Key Result Highlight */}
+                {caseItem.resultaten && caseItem.resultaten.length > 0 && (
+                  <div className="bg-gradient-to-r from-[#280bc4]/10 to-[#7ef769]/10 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <TrendingUp className="w-4 h-4 text-[#280bc4] mt-0.5 flex-shrink-0" />
+                      <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                        {caseItem.resultaten[0]}
+                      </p>
+                    </div>
                   </div>
+                )}
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1.5 pt-2">
+                  {(caseItem.tags || []).slice(0, 3).map((tag: string) => (
+                    <Badge 
+                      key={tag} 
+                      variant="secondary" 
+                      className="text-xs"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                  {caseItem.tags && caseItem.tags.length > 3 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{caseItem.tags.length - 3}
+                    </Badge>
+                  )}
                 </div>
 
-                {/* Results */}
-                <div className="bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 rounded-lg p-6 text-white">
-                  <h4 className="font-semibold mb-4 text-lg flex items-center gap-2">
-                    <Award className="w-5 h-5 text-[#7ef769]" />
-                    Resultaten
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {caseItem.resultaten.map((resultaat, idx) => (
-                      <div 
-                        key={idx} 
-                        className="flex items-start gap-3 bg-white/10 backdrop-blur-sm rounded-lg p-3"
-                      >
-                        <div className="bg-[#7ef769] rounded-full p-1 mt-0.5">
-                          <TrendingUp className="w-4 h-4 text-black" />
-                        </div>
-                        <p className="text-sm font-medium">{resultaat}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tags & CTA */}
-                <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t">
-                  <div className="flex flex-wrap gap-2">
-                    {caseItem.tags.map((tag) => (
-                      <Badge 
-                        key={tag} 
-                        variant="secondary" 
-                        className="text-xs"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <Button 
-                    className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90 font-semibold"
-                  >
-                    Lees volledige case
-                    <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
-                </div>
+                {/* CTA */}
+                <Button 
+                  className="w-full bg-[#280bc4] text-white hover:bg-[#280bc4]/90 font-medium text-sm mt-auto"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedCaseId(caseItem.id);
+                  }}
+                >
+                  Bekijk details
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -322,6 +337,14 @@ export function CasesPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

@@ -15,7 +15,7 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
     resultaten: dbRecord.resultaten ? JSON.parse(dbRecord.resultaten) : [],
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
     eigenaar: dbRecord.eigenaar,
-    datum: dbRecord.datum,
+    datum: dbRecord.datum_toegevoegd,
     imageUrl: dbRecord.image_url || undefined,
     featured: dbRecord.featured || false,
   };
@@ -25,7 +25,7 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
 export const GET: APIRoute = async () => {
   try {
     const dbPool = await getPool();
-    const result = await dbPool.request().query('SELECT * FROM Cases ORDER BY datum DESC');
+    const result = await dbPool.request().query('SELECT * FROM Cases ORDER BY datum_toegevoegd DESC');
     
     // Map database records to TypeScript types
     const cases = result.recordset.map(mapDbToCaseStudy);
@@ -77,6 +77,7 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create case');
   }
 };
+
 
 
 

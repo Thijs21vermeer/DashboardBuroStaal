@@ -1,7 +1,11 @@
+
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Calendar, User, Tag, ArrowRight, BookOpen, RefreshCw } from 'lucide-react';
-import { mockKennisItems, kennisCategorieen, typeMedia } from '../../data/mockData';
+import { kennisCategorieen, typeMedia } from '../../data/mockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -13,23 +17,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { baseUrl } from '../../lib/base-url';
+import { KennisItemDetail } from './KennisItemDetail';
 
 export function KennisbankPage() {
-  const [items, setItems] = useState(mockKennisItems);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategorie, setSelectedCategorie] = useState<string>('alle');
   const [selectedType, setSelectedType] = useState<string>('alle');
   const [selectedTag, setSelectedTag] = useState<string>('alle');
   const [sortBy, setSortBy] = useState<'recent' | 'populair' | 'titel'>('recent');
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
-  const loadItems = () => {
-    // In de toekomst wordt dit een API call
-    setItems([...mockKennisItems]);
+  const loadItems = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${baseUrl}/api/kennisitems`);
+      if (response.ok) {
+        const data = await response.json();
+        setItems(data);
+      }
+    } catch (error) {
+      console.error('Fout bij laden kennisitems:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    loadItems();
+  }, []);
 
   // Verzamel alle unieke tags
   const allTags = Array.from(
-    new Set(items.flatMap(item => item.tags))
+    new Set(items.flatMap(item => item.tags || []))
   ).sort();
 
   // Filter en sorteer items
@@ -69,6 +91,16 @@ export function KennisbankPage() {
     selectedCategorie !== 'alle' || 
     selectedType !== 'alle' || 
     selectedTag !== 'alle';
+
+  // Show detail view if item is selected
+  if (selectedItemId !== null) {
+    return (
+      <KennisItemDetail 
+        itemId={selectedItemId} 
+        onBack={() => setSelectedItemId(null)} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -213,8 +245,15 @@ export function KennisbankPage() {
         </h2>
       </div>
 
-      {/* Content Grid */}
-      {filteredItems.length === 0 ? (
+      {/* Loading State */}
+      {loading ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-[#280bc4]" />
+            <p className="text-gray-600">Kennisitems laden...</p>
+          </CardContent>
+        </Card>
+      ) : filteredItems.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-gray-600 text-lg">
@@ -222,7 +261,7 @@ export function KennisbankPage() {
             </p>
             <Button 
               onClick={resetFilters}
-              className="mt-4 bg-[#280bc4] hover:bg-[#280bc4]/90"
+              className="mt-4 bg-[#280bc4] hover:bg-[#280bc4]/90 text-white"
             >
               Reset filters
             </Button>
@@ -234,6 +273,7 @@ export function KennisbankPage() {
             <Card 
               key={item.id} 
               className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-[#280bc4]"
+              onClick={() => setSelectedItemId(item.id)}
             >
               <CardHeader>
                 <div className="flex items-start justify-between mb-3">
@@ -297,7 +337,11 @@ export function KennisbankPage() {
 
                 {/* Read More Button */}
                 <Button 
-                  className="w-full bg-[#280bc4] hover:bg-[#280bc4]/90 group-hover:bg-[#7ef769] group-hover:text-black transition-colors"
+                  className="w-full bg-[#280bc4] hover:bg-[#280bc4]/90 text-white group-hover:bg-[#7ef769] group-hover:text-black transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedItemId(item.id);
+                  }}
                 >
                   Lees meer
                   <ArrowRight className="ml-2 w-4 h-4" />
@@ -310,6 +354,13 @@ export function KennisbankPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

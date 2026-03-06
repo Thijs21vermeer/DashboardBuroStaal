@@ -1,7 +1,10 @@
+
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { TrendingUp, Search, Calendar, AlertCircle, ArrowRight, BarChart3, Target, RefreshCw, Lightbulb, Filter, CheckCircle, ExternalLink } from 'lucide-react';
-import { mockTrends } from '../../data/mockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -12,22 +15,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { baseUrl } from '../../lib/base-url';
+import { TrendDetail } from './TrendDetail';
 
 export function TrendsPage() {
-  const [trends, setTrends] = useState(mockTrends);
+  const [trends, setTrends] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategorie, setSelectedCategorie] = useState<string>('alle');
   const [selectedRelevantie, setSelectedRelevantie] = useState<string>('alle');
   const [sortBy, setSortBy] = useState<'recent' | 'relevantie' | 'titel'>('recent');
+  const [selectedTrendId, setSelectedTrendId] = useState<number | null>(null);
 
-  const loadTrends = () => {
-    // In de toekomst wordt dit een API call
-    setTrends([...mockTrends]);
+  const loadTrends = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${baseUrl}/api/trends`);
+      if (response.ok) {
+        const data = await response.json();
+        setTrends(data);
+      }
+    } catch (error) {
+      console.error('Fout bij laden trends:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    loadTrends();
+  }, []);
 
   // Verzamel alle unieke categorieën
   const allCategories = Array.from(
-    new Set(trends.map(t => t.categorie))
+    new Set(trends.map(t => t.categorie).filter(Boolean))
   ).sort();
 
   // Filter en sorteer trends
@@ -85,6 +106,16 @@ export function TrendsPage() {
   };
 
   const hoogRelevantieTrends = trends.filter(t => t.relevantie === 'Hoog').length;
+
+  // Show detail view if trend is selected
+  if (selectedTrendId !== null) {
+    return (
+      <TrendDetail 
+        trendId={selectedTrendId} 
+        onBack={() => setSelectedTrendId(null)} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -224,8 +255,15 @@ export function TrendsPage() {
         </h2>
       </div>
 
-      {/* Trends Grid */}
-      {filteredTrends.length === 0 ? (
+      {/* Loading State */}
+      {loading ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-[#280bc4]" />
+            <p className="text-gray-600">Trends laden...</p>
+          </CardContent>
+        </Card>
+      ) : filteredTrends.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-gray-600 text-lg">
@@ -233,95 +271,102 @@ export function TrendsPage() {
             </p>
             <Button 
               onClick={resetFilters}
-              className="mt-4 bg-[#280bc4] hover:bg-[#280bc4]/90"
+              className="mt-4 bg-[#280bc4] hover:bg-[#280bc4]/90 text-white"
             >
               Reset filters
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTrends.map((trend) => (
             <Card 
               key={trend.id} 
-              className="hover:shadow-xl transition-all border-2 hover:border-[#280bc4]"
+              className="hover:shadow-xl transition-all border-2 hover:border-[#280bc4] cursor-pointer group flex flex-col"
+              onClick={() => setSelectedTrendId(trend.id)}
             >
-              <CardHeader>
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Badge className="bg-[#280bc4] text-white">
-                        {trend.categorie}
-                      </Badge>
-                      <Badge 
-                        variant="outline" 
-                        className={`font-medium border ${getRelevantieColor(trend.relevantie)}`}
-                      >
-                        <span className="flex items-center gap-1">
-                          {getRelevantieIcon(trend.relevantie)}
-                          {trend.relevantie} Relevantie
-                        </span>
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-2xl mb-2 flex items-center gap-2">
-                      <TrendingUp className="w-6 h-6 text-[#280bc4]" />
-                      {trend.titel}
-                    </CardTitle>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        Toegevoegd op {new Date(trend.datumToegevoegd || trend.datum).toLocaleDateString('nl-NL', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                  </div>
+              <CardHeader className="pb-3">
+                <div className="flex flex-wrap items-start gap-2 mb-2">
+                  <Badge className="bg-[#280bc4] text-white text-xs">
+                    {trend.categorie}
+                  </Badge>
+                  <Badge 
+                    variant="outline" 
+                    className={`text-xs font-medium border ${getRelevantieColor(trend.relevantie)}`}
+                  >
+                    <span className="flex items-center gap-1">
+                      {getRelevantieIcon(trend.relevantie)}
+                      {trend.relevantie}
+                    </span>
+                  </Badge>
+                </div>
+                <CardTitle className="text-lg group-hover:text-[#280bc4] transition-colors line-clamp-2 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-[#280bc4] flex-shrink-0" />
+                  <span className="line-clamp-2">{trend.titel}</span>
+                </CardTitle>
+                <div className="flex items-center gap-2 text-xs text-gray-600 pt-1">
+                  <Calendar className="w-3 h-3" />
+                  <span>
+                    {new Date(trend.datumToegevoegd || trend.datum).toLocaleDateString('nl-NL', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </span>
                 </div>
               </CardHeader>
               
-              <CardContent className="space-y-6">
-                {/* Description */}
-                <div className="bg-gray-50 rounded-lg p-5 border-l-4 border-[#280bc4]">
-                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-[#280bc4]" />
-                    Wat gebeurt er?
-                  </h4>
-                  <p className="text-gray-700 leading-relaxed">
+              <CardContent className="space-y-3 flex-1 flex flex-col">
+                {/* Brief Description */}
+                <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-[#280bc4] flex-1">
+                  <p className="text-sm text-gray-700 line-clamp-3 leading-relaxed">
                     {trend.beschrijving}
                   </p>
                 </div>
 
-                {/* Impact */}
-                <div className="bg-gradient-to-br from-[#7ef769]/10 to-[#7ef769]/5 rounded-lg p-5 border-l-4 border-[#7ef769]">
-                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-[#7ef769]" />
-                    Impact & Betekenis
-                  </h4>
-                  <p className="text-gray-700 leading-relaxed">
-                    {trend.impact}
-                  </p>
-                </div>
+                {/* Key Impact Highlight */}
+                {trend.impact && (
+                  <div className="bg-gradient-to-br from-[#7ef769]/10 to-[#7ef769]/5 rounded-lg p-3 border-l-4 border-[#7ef769]">
+                    <div className="flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-[#7ef769] mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed">
+                        {trend.impact}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Sources */}
-                <div className="pt-4 border-t">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <ExternalLink className="w-4 h-4" />
-                    Bronnen
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {trend.bronnen.map((bron, idx) => (
+                {trend.bronnen && trend.bronnen.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {trend.bronnen.slice(0, 2).map((bron, idx) => (
                       <Badge 
                         key={idx} 
                         variant="secondary"
-                        className="cursor-pointer hover:bg-gray-300"
+                        className="text-xs"
                       >
                         {bron}
                       </Badge>
                     ))}
+                    {trend.bronnen.length > 2 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{trend.bronnen.length - 2}
+                      </Badge>
+                    )}
                   </div>
-                </div>
+                )}
+
+                {/* CTA Button */}
+                <Button 
+                  className="w-full bg-[#280bc4] hover:bg-[#280bc4]/90 text-white font-medium text-sm mt-auto"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedTrendId(trend.id);
+                  }}
+                >
+                  Lees meer
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -330,6 +375,13 @@ export function TrendsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

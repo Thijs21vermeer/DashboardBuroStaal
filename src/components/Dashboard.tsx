@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './dashboard/Sidebar';
 import { Overview } from './kennisbank/Overview';
 import { KennisbankPage } from './kennisbank/KennisbankPage';
@@ -23,16 +23,38 @@ export default function Dashboard({ children }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check localStorage bij mount
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('burostaal_authenticated');
+    if (loggedIn === 'true') {
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
+  }, []);
 
   const handleLogin = (password: string) => {
     // Simpele authenticatie - in productie zou dit via een API gaan
     if (password === 'BurostaalDB') {
       setIsAuthenticated(true);
+      localStorage.setItem('burostaal_authenticated', 'true');
       setLoginError('');
     } else {
       setLoginError('Ongeldig wachtwoord');
     }
   };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('burostaal_authenticated');
+    setCurrentPage('overzicht');
+  };
+
+  // Toon niets tijdens het laden
+  if (isLoading) {
+    return null;
+  }
 
   // Toon login scherm als niet ingelogd
   if (!isAuthenticated) {
@@ -66,6 +88,7 @@ export default function Dashboard({ children }: Props) {
         setCurrentPage={setCurrentPage}
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
+        onLogout={handleLogout}
       />
 
       {/* Main Content */}
@@ -77,6 +100,8 @@ export default function Dashboard({ children }: Props) {
     </div>
   );
 }
+
+
 
 
 

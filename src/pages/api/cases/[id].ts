@@ -15,7 +15,7 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
     resultaten: dbRecord.resultaten ? JSON.parse(dbRecord.resultaten) : [],
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
     eigenaar: dbRecord.eigenaar,
-    datum: dbRecord.datum,
+    datum: dbRecord.datum_toegevoegd,
     imageUrl: dbRecord.image_url || undefined,
     featured: dbRecord.featured || false,
   };
@@ -142,6 +142,7 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete case');
   }
 };
+
 
 
 

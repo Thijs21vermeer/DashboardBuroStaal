@@ -12,7 +12,7 @@ function mapDbToTrend(dbRecord: any): Trend {
     beschrijving: dbRecord.beschrijving,
     relevantie: dbRecord.relevantie as 'Hoog' | 'Middel' | 'Laag',
     bronnen: dbRecord.bronnen ? JSON.parse(dbRecord.bronnen) : [],
-    datum: dbRecord.datum,
+    datum: dbRecord.datum_toegevoegd,
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
     impact: dbRecord.impact || '',
   };
@@ -131,6 +131,7 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete trend');
   }
 };
+
 
 
 
