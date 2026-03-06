@@ -49,7 +49,7 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-black to-[#280bc4] text-white">
-        <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="max-w-[1100px] mx-auto px-6 py-16">
           <Button
             onClick={() => window.location.href = `${baseUrl}/`}
             className="mb-6 bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold"
@@ -69,7 +69,7 @@ export default function AdminPanel() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-[1100px] mx-auto px-6 py-8">
         <Tabs defaultValue="kennisitems" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="kennisitems">
@@ -110,6 +110,7 @@ export default function AdminPanel() {
     </div>
   );
 }
+
 
 
 

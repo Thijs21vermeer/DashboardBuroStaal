@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Newspaper, Tag } from 'lucide-react';
@@ -199,7 +200,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {news.tags.map((tag: string) => (
+              {(Array.isArray(news.tags) ? news.tags : []).map((tag: string) => (
                 <Badge 
                   key={tag} 
                   variant="secondary"
@@ -228,3 +229,4 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
     </div>
   );
 }
+

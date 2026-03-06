@@ -23,6 +23,7 @@ export default function NewsManager() {
     inhoud: '',
     auteur: '',
     tags: '',
+    belangrijk: 'false',
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
@@ -54,33 +55,6 @@ export default function NewsManager() {
     } catch (error) {
       console.error('Error loading items:', error);
       setItems(mockNews);
-      setConnectionStatus('error');
-    }
-  };
-
-  const loadNews = async () => {
-    try {
-      const baseUrl = getBaseUrl();
-      const response = await fetch(`${baseUrl}/api/nieuws`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API request failed:', response.status, errorText);
-        setNewsItems(mockNews);
-        setConnectionStatus('error');
-        return;
-      }
-      
-      const data = await response.json() as NewsItem[];
-      setNewsItems(data);
-      setConnectionStatus('connected');
-      
-      if (data.length === 0) {
-        console.log('Database is empty - ready to add news');
-      }
-    } catch (error) {
-      console.error('Error loading news:', error);
-      setNewsItems(mockNews);
       setConnectionStatus('error');
     }
   };
@@ -143,12 +117,19 @@ export default function NewsManager() {
 
   const handleEdit = (item: NewsItem) => {
     setEditingItem(item);
+    const tagsString = Array.isArray(item.tags) 
+      ? item.tags.join(', ') 
+      : typeof item.tags === 'string' 
+        ? item.tags 
+        : '';
+    
     setFormData({
       titel: item.titel,
       categorie: item.categorie,
       inhoud: item.inhoud,
       auteur: item.auteur || '',
-      tags: item.tags?.join(', ') || '',
+      tags: tagsString,
+      belangrijk: item.belangrijk ? 'true' : 'false',
     });
     setIsDialogOpen(true);
   };
@@ -174,6 +155,7 @@ export default function NewsManager() {
       inhoud: '',
       auteur: '',
       tags: '',
+      belangrijk: 'false',
     });
   };
 
@@ -355,7 +337,7 @@ export default function NewsManager() {
               <p className="text-sm text-gray-600 whitespace-pre-wrap">{item.inhoud}</p>
               {item.tags && item.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-3">
-                  {item.tags.map((tag) => (
+                  {(Array.isArray(item.tags) ? item.tags : []).map((tag) => (
                     <span key={tag} className="text-xs px-2 py-1 bg-gray-100 rounded">
                       {tag}
                     </span>
@@ -369,6 +351,11 @@ export default function NewsManager() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

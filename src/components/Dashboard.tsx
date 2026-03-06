@@ -93,13 +93,18 @@ export default function Dashboard({ children }: Props) {
 
       {/* Main Content */}
       <div className="flex-1 transition-all duration-300">
-        <main className="max-w-[1600px] mx-auto px-6 py-8">
+        <main className="max-w-[1100px] mx-auto px-6 py-8">
           {renderContent()}
         </main>
       </div>
     </div>
   );
 }
+
+
+
+
+
 
 
 

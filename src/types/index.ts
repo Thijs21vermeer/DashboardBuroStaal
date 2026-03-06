@@ -3,6 +3,7 @@
 
 
 
+
 // Centrale type definities voor de hele applicatie
 
 export interface KennisItem {
@@ -61,6 +62,7 @@ export interface NewsItem {
   auteur: string;
   datum: string;
   tags: string[];
+  belangrijk?: boolean;
 }
 
 export interface TeamMember {
@@ -123,6 +125,7 @@ export interface AgendaItem {
 
 // Dashboard page types
 export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
+
 
 
 

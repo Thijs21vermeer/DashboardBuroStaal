@@ -5,6 +5,21 @@ import type { NewsItem } from '../../../types';
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToNewsItem(dbRecord: any): NewsItem {
+  let tags: string[] = [];
+  
+  if (dbRecord.tags) {
+    try {
+      // Probeer te parsen als JSON
+      const parsed = JSON.parse(dbRecord.tags);
+      tags = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      // Als het geen JSON is, splits de string op komma's
+      if (typeof dbRecord.tags === 'string') {
+        tags = dbRecord.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag);
+      }
+    }
+  }
+  
   return {
     id: String(dbRecord.id),
     titel: dbRecord.titel,
@@ -12,7 +27,7 @@ function mapDbToNewsItem(dbRecord: any): NewsItem {
     inhoud: dbRecord.inhoud,
     auteur: dbRecord.auteur,
     datum: dbRecord.datum,
-    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    tags,
   };
 }
 
@@ -66,6 +81,7 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create nieuws');
   }
 };
+
 
 
 
