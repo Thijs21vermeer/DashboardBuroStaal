@@ -13,6 +13,7 @@ import { RolesOwnership } from './dashboard/RolesOwnership';
 import { KnowledgeHub } from './dashboard/KnowledgeHub';
 import type { PageType } from '../types';
 import { LoginForm } from './auth/LoginForm';
+import KennisKoenWidget from './KennisKoenWidget';
 
 interface Props {
   children: React.ReactNode;
@@ -92,14 +93,24 @@ export default function Dashboard({ children }: Props) {
       />
 
       {/* Main Content */}
-      <div className="flex-1 transition-all duration-300">
-        <main className="max-w-[1100px] mx-auto px-6 py-8">
+      <div className="flex-1 overflow-auto">
+        <div className="container mx-auto px-8 sm:px-12 lg:px-16 xl:px-24 2xl:px-32 py-6 max-w-[1400px] xl:max-w-[1300px] 2xl:max-w-[1400px]">
           {renderContent()}
-        </main>
+        </div>
       </div>
+      
+      {/* Kennis Koen Widget - Floating AI Assistant (not on admin page) */}
+      {currentPage !== 'admin' && <KennisKoenWidget />}
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 
