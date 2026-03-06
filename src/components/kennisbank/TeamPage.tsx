@@ -1,20 +1,66 @@
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Users, Mail, Star, Award, Briefcase, ExternalLink, Phone, Globe } from 'lucide-react';
-import { mockTeamMembers, mockExternePartners } from '../../data/mockData';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
+import { baseUrl } from '../../lib/base-url';
+import type { TeamMember, ExternePartner } from '../../types';
 
 export function TeamPage() {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [partners, setPartners] = useState<ExternePartner[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [teamRes, partnersRes] = await Promise.all([
+          fetch(`${baseUrl}/api/team`),
+          fetch(`${baseUrl}/api/partners`)
+        ]);
+
+        if (teamRes.ok) {
+          const teamData = await teamRes.json();
+          setTeamMembers(teamData);
+        }
+
+        if (partnersRes.ok) {
+          const partnersData = await partnersRes.json();
+          setPartners(partnersData);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
   // Groepeer team: eigenaresses eerst, dan anderen
-  const eigenaresses = mockTeamMembers.filter(member => 
-    member.rol.toLowerCase().includes('eigenaar')
+  const eigenaresses = useMemo(() => 
+    teamMembers.filter(member => member.isEigenaar),
+    [teamMembers]
   );
-  const teamleden = mockTeamMembers.filter(member => 
-    !member.rol.toLowerCase().includes('eigenaar')
+  
+  const teamleden = useMemo(() => 
+    teamMembers.filter(member => !member.isEigenaar),
+    [teamMembers]
   );
+
+  const alleExpertise = useMemo(() => 
+    Array.from(new Set(teamMembers.flatMap(m => m.expertiseGebieden))).sort(),
+    [teamMembers]
+  );
+
+  if (loading) {
+    return <div className="text-center py-8">Laden...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -35,7 +81,7 @@ export function TeamPage() {
               <Users className="w-5 h-5 text-[#7ef769]" />
               <span className="text-sm font-medium">Team Leden</span>
             </div>
-            <p className="text-3xl font-bold">{mockTeamMembers.length}</p>
+            <p className="text-3xl font-bold">{teamMembers.length}</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
             <div className="flex items-center gap-2 mb-1">
@@ -43,7 +89,7 @@ export function TeamPage() {
               <span className="text-sm font-medium">Expertisegebieden</span>
             </div>
             <p className="text-3xl font-bold">
-              {Array.from(new Set(mockTeamMembers.flatMap(m => m.expertiseGebieden))).length}
+              {alleExpertise.length}
             </p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
@@ -51,7 +97,7 @@ export function TeamPage() {
               <Briefcase className="w-5 h-5 text-[#7ef769]" />
               <span className="text-sm font-medium">Disciplines</span>
             </div>
-            <p className="text-3xl font-bold">5</p>
+            <p className="text-3xl font-bold">{Array.from(new Set(teamMembers.map(m => m.rol))).length}</p>
           </div>
         </div>
       </div>
@@ -207,9 +253,7 @@ export function TeamPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {Array.from(new Set(mockTeamMembers.flatMap(m => m.expertiseGebieden)))
-              .sort()
-              .map((expertise) => (
+            {alleExpertise.map((expertise) => (
                 <Badge 
                   key={expertise}
                   className="bg-[#280bc4] text-white hover:bg-[#280bc4]/90 cursor-default"
@@ -232,7 +276,7 @@ export function TeamPage() {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockExternePartners.map((partner) => (
+          {partners.map((partner) => (
             <Card 
               key={partner.id} 
               className="hover:shadow-xl transition-all border-2 hover:border-[#280bc4]/50"
@@ -320,6 +364,9 @@ export function TeamPage() {
     </div>
   );
 }
+
+
+
 
 
 

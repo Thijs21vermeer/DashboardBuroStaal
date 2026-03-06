@@ -1,0 +1,45 @@
+-- Team Members Table
+CREATE TABLE team_members (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    naam NVARCHAR(100) NOT NULL,
+    rol NVARCHAR(100) NOT NULL,
+    email NVARCHAR(255) NOT NULL,
+    bio NVARCHAR(MAX),
+    expertise_gebieden NVARCHAR(MAX), -- JSON array as string
+    is_eigenaar BIT DEFAULT 0,
+    volgorde INT DEFAULT 0,
+    created_at DATETIME2 DEFAULT GETDATE(),
+    updated_at DATETIME2 DEFAULT GETDATE()
+);
+
+-- Externe Partners Table
+CREATE TABLE externe_partners (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    naam NVARCHAR(100) NOT NULL,
+    bedrijf NVARCHAR(200),
+    specialisatie NVARCHAR(200) NOT NULL,
+    email NVARCHAR(255) NOT NULL,
+    telefoon NVARCHAR(50),
+    website NVARCHAR(255),
+    beschrijving NVARCHAR(MAX),
+    expertise_gebieden NVARCHAR(MAX), -- JSON array as string
+    volgorde INT DEFAULT 0,
+    created_at DATETIME2 DEFAULT GETDATE(),
+    updated_at DATETIME2 DEFAULT GETDATE()
+);
+
+-- Seed Team Members
+INSERT INTO team_members (naam, rol, email, bio, expertise_gebieden, is_eigenaar, volgorde) VALUES
+('Rosanne', 'Eigenaar & Strategisch/Marketing', 'rosanne@burostaal.nl', 'Rosanne is medeoprichter van Buro Staal en leidt de strategische richting en marketing van het bedrijf. Met jaren ervaring in digitale marketing helpt zij bedrijven hun online aanwezigheid te versterken.', '["Strategie", "Marketing", "Business Development", "Klantrelaties"]', 1, 1),
+('Annemieke', 'Eigenaar & Financieel Beheer', 'annemieke@burostaal.nl', 'Annemieke is medeoprichter van Buro Staal en zorgt voor het financiële beheer en de bedrijfsvoering. Haar focus ligt op duurzame groei en efficiënte processen.', '["Financiën", "Bedrijfsvoering", "Procesoptimalisatie", "HR"]', 1, 2),
+('Kevin', 'Design Lead', 'kevin@burostaal.nl', 'Kevin leidt het designteam en zorgt voor visueel aantrekkelijke websites en applicaties die gebruiksvriendelijk en on-brand zijn.', '["UX/UI Design", "Webdesign", "Branding", "Grafisch ontwerp"]', 0, 3),
+('Rick', 'Lead Developer', 'rick@burostaal.nl', 'Rick is onze lead developer en bouwt robuuste webapplicaties met moderne technologieën. Hij zorgt voor technische excellentie in elk project.', '["Full-stack Development", "React", "Node.js", "API Development"]', 0, 4),
+('Coen', 'Support & Tech', 'coen@burostaal.nl', 'Coen ondersteunt onze klanten met technische vragen en zorgt ervoor dat alle systemen soepel blijven draaien.', '["Technical Support", "DevOps", "Onderhoud", "Troubleshooting"]', 0, 5);
+
+-- Seed Externe Partners
+INSERT INTO externe_partners (naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertise_gebieden, volgorde) VALUES
+('Jan de Vries', 'ContentPro', 'Copywriting & SEO Content', 'jan@contentpro.nl', '06-12345678', 'contentpro.nl', 'Jan schrijft overtuigende SEO-geoptimaliseerde content die bezoekers converteert naar klanten.', '["SEO Copywriting", "Content Marketing", "Blog Writing"]', 1),
+('Sarah Johnson', 'Digital Boost', 'SEA & Google Ads', 'sarah@digitalboost.nl', '06-23456789', 'digitalboost.nl', 'Sarah is expert in Google Ads en zorgt voor effectieve advertentiecampagnes met hoge ROI.', '["Google Ads", "SEA", "PPC Campaigns", "Analytics"]', 2),
+('Mark Peters', 'Video Vision', 'Videoproductie', 'mark@videovision.nl', '06-34567890', 'videovision.nl', 'Mark produceert professionele bedrijfsvideo''s en promotiemateriaal die je merk naar een hoger niveau tillen.', '["Videoproductie", "Editing", "Motion Graphics"]', 3),
+('Lisa van der Berg', 'FotoFocus', 'Fotografie', 'lisa@fotofocus.nl', '06-45678901', 'fotofocus.nl', 'Lisa maakt hoogwaardige bedrijfsfoto''s en productfotografie voor websites en marketingmateriaal.', '["Bedrijfsfotografie", "Productfotografie", "Portretfotografie"]', 4),
+('Tom Bakker', 'Automation Pro', 'CRM & Marketing Automation', 'tom@automationpro.nl', '06-56789012', 'automationpro.nl', 'Tom implementeert CRM-systemen en marketing automation die bedrijfsprocessen stroomlijnen.', '["CRM", "Marketing Automation", "HubSpot", "ActiveCampaign"]', 5);

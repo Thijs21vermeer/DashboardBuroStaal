@@ -1,5 +1,6 @@
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Eye, ArrowRight, RefreshCw } from 'lucide-react';
@@ -95,7 +96,7 @@ export function Overview({ onNavigate }: OverviewProps) {
   }));
 
   // Recent nieuws (top 5)
-  const recentNews = news.slice(0, 5).map((item) => ({
+  const recentNews = news.slice(0, 3).map((item) => ({
     ...item,
     belangrijk: item.belangrijk || false,
     beschrijving: item.beschrijving || item.inhoud || '',
@@ -245,7 +246,7 @@ export function Overview({ onNavigate }: OverviewProps) {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Belangrijke Trends</CardTitle>
+              <CardTitle className="text-xl">Belangrijke Trends</CardTitle>
               <div className="flex items-center gap-1">
                 <Button 
                   variant="ghost" 
@@ -295,7 +296,7 @@ export function Overview({ onNavigate }: OverviewProps) {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Intern Nieuws</CardTitle>
+              <CardTitle className="text-xl">Intern Nieuws</CardTitle>
               <div className="flex items-center gap-1">
                 <Button 
                   variant="ghost" 
@@ -349,6 +350,7 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
 
 
 

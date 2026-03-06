@@ -3,7 +3,6 @@
 
 
 
-
 // Centrale type definities voor de hele applicatie
 
 export interface KennisItem {
@@ -66,22 +65,31 @@ export interface NewsItem {
 }
 
 export interface TeamMember {
-  id: string;
+  id: number;
   naam: string;
   rol: string;
-  specialisaties: string[];
-  specialisatie?: string;
-  bio: string;
   email: string;
-  avatar?: string;
-  linkedIn?: string;
-  isExternal?: boolean;
-  company?: string;
+  bio: string;
+  expertiseGebieden: string[];
+  isEigenaar: boolean;
+  volgorde: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ExternePartner {
+  id: number;
+  naam: string;
   bedrijf?: string;
+  specialisatie: string;
+  email: string;
   telefoon?: string;
   website?: string;
-  beschrijving?: string;
-  expertiseGebieden?: string[];
+  beschrijving: string;
+  expertiseGebieden: string[];
+  volgorde: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Priority {
@@ -125,6 +133,7 @@ export interface AgendaItem {
 
 // Dashboard page types
 export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
+
 
 
 
