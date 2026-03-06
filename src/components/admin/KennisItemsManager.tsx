@@ -38,21 +38,22 @@ export default function KennisItemsManager() {
       const response = await fetch(`${baseUrl}/api/kennisitems`);
       
       if (!response.ok) {
-        console.warn('API request failed, using mock data');
+        const errorText = await response.text();
+        console.error('API request failed:', response.status, errorText);
         setItems(mockKennisItems);
-        setConnectionStatus('mock');
+        setConnectionStatus('error');
         return;
       }
       
       const data = await response.json() as KennisItem[];
       
-      // Als de database leeg is, gebruik mock data
+      // Set items regardless of whether database is empty
+      setItems(data);
+      setConnectionStatus('connected');
+      
+      // If database is empty, log it but don't use mock data
       if (data.length === 0) {
-        setItems(mockKennisItems);
-        setConnectionStatus('mock');
-      } else {
-        setItems(data);
-        setConnectionStatus('connected');
+        console.log('Database is empty - ready to add items');
       }
     } catch (error) {
       console.error('Error loading items:', error);
@@ -70,30 +71,54 @@ export default function KennisItemsManager() {
     };
 
     try {
+      const baseUrl = getBaseUrl();
+      
       if (editingItem) {
         // Update existing item
-        const response = await fetch(`${getBaseUrl()}/api/kennisitems/${editingItem.id}`, {
+        const response = await fetch(`${baseUrl}/api/kennisitems/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(itemData),
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to update item:', response.status, errorText);
+          alert('Fout bij opslaan: ' + errorText);
+          return;
+        }
+        
         const updated = await response.json() as KennisItem;
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
+        alert('✅ Item succesvol bijgewerkt!');
       } else {
         // Create new item
-        const response = await fetch(`${getBaseUrl()}/api/kennisitems`, {
+        const response = await fetch(`${baseUrl}/api/kennisitems`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(itemData),
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to create item:', response.status, errorText);
+          alert('Fout bij toevoegen: ' + errorText);
+          return;
+        }
+        
         const newItem = await response.json() as KennisItem;
         setItems([newItem, ...items]);
+        alert('✅ Item succesvol toegevoegd!');
       }
       
       resetForm();
       setIsDialogOpen(false);
+      
+      // Update connection status to connected if successful
+      setConnectionStatus('connected');
     } catch (error) {
       console.error('Error saving item:', error);
+      alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
     }
   };
 
@@ -319,6 +344,7 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
 
 
 

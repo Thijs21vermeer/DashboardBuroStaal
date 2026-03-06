@@ -59,38 +59,87 @@ export default function TrendsManager() {
     }
   };
 
+  const loadTrends = async () => {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/trends`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API request failed:', response.status, errorText);
+        setItems(mockTrends);
+        setConnectionStatus('error');
+        return;
+      }
+      
+      const data = await response.json() as Trend[];
+      setItems(data);
+      setConnectionStatus('connected');
+      
+      if (data.length === 0) {
+        console.log('Database is empty - ready to add trends');
+      }
+    } catch (error) {
+      console.error('Error loading trends:', error);
+      setItems(mockTrends);
+      setConnectionStatus('error');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const trendData = {
       ...formData,
-      bronnen: formData.bronnen.split(',').map(t => t.trim()).filter(Boolean),
-      datumToegevoegd: new Date().toISOString().split('T')[0],
+      bronnen: formData.bronnen.split('\n').filter(Boolean),
+      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
     };
 
     try {
+      const baseUrl = getBaseUrl();
+      
       if (editingItem) {
-        const response = await fetch(`${getBaseUrl()}/api/trends/${editingItem.id}`, {
+        const response = await fetch(`${baseUrl}/api/trends/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(trendData),
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to update trend:', response.status, errorText);
+          alert('Fout bij opslaan: ' + errorText);
+          return;
+        }
+        
         const updated = await response.json() as Trend;
-        setItems(items.map(i => i.id === editingItem.id ? updated : i));
+        setItems(items.map(t => t.id === editingItem.id ? updated : t));
+        alert('✅ Trend succesvol bijgewerkt!');
       } else {
-        const response = await fetch(`${getBaseUrl()}/api/trends`, {
+        const response = await fetch(`${baseUrl}/api/trends`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(trendData),
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to create trend:', response.status, errorText);
+          alert('Fout bij toevoegen: ' + errorText);
+          return;
+        }
+        
         const newTrend = await response.json() as Trend;
         setItems([newTrend, ...items]);
+        alert('✅ Trend succesvol toegevoegd!');
       }
       
       resetForm();
       setIsDialogOpen(false);
+      setConnectionStatus('connected');
     } catch (error) {
       console.error('Error saving trend:', error);
+      alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
     }
   };
 
@@ -324,6 +373,7 @@ export default function TrendsManager() {
     </div>
   );
 }
+
 
 
 

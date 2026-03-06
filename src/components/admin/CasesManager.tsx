@@ -94,6 +94,7 @@ export default function CasesManager() {
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error saving case:', error);
+      alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
     }
   };
 
@@ -327,6 +328,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

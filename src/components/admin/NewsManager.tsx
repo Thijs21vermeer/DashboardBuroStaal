@@ -58,38 +58,86 @@ export default function NewsManager() {
     }
   };
 
+  const loadNews = async () => {
+    try {
+      const baseUrl = getBaseUrl();
+      const response = await fetch(`${baseUrl}/api/nieuws`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API request failed:', response.status, errorText);
+        setNewsItems(mockNews);
+        setConnectionStatus('error');
+        return;
+      }
+      
+      const data = await response.json() as NewsItem[];
+      setNewsItems(data);
+      setConnectionStatus('connected');
+      
+      if (data.length === 0) {
+        console.log('Database is empty - ready to add news');
+      }
+    } catch (error) {
+      console.error('Error loading news:', error);
+      setNewsItems(mockNews);
+      setConnectionStatus('error');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const newsData = {
       ...formData,
-      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
-      datum: new Date().toISOString().split('T')[0],
+      belangrijk: formData.belangrijk === 'true',
     };
 
     try {
+      const baseUrl = getBaseUrl();
+      
       if (editingItem) {
-        const response = await fetch(`${getBaseUrl()}/api/nieuws/${editingItem.id}`, {
+        const response = await fetch(`${baseUrl}/api/nieuws/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newsData),
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to update news:', response.status, errorText);
+          alert('Fout bij opslaan: ' + errorText);
+          return;
+        }
+        
         const updated = await response.json() as NewsItem;
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
+        alert('✅ Nieuwsitem succesvol bijgewerkt!');
       } else {
-        const response = await fetch(`${getBaseUrl()}/api/nieuws`, {
+        const response = await fetch(`${baseUrl}/api/nieuws`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newsData),
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to create news:', response.status, errorText);
+          alert('Fout bij toevoegen: ' + errorText);
+          return;
+        }
+        
         const newNews = await response.json() as NewsItem;
         setItems([newNews, ...items]);
+        alert('✅ Nieuwsitem succesvol toegevoegd!');
       }
       
       resetForm();
       setIsDialogOpen(false);
+      setConnectionStatus('connected');
     } catch (error) {
       console.error('Error saving news:', error);
+      alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
     }
   };
 
@@ -321,6 +369,7 @@ export default function NewsManager() {
     </div>
   );
 }
+
 
 
 

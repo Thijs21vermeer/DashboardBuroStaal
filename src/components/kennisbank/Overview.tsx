@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Eye, ArrowRight, RefreshCw } from 'lucide-react';
@@ -6,91 +5,73 @@ import { getBaseUrl } from '../../lib/base-url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { mockKennisItems, mockTrends, mockNews } from '../../data/mockData';
-
-const MOCK_STATS = {
-  aantalKennisitems: 42,
-  aantalCases: 15,
-  aantalTrends: 8,
-  totaalViews: 1284
-};
-
-const MOCK_FEATURED = [
-  {
-    id: '1',
-    titel: 'Optimalisatie van productieprocessen',
-    type: 'artikel',
-    samenvatting: 'Ontdek hoe moderne automatisering kan leiden tot 30% efficiëntieverbetering.',
-    tags: ['productie', 'automatisering', 'efficiency']
-  }
-];
-
-const MOCK_TRENDS = [
-  {
-    id: '1',
-    titel: 'AI in de maakindustrie',
-    categorie: 'technologie',
-    samenvatting: 'Kunstmatige intelligentie transformeert de manier waarop we produceren.',
-    relevantie: 95
-  }
-];
-
-const MOCK_NEWS = [
-  {
-    id: '1',
-    titel: 'Nieuw project gestart',
-    categorie: 'project',
-    datum: new Date().toISOString().split('T')[0],
-    auteur: 'Rosanne'
-  }
-];
 
 interface OverviewProps {
   onNavigate: (page: string) => void;
 }
 
 export function Overview({ onNavigate }: OverviewProps) {
-  const [stats, setStats] = useState(MOCK_STATS);
-  const [featured, setFeatured] = useState<any[]>(MOCK_FEATURED);
-  const [trends, setTrends] = useState<any[]>(MOCK_TRENDS);
-  const [news, setNews] = useState<any[]>(MOCK_NEWS);
+  const [stats, setStats] = useState({
+    aantalKennisitems: 0,
+    aantalCases: 0,
+    aantalTrends: 0,
+    totaalViews: 0
+  });
+  const [featured, setFeatured] = useState<any[]>([]);
+  const [trends, setTrends] = useState<any[]>([]);
+  const [news, setNews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
+    setLoading(true);
     try {
-      // Try to fetch real data, but fall back to mock data on error
+      const baseUrl = getBaseUrl();
+      
+      // Fetch all data in parallel
       const [kennisRes, casesRes, trendsRes, newsRes] = await Promise.all([
-        fetch(`${getBaseUrl()}/api/kennisitems`).catch(() => null),
-        fetch(`${getBaseUrl()}/api/cases`).catch(() => null),
-        fetch(`${getBaseUrl()}/api/trends`).catch(() => null),
-        fetch(`${getBaseUrl()}/api/nieuws`).catch(() => null),
+        fetch(`${baseUrl}/api/kennisitems`),
+        fetch(`${baseUrl}/api/cases`),
+        fetch(`${baseUrl}/api/trends`),
+        fetch(`${baseUrl}/api/nieuws`),
       ]);
 
-      if (kennisRes?.ok) {
+      // Process kennisitems
+      if (kennisRes.ok) {
         const kennisData = await kennisRes.json() as any[];
-        const casesData = casesRes?.ok ? await casesRes.json() as any[] : [];
-        const trendsData = trendsRes?.ok ? await trendsRes.json() as any[] : [];
+        setFeatured(kennisData.slice(0, 3));
         
+        // Calculate total views from all items
+        const totalViews = kennisData.reduce((sum, item) => sum + (item.views || 0), 0);
+        
+        // Get cases data
+        const casesData = casesRes.ok ? await casesRes.json() as any[] : [];
+        
+        // Get trends data
+        const trendsData = trendsRes.ok ? await trendsRes.json() as any[] : [];
+        setTrends(trendsData.slice(0, 3));
+        
+        // Update stats
         setStats({
           aantalKennisitems: kennisData.length,
           aantalCases: casesData.length,
           aantalTrends: trendsData.length,
-          totaalViews: 1284,
+          totaalViews: totalViews,
         });
-        
-        setFeatured(kennisData.slice(0, 3));
-        setTrends(trendsData.slice(0, 3));
       }
       
-      if (newsRes?.ok) {
+      // Process news
+      if (newsRes.ok) {
         const newsData = await newsRes.json() as any[];
         setNews(newsData.slice(0, 5));
       }
     } catch (error) {
-      // Keep mock data on error
+      console.error('Error loading overview data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -366,6 +347,7 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
 
 
 
