@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Sidebar } from './dashboard/Sidebar';
-import Overview from './kennisbank/Overview';
-import KennisbankPage from './kennisbank/KennisbankPage';
-import CasesPage from './kennisbank/CasesPage';
-import TrendsPage from './kennisbank/TrendsPage';
-import TeamPage from './kennisbank/TeamPage';
-import NewsPage from './kennisbank/NewsPage';
+import { Overview } from './kennisbank/Overview';
+import { KennisbankPage } from './kennisbank/KennisbankPage';
+import { CasesPage } from './kennisbank/CasesPage';
+import { TrendsPage } from './kennisbank/TrendsPage';
+import { TeamPage } from './kennisbank/TeamPage';
+import { NewsPage } from './kennisbank/NewsPage';
 import { AgendaPlanning } from './dashboard/AgendaPlanning';
 import { ActionsPriorities } from './dashboard/ActionsPriorities';
 import { ProjectProgress } from './dashboard/ProjectProgress';
@@ -21,6 +21,8 @@ interface Props {
 export default function Dashboard({ children }: Props) {
   const [currentPage, setCurrentPage] = useState<PageType>('overzicht');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
   const handleLogin = (password: string) => {
     // Simpele authenticatie - in productie zou dit via een API gaan
@@ -75,6 +77,9 @@ export default function Dashboard({ children }: Props) {
     </div>
   );
 }
+
+
+
 
 
 
