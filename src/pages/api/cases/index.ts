@@ -1,120 +1,94 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/azure-db';
-import type { CaseStudy } from '../../../types';
+import sql from 'mssql';
 
-interface CaseStudyInput {
-  titel: string;
-  klant: string;
-  industrie: string;
-  uitdaging: string;
-  oplossing: string;
-  resultaten: string[];
-  tags: string[];
-  eigenaar: string;
-  imageUrl?: string;
+const config: sql.config = {
+  server: 'dashboardbs.database.windows.net',
+  database: 'dashboarddb',
+  user: 'databasedashboard',
+  password: 'Knolpower05!',
+  options: {
+    encrypt: true,
+    trustServerCertificate: false,
+    connectTimeout: 30000,
+    requestTimeout: 30000,
+  }
+};
+
+let pool: sql.ConnectionPool | null = null;
+
+async function getPool() {
+  if (!pool) {
+    pool = await sql.connect(config);
+  }
+  return pool;
 }
 
+// GET - Haal alle cases op
 export const GET: APIRoute = async () => {
   try {
-    const pool = await getPool();
-    const result = await pool.request().query(`
-      SELECT 
-        CAST(id AS VARCHAR) as id,
-        titel,
-        klant,
-        industrie,
-        uitdaging,
-        oplossing,
-        resultaten,
-        tags,
-        eigenaar,
-        CONVERT(VARCHAR, datum_toegevoegd, 23) as datum,
-        image_url as imageUrl
-      FROM cases
-      ORDER BY datum_toegevoegd DESC
-    `);
-
-    const cases: CaseStudy[] = result.recordset.map((row: any) => ({
-      id: row.id,
-      titel: row.titel,
-      klant: row.klant,
-      industrie: row.industrie || '',
-      uitdaging: row.uitdaging || '',
-      oplossing: row.oplossing || '',
-      resultaten: row.resultaten ? JSON.parse(row.resultaten) : [],
-      tags: row.tags ? JSON.parse(row.tags) : [],
-      eigenaar: row.eigenaar || '',
-      datum: row.datum,
-      imageUrl: row.imageUrl,
+    const dbPool = await getPool();
+    const result = await dbPool.request().query('SELECT * FROM Cases ORDER BY datum_toegevoegd DESC');
+    
+    // Parse JSON fields
+    const cases = result.recordset.map(item => ({
+      ...item,
+      resultaten: item.resultaten ? JSON.parse(item.resultaten) : [],
+      tags: item.tags ? JSON.parse(item.tags) : [],
     }));
 
     return new Response(JSON.stringify(cases), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching cases:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to fetch cases' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
 
+// POST - Voeg een nieuwe case toe
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body: CaseStudyInput = await request.json();
-    const { titel, klant, industrie, uitdaging, oplossing, resultaten, tags, eigenaar, imageUrl } = body;
-
-    const pool = await getPool();
-    const result = await pool.request()
-      .input('titel', titel)
-      .input('klant', klant)
-      .input('industrie', industrie || '')
-      .input('uitdaging', uitdaging || '')
-      .input('oplossing', oplossing || '')
-      .input('resultaten', JSON.stringify(resultaten || []))
-      .input('tags', JSON.stringify(tags || []))
-      .input('eigenaar', eigenaar || '')
-      .input('project_duur', (body as any).project_duur || '')
-      .input('team_size', (body as any).team_size || '')
-      .input('featured', (body as any).featured ? 1 : 0)
-      .input('image_url', imageUrl || null)
+    const data = await request.json();
+    const dbPool = await getPool();
+    
+    const result = await dbPool.request()
+      .input('titel', sql.NVarChar, data.titel)
+      .input('klant', sql.NVarChar, data.klant)
+      .input('industrie', sql.NVarChar, data.industrie || null)
+      .input('uitdaging', sql.NVarChar(sql.MAX), data.uitdaging || null)
+      .input('oplossing', sql.NVarChar(sql.MAX), data.oplossing || null)
+      .input('resultaten', sql.NVarChar(sql.MAX), JSON.stringify(data.resultaten || []))
+      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
+      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
+      .input('project_duur', sql.NVarChar, data.projectDuur || null)
+      .input('team_size', sql.NVarChar, data.teamSize || null)
+      .input('image_url', sql.NVarChar, data.imageUrl || null)
       .query(`
-        INSERT INTO cases (titel, klant, industrie, uitdaging, oplossing, resultaten, tags, eigenaar, project_duur, team_size, featured, image_url)
-        OUTPUT CAST(INSERTED.id AS VARCHAR) as id, INSERTED.titel, INSERTED.klant, INSERTED.industrie, INSERTED.uitdaging,
-               INSERTED.oplossing, INSERTED.resultaten, INSERTED.tags, INSERTED.eigenaar,
-               CONVERT(VARCHAR, INSERTED.datum_toegevoegd, 23) as datum, INSERTED.image_url
-        VALUES (@titel, @klant, @industrie, @uitdaging, @oplossing, @resultaten, @tags, @eigenaar, @project_duur, @team_size, @featured, @image_url)
+        INSERT INTO Cases 
+        (titel, klant, industrie, uitdaging, oplossing, resultaten, tags, eigenaar, project_duur, team_size, datum_toegevoegd, laatst_bijgewerkt, featured, image_url)
+        OUTPUT INSERTED.*
+        VALUES 
+        (@titel, @klant, @industrie, @uitdaging, @oplossing, @resultaten, @tags, @eigenaar, @project_duur, @team_size, GETDATE(), GETDATE(), 0, @image_url)
       `);
 
-    const row = result.recordset[0];
-    const newCase: CaseStudy = {
-      id: String(row.id),
-      titel: row.titel,
-      klant: row.klant,
-      industrie: row.industrie,
-      uitdaging: row.uitdaging,
-      oplossing: row.oplossing,
-      resultaten: JSON.parse(row.resultaten),
-      tags: JSON.parse(row.tags),
-      eigenaar: row.eigenaar,
-      datum: row.datum,
-      imageUrl: row.image_url,
-    };
-
-    return new Response(JSON.stringify(newCase), {
+    const newCase = result.recordset[0];
+    return new Response(JSON.stringify({
+      ...newCase,
+      resultaten: JSON.parse(newCase.resultaten || '[]'),
+      tags: JSON.parse(newCase.tags || '[]')
+    }), {
       status: 201,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error creating case:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to create case' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
-
-
-

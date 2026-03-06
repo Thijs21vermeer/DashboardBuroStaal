@@ -1,162 +1,166 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/azure-db';
-import type { KennisItem } from '../../../types';
+import sql from 'mssql';
 
-interface KennisItemUpdate {
-  titel?: string;
-  type?: string;
-  tags?: string[];
-  gekoppeldProject?: string;
-  eigenaar?: string;
-  samenvatting?: string;
-  inhoud?: string;
+const config: sql.config = {
+  server: 'dashboardbs.database.windows.net',
+  database: 'dashboarddb',
+  user: 'databasedashboard',
+  password: 'Knolpower05!',
+  options: {
+    encrypt: true,
+    trustServerCertificate: false,
+    connectTimeout: 30000,
+    requestTimeout: 30000,
+  }
+};
+
+let pool: sql.ConnectionPool | null = null;
+
+async function getPool() {
+  if (!pool) {
+    pool = await sql.connect(config);
+  }
+  return pool;
 }
 
+// GET - Haal één kennisitem op
 export const GET: APIRoute = async ({ params }) => {
   try {
     const { id } = params;
-    const pool = await getPool();
-    
-    const result = await pool.request()
-      .input('id', id)
-      .query(`
-        SELECT 
-          CAST(id AS VARCHAR) as id,
-          titel,
-          type,
-          tags,
-          gekoppeld_project as gekoppeldProject,
-          eigenaar,
-          samenvatting,
-          inhoud,
-          CONVERT(VARCHAR, datum_toegevoegd, 23) as datumToegevoegd,
-          CONVERT(VARCHAR, laatst_bijgewerkt, 23) as laatstBijgewerkt,
-          views
-        FROM kennisitems
-        WHERE id = @id
-      `);
-
-    if (result.recordset.length === 0) {
-      return new Response(JSON.stringify({ error: 'Item not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const row = result.recordset[0];
-    const item: KennisItem = {
-      id: row.id,
-      titel: row.titel,
-      type: row.type,
-      tags: row.tags ? JSON.parse(row.tags) : [],
-      gekoppeldProject: row.gekoppeldProject,
-      eigenaar: row.eigenaar,
-      samenvatting: row.samenvatting || '',
-      inhoud: row.inhoud || '',
-      datumToegevoegd: row.datumToegevoegd,
-      laatstBijgewerkt: row.laatstBijgewerkt,
-      views: row.views || 0,
-    };
+    const dbPool = await getPool();
+    const result = await dbPool.request()
+      .input('id', sql.Int, parseInt(id))
+      .query('SELECT * FROM KennisItems WHERE id = @id');
 
-    return new Response(JSON.stringify(item), {
+    if (result.recordset.length === 0) {
+      return new Response(JSON.stringify({ error: 'Kennisitem not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const item = result.recordset[0];
+    return new Response(JSON.stringify({
+      ...item,
+      tags: item.tags ? JSON.parse(item.tags) : [],
+    }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching kennisitem:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to fetch kennisitem' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
 
+// PUT - Update een kennisitem
 export const PUT: APIRoute = async ({ params, request }) => {
   try {
     const { id } = params;
-    const body: KennisItemUpdate = await request.json();
-    const { titel, type, tags, gekoppeldProject, eigenaar, samenvatting, inhoud } = body;
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    const pool = await getPool();
-    const result = await pool.request()
-      .input('id', id)
-      .input('titel', titel)
-      .input('type', type)
-      .input('tags', JSON.stringify(tags || []))
-      .input('gekoppeld_project', gekoppeldProject || null)
-      .input('eigenaar', eigenaar)
-      .input('samenvatting', samenvatting || '')
-      .input('inhoud', inhoud || '')
+    const data = await request.json();
+    const dbPool = await getPool();
+
+    const result = await dbPool.request()
+      .input('id', sql.Int, parseInt(id))
+      .input('titel', sql.NVarChar, data.titel)
+      .input('type', sql.NVarChar, data.type)
+      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
+      .input('gekoppeld_project', sql.NVarChar, data.gekoppeldProject || null)
+      .input('eigenaar', sql.NVarChar, data.eigenaar)
+      .input('samenvatting', sql.NVarChar, data.samenvatting || null)
+      .input('inhoud', sql.NVarChar(sql.MAX), data.inhoud || null)
+      .input('media_type', sql.NVarChar, data.mediaType || null)
+      .input('media_url', sql.NVarChar, data.mediaUrl || null)
       .query(`
-        UPDATE kennisitems
-        SET titel = @titel,
-            type = @type,
-            tags = @tags,
-            gekoppeld_project = @gekoppeld_project,
-            eigenaar = @eigenaar,
-            samenvatting = @samenvatting,
-            inhoud = @inhoud,
-            laatst_bijgewerkt = GETDATE()
-        OUTPUT INSERTED.id, INSERTED.titel, INSERTED.type, INSERTED.tags, INSERTED.gekoppeld_project,
-               INSERTED.eigenaar, INSERTED.samenvatting, INSERTED.inhoud,
-               INSERTED.datum_toegevoegd, INSERTED.laatst_bijgewerkt, INSERTED.views
+        UPDATE KennisItems 
+        SET 
+          titel = @titel,
+          type = @type,
+          tags = @tags,
+          gekoppeld_project = @gekoppeld_project,
+          eigenaar = @eigenaar,
+          samenvatting = @samenvatting,
+          inhoud = @inhoud,
+          media_type = @media_type,
+          media_url = @media_url,
+          laatst_bijgewerkt = GETDATE()
+        OUTPUT INSERTED.*
         WHERE id = @id
       `);
 
     if (result.recordset.length === 0) {
-      return new Response(JSON.stringify({ error: 'Item not found' }), {
+      return new Response(JSON.stringify({ error: 'Kennisitem not found' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const row = result.recordset[0];
-    const updatedItem: KennisItem = {
-      id: String(row.id),
-      titel: row.titel,
-      type: row.type,
-      tags: JSON.parse(row.tags),
-      gekoppeldProject: row.gekoppeld_project,
-      eigenaar: row.eigenaar,
-      samenvatting: row.samenvatting,
-      inhoud: row.inhoud,
-      datumToegevoegd: row.datum_toegevoegd,
-      laatstBijgewerkt: row.laatst_bijgewerkt,
-      views: row.views,
-    };
-
-    return new Response(JSON.stringify(updatedItem), {
+    const updatedItem = result.recordset[0];
+    return new Response(JSON.stringify({
+      ...updatedItem,
+      tags: JSON.parse(updatedItem.tags || '[]')
+    }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error updating kennisitem:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to update kennisitem' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
 
+// DELETE - Verwijder een kennisitem
 export const DELETE: APIRoute = async ({ params }) => {
   try {
     const { id } = params;
-    const pool = await getPool();
-    
-    await pool.request()
-      .input('id', id)
-      .query('DELETE FROM kennisitems WHERE id = @id');
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
+    const dbPool = await getPool();
+    const result = await dbPool.request()
+      .input('id', sql.Int, parseInt(id))
+      .query('DELETE FROM KennisItems WHERE id = @id');
+
+    if (result.rowsAffected[0] === 0) {
+      return new Response(JSON.stringify({ error: 'Kennisitem not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({ message: 'Kennisitem deleted successfully' }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error deleting kennisitem:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to delete kennisitem' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
-

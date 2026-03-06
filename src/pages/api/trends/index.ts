@@ -1,106 +1,90 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/azure-db';
-import type { Trend } from '../../../types';
+import sql from 'mssql';
 
-interface TrendInput {
-  titel: string;
-  categorie: string;
-  beschrijving: string;
-  relevantie: 'Hoog' | 'Middel' | 'Laag';
-  impact: string;
-  bronnen: string[];
-  tags: string[];
+const config: sql.config = {
+  server: 'dashboardbs.database.windows.net',
+  database: 'dashboarddb',
+  user: 'databasedashboard',
+  password: 'Knolpower05!',
+  options: {
+    encrypt: true,
+    trustServerCertificate: false,
+    connectTimeout: 30000,
+    requestTimeout: 30000,
+  }
+};
+
+let pool: sql.ConnectionPool | null = null;
+
+async function getPool() {
+  if (!pool) {
+    pool = await sql.connect(config);
+  }
+  return pool;
 }
 
+// GET - Haal alle trends op
 export const GET: APIRoute = async () => {
   try {
-    const pool = await getPool();
-    const result = await pool.request().query(`
-      SELECT 
-        CAST(id AS VARCHAR) as id,
-        titel,
-        categorie,
-        beschrijving,
-        relevantie,
-        bronnen,
-        tags,
-        impact,
-        CONVERT(VARCHAR, datum_toegevoegd, 23) as datum
-      FROM trends
-      ORDER BY datum_toegevoegd DESC
-    `);
-
-    const trends: Trend[] = result.recordset.map((row: any) => ({
-      id: row.id,
-      titel: row.titel,
-      categorie: row.categorie,
-      beschrijving: row.beschrijving || '',
-      relevantie: row.relevantie as 'Hoog' | 'Middel' | 'Laag',
-      bronnen: row.bronnen ? JSON.parse(row.bronnen) : [],
-      datum: row.datum,
-      tags: row.tags ? JSON.parse(row.tags) : [],
-      impact: row.impact || '',
+    const dbPool = await getPool();
+    const result = await dbPool.request().query('SELECT * FROM Trends ORDER BY datum_toegevoegd DESC');
+    
+    // Parse JSON fields
+    const trends = result.recordset.map(item => ({
+      ...item,
+      bronnen: item.bronnen ? JSON.parse(item.bronnen) : [],
+      tags: item.tags ? JSON.parse(item.tags) : [],
     }));
 
     return new Response(JSON.stringify(trends), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching trends:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to fetch trends' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
 
+// POST - Voeg een nieuwe trend toe
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body: TrendInput = await request.json();
-    const { titel, categorie, beschrijving, relevantie, impact, bronnen, tags } = body;
-
-    const pool = await getPool();
-    const result = await pool.request()
-      .input('titel', titel)
-      .input('categorie', categorie)
-      .input('beschrijving', beschrijving || '')
-      .input('relevantie', relevantie || 'Middel')
-      .input('impact', impact || '')
-      .input('bronnen', JSON.stringify(bronnen || []))
-      .input('tags', JSON.stringify(tags || []))
+    const data = await request.json();
+    const dbPool = await getPool();
+    
+    const result = await dbPool.request()
+      .input('titel', sql.NVarChar, data.titel)
+      .input('categorie', sql.NVarChar, data.categorie)
+      .input('beschrijving', sql.NVarChar(sql.MAX), data.beschrijving || null)
+      .input('relevantie', sql.NVarChar, data.relevantie || null)
+      .input('impact', sql.NVarChar(sql.MAX), data.impact || null)
+      .input('bronnen', sql.NVarChar(sql.MAX), JSON.stringify(data.bronnen || []))
+      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
       .query(`
-        INSERT INTO trends (titel, categorie, beschrijving, relevantie, impact, bronnen, tags)
-        OUTPUT INSERTED.id, INSERTED.titel, INSERTED.categorie, INSERTED.beschrijving,
-               INSERTED.relevantie, INSERTED.impact, INSERTED.bronnen, INSERTED.tags, INSERTED.datum_toegevoegd
-        VALUES (@titel, @categorie, @beschrijving, @relevantie, @impact, @bronnen, @tags)
+        INSERT INTO Trends 
+        (titel, categorie, beschrijving, relevantie, impact, bronnen, tags, datum_toegevoegd, laatst_bijgewerkt, featured)
+        OUTPUT INSERTED.*
+        VALUES 
+        (@titel, @categorie, @beschrijving, @relevantie, @impact, @bronnen, @tags, GETDATE(), GETDATE(), 0)
       `);
 
-    const row = result.recordset[0];
-    const newTrend: Trend = {
-      id: String(row.id),
-      titel: row.titel,
-      categorie: row.categorie,
-      beschrijving: row.beschrijving,
-      relevantie: row.relevantie,
-      bronnen: JSON.parse(row.bronnen),
-      datum: row.datum_toegevoegd,
-      tags: JSON.parse(row.tags),
-      impact: row.impact,
-    };
-
-    return new Response(JSON.stringify(newTrend), {
+    const newTrend = result.recordset[0];
+    return new Response(JSON.stringify({
+      ...newTrend,
+      bronnen: JSON.parse(newTrend.bronnen || '[]'),
+      tags: JSON.parse(newTrend.tags || '[]')
+    }), {
       status: 201,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error creating trend:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to create trend' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
-
-
-

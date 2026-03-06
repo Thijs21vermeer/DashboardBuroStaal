@@ -7,13 +7,17 @@
     "predev": "npx kill-port 3000 || true",
     "dev": "astro dev",
     "build": "astro build",
+    "build:netlify": "BUILD_TARGET=netlify astro build",
     "preview": "astro build && wrangler dev",
     "astro": "astro",
     "cf-typegen": "wrangler types",
-    "db:seed": "tsx scripts/seed-via-api.ts"
+    "db:seed": "tsx scripts/seed-via-api.ts",
+    "test:predeploy": "./test-before-deploy.sh",
+    "deploy:netlify": "BUILD_TARGET=netlify npm run build && netlify deploy --prod"
   },
   "dependencies": {
     "@astrojs/cloudflare": "12.6.7",
+    "@astrojs/netlify": "6.6.4",
     "@astrojs/react": "4.3.0",
     "@hookform/resolvers": "5.2.1",
     "@radix-ui/react-accordion": "1.2.11",

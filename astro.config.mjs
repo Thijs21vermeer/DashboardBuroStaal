@@ -1,6 +1,6 @@
-
 import {defineConfig} from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
+import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -44,6 +44,24 @@ function injectDevScript(options = {}) {
   };
 }
 
+// Determine which adapter to use based on environment
+const getAdapter = () => {
+  // Use Netlify adapter if BUILD_TARGET is set to netlify
+  if (process.env.BUILD_TARGET === 'netlify') {
+    return netlify({
+      edgeMiddleware: false
+    });
+  }
+  
+  // Default to Cloudflare
+  return cloudflare({
+    mode: 'directory',
+    platformProxy: {
+      enabled: true,
+    },
+  });
+};
+
 // https://astro.build/config
 export default defineConfig({
   base: '',
@@ -56,12 +74,7 @@ export default defineConfig({
     host: true, // Listen on all network interfaces (0.0.0.0)
     strictPort: true,
   },
-  adapter: cloudflare({
-    mode: 'directory',
-    platformProxy: {
-      enabled: true,
-    },
-  }),
+  adapter: getAdapter(),
   integrations: [
     react(),
     injectDevScript({scriptPath: '/generated/dev-only.js'}),
@@ -93,4 +106,3 @@ export default defineConfig({
     },
   },
 });
-

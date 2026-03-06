@@ -1,3 +1,4 @@
+
 {
   "name": "buro-staal-api",
   "version": "1.0.0",
@@ -16,7 +17,7 @@
   "devDependencies": {
     "@types/mssql": "^9.1.5",
     "@types/node": "^20.x",
-    "typescript": "^5.3.0",
-    "azure-functions-core-tools": "^4.x"
+    "typescript": "^5.3.0"
   }
 }
+

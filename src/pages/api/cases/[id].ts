@@ -1,167 +1,172 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/azure-db';
-import type { CaseStudy } from '../../../types';
+import sql from 'mssql';
 
-interface CaseStudyUpdate {
-  titel?: string;
-  klant?: string;
-  industrie?: string;
-  uitdaging?: string;
-  oplossing?: string;
-  resultaten?: string[];
-  tags?: string[];
-  eigenaar?: string;
-  imageUrl?: string;
+const config: sql.config = {
+  server: 'dashboardbs.database.windows.net',
+  database: 'dashboarddb',
+  user: 'databasedashboard',
+  password: 'Knolpower05!',
+  options: {
+    encrypt: true,
+    trustServerCertificate: false,
+    connectTimeout: 30000,
+    requestTimeout: 30000,
+  }
+};
+
+let pool: sql.ConnectionPool | null = null;
+
+async function getPool() {
+  if (!pool) {
+    pool = await sql.connect(config);
+  }
+  return pool;
 }
 
+// GET - Haal één case op
 export const GET: APIRoute = async ({ params }) => {
   try {
     const { id } = params;
-    const pool = await getPool();
-    
-    const result = await pool.request()
-      .input('id', id)
-      .query(`
-        SELECT 
-          CAST(id AS VARCHAR) as id,
-          titel,
-          klant,
-          industrie,
-          uitdaging,
-          oplossing,
-          resultaten,
-          tags,
-          eigenaar,
-          CONVERT(VARCHAR, datum, 23) as datum,
-          image_url as imageUrl
-        FROM cases
-        WHERE id = @id
-      `);
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const dbPool = await getPool();
+    const result = await dbPool.request()
+      .input('id', sql.Int, parseInt(id))
+      .query('SELECT * FROM Cases WHERE id = @id');
 
     if (result.recordset.length === 0) {
       return new Response(JSON.stringify({ error: 'Case not found' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const row = result.recordset[0];
-    const caseItem: CaseStudy = {
-      id: row.id,
-      titel: row.titel,
-      klant: row.klant,
-      industrie: row.industrie || '',
-      uitdaging: row.uitdaging || '',
-      oplossing: row.oplossing || '',
-      resultaten: row.resultaten ? JSON.parse(row.resultaten) : [],
-      tags: row.tags ? JSON.parse(row.tags) : [],
-      eigenaar: row.eigenaar || '',
-      datum: row.datum,
-      imageUrl: row.imageUrl,
-    };
-
-    return new Response(JSON.stringify(caseItem), {
+    const item = result.recordset[0];
+    return new Response(JSON.stringify({
+      ...item,
+      resultaten: item.resultaten ? JSON.parse(item.resultaten) : [],
+      tags: item.tags ? JSON.parse(item.tags) : [],
+    }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching case:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to fetch case' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
 
+// PUT - Update een case
 export const PUT: APIRoute = async ({ params, request }) => {
   try {
     const { id } = params;
-    const body: CaseStudyUpdate = await request.json();
-    const { titel, klant, industrie, uitdaging, oplossing, resultaten, tags, eigenaar, imageUrl } = body;
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    const pool = await getPool();
-    const result = await pool.request()
-      .input('id', id)
-      .input('titel', titel)
-      .input('klant', klant)
-      .input('industrie', industrie || '')
-      .input('uitdaging', uitdaging || '')
-      .input('oplossing', oplossing || '')
-      .input('resultaten', JSON.stringify(resultaten || []))
-      .input('tags', JSON.stringify(tags || []))
-      .input('eigenaar', eigenaar || '')
-      .input('image_url', imageUrl || null)
+    const data = await request.json();
+    const dbPool = await getPool();
+
+    const result = await dbPool.request()
+      .input('id', sql.Int, parseInt(id))
+      .input('titel', sql.NVarChar, data.titel)
+      .input('klant', sql.NVarChar, data.klant)
+      .input('industrie', sql.NVarChar, data.industrie || null)
+      .input('uitdaging', sql.NVarChar(sql.MAX), data.uitdaging || null)
+      .input('oplossing', sql.NVarChar(sql.MAX), data.oplossing || null)
+      .input('resultaten', sql.NVarChar(sql.MAX), JSON.stringify(data.resultaten || []))
+      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
+      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
+      .input('project_duur', sql.NVarChar, data.projectDuur || null)
+      .input('team_size', sql.NVarChar, data.teamSize || null)
+      .input('image_url', sql.NVarChar, data.imageUrl || null)
       .query(`
-        UPDATE cases
-        SET titel = @titel,
-            klant = @klant,
-            industrie = @industrie,
-            uitdaging = @uitdaging,
-            oplossing = @oplossing,
-            resultaten = @resultaten,
-            tags = @tags,
-            eigenaar = @eigenaar,
-            image_url = @image_url
-        OUTPUT INSERTED.id, INSERTED.titel, INSERTED.klant, INSERTED.industrie, INSERTED.uitdaging,
-               INSERTED.oplossing, INSERTED.resultaten, INSERTED.tags, INSERTED.eigenaar,
-               INSERTED.datum, INSERTED.image_url
+        UPDATE Cases 
+        SET 
+          titel = @titel,
+          klant = @klant,
+          industrie = @industrie,
+          uitdaging = @uitdaging,
+          oplossing = @oplossing,
+          resultaten = @resultaten,
+          tags = @tags,
+          eigenaar = @eigenaar,
+          project_duur = @project_duur,
+          team_size = @team_size,
+          image_url = @image_url,
+          laatst_bijgewerkt = GETDATE()
+        OUTPUT INSERTED.*
         WHERE id = @id
       `);
 
     if (result.recordset.length === 0) {
       return new Response(JSON.stringify({ error: 'Case not found' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const row = result.recordset[0];
-    const updatedCase: CaseStudy = {
-      id: String(row.id),
-      titel: row.titel,
-      klant: row.klant,
-      industrie: row.industrie,
-      uitdaging: row.uitdaging,
-      oplossing: row.oplossing,
-      resultaten: JSON.parse(row.resultaten),
-      tags: JSON.parse(row.tags),
-      eigenaar: row.eigenaar,
-      datum: row.datum,
-      imageUrl: row.image_url,
-    };
-
-    return new Response(JSON.stringify(updatedCase), {
+    const updatedCase = result.recordset[0];
+    return new Response(JSON.stringify({
+      ...updatedCase,
+      resultaten: JSON.parse(updatedCase.resultaten || '[]'),
+      tags: JSON.parse(updatedCase.tags || '[]')
+    }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error updating case:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to update case' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
 
+// DELETE - Verwijder een case
 export const DELETE: APIRoute = async ({ params }) => {
   try {
     const { id } = params;
-    const pool = await getPool();
-    
-    await pool.request()
-      .input('id', id)
-      .query('DELETE FROM cases WHERE id = @id');
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
+    const dbPool = await getPool();
+    const result = await dbPool.request()
+      .input('id', sql.Int, parseInt(id))
+      .query('DELETE FROM Cases WHERE id = @id');
+
+    if (result.rowsAffected[0] === 0) {
+      return new Response(JSON.stringify({ error: 'Case not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({ message: 'Case deleted successfully' }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error deleting case:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Failed to delete case' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 };
-
