@@ -1,16 +1,12 @@
-import { PageType } from '../Dashboard';
+import React, { useState } from 'react';
+import { Home, BookOpen, TrendingUp, Users, Newspaper, Settings, Briefcase } from 'lucide-react';
+import { baseUrl } from '../../lib/base-url';
 import { 
-  Home,
-  BookOpen, 
-  Briefcase, 
-  TrendingUp, 
-  Users, 
-  Newspaper,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  Settings
+  Sparkles
 } from 'lucide-react';
+import type { PageType } from '../../types';
 
 interface SidebarProps {
   currentPage: PageType;
@@ -137,7 +133,7 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen }: Side
             {/* Admin Button */}
             <div className="p-3 border-t border-gray-200">
               <a
-                href="/admin"
+                href={`${baseUrl}/admin`}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all bg-gradient-to-r from-black to-[#280bc4] text-white hover:shadow-lg hover:scale-[1.02]"
               >
                 <Settings className="w-5 h-5" />
@@ -161,6 +157,9 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen }: Side
     </>
   );
 }
+
+
+
 
 
 

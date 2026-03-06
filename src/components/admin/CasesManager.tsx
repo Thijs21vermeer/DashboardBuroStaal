@@ -10,6 +10,7 @@ import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { mockCases } from '../../data/mockData';
 import type { CaseStudy } from '../../types';
+import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function CasesManager() {
   const [items, setItems] = useState<CaseStudy[]>([]);
@@ -26,6 +27,7 @@ export default function CasesManager() {
     resultaten: '',
     eigenaar: 'Admin',
   });
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
   useEffect(() => {
     loadItems();
@@ -34,16 +36,27 @@ export default function CasesManager() {
   const loadItems = async () => {
     try {
       const response = await fetch(`${getBaseUrl()}/api/cases`);
-      const data: CaseStudy[] = await response.json();
+      
+      if (!response.ok) {
+        console.warn('API request failed, using mock data');
+        setItems(mockCases);
+        setConnectionStatus('mock');
+        return;
+      }
+      
+      const data = await response.json() as CaseStudy[];
       
       if (data.length === 0) {
         setItems(mockCases);
+        setConnectionStatus('mock');
       } else {
         setItems(data);
+        setConnectionStatus('connected');
       }
     } catch (error) {
       console.error('Error loading items:', error);
       setItems(mockCases);
+      setConnectionStatus('error');
     }
   };
 
@@ -133,6 +146,9 @@ export default function CasesManager() {
 
   return (
     <div>
+      {/* Connection Status Banner */}
+      <ConnectionStatusBanner status={connectionStatus} onRetry={loadItems} />
+
       <div className="flex justify-between items-center mb-6">
         <div className="flex gap-2 items-center flex-1 max-w-2xl">
           <div className="relative flex-1">
@@ -311,6 +327,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

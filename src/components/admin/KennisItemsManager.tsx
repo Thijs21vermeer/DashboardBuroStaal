@@ -10,12 +10,14 @@ import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { mockKennisItems } from '../../data/mockData';
 import type { KennisItem } from '../../types';
+import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function KennisItemsManager() {
   const [items, setItems] = useState<KennisItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<KennisItem | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
   const [formData, setFormData] = useState({
     titel: '',
     type: 'Artikel',
@@ -34,17 +36,28 @@ export default function KennisItemsManager() {
     try {
       const baseUrl = getBaseUrl();
       const response = await fetch(`${baseUrl}/api/kennisitems`);
+      
+      if (!response.ok) {
+        console.warn('API request failed, using mock data');
+        setItems(mockKennisItems);
+        setConnectionStatus('mock');
+        return;
+      }
+      
       const data = await response.json() as KennisItem[];
       
       // Als de database leeg is, gebruik mock data
       if (data.length === 0) {
         setItems(mockKennisItems);
+        setConnectionStatus('mock');
       } else {
         setItems(data);
+        setConnectionStatus('connected');
       }
     } catch (error) {
       console.error('Error loading items:', error);
       setItems(mockKennisItems);
+      setConnectionStatus('error');
     }
   };
 
@@ -131,6 +144,9 @@ export default function KennisItemsManager() {
 
   return (
     <div>
+      {/* Connection Status Banner */}
+      <ConnectionStatusBanner status={connectionStatus} onRetry={loadItems} />
+
       <div className="flex justify-between items-center mb-6">
         <div className="flex gap-2 items-center flex-1 max-w-2xl">
           <div className="relative flex-1">
@@ -303,6 +319,8 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
 
 
 

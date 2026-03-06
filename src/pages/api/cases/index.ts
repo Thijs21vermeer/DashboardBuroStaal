@@ -1,27 +1,6 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
-
-const config: sql.config = {
-  server: 'dashboardbs.database.windows.net',
-  database: 'dashboarddb',
-  user: 'databasedashboard',
-  password: 'Knolpower05!',
-  options: {
-    encrypt: true,
-    trustServerCertificate: false,
-    connectTimeout: 30000,
-    requestTimeout: 30000,
-  }
-};
-
-let pool: sql.ConnectionPool | null = null;
-
-async function getPool() {
-  if (!pool) {
-    pool = await sql.connect(config);
-  }
-  return pool;
-}
+import { getPool, handleDbError } from '../../../lib/db-config';
 
 // GET - Haal alle cases op
 export const GET: APIRoute = async () => {
@@ -41,11 +20,7 @@ export const GET: APIRoute = async () => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Error fetching cases:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch cases' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return handleDbError(error, 'fetch cases');
   }
 };
 
@@ -85,10 +60,7 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Error creating case:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create case' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return handleDbError(error, 'create case');
   }
 };
+

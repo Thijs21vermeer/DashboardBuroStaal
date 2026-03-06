@@ -1,26 +1,24 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Sidebar } from './dashboard/Sidebar';
-import { Overview } from './kennisbank/Overview';
-import { KennisbankPage } from './kennisbank/KennisbankPage';
-import { CasesPage } from './kennisbank/CasesPage';
-import { TrendsPage } from './kennisbank/TrendsPage';
-import { TeamPage } from './kennisbank/TeamPage';
-import { NewsPage } from './kennisbank/NewsPage';
+import Overview from './kennisbank/Overview';
+import KennisbankPage from './kennisbank/KennisbankPage';
+import CasesPage from './kennisbank/CasesPage';
+import TrendsPage from './kennisbank/TrendsPage';
+import TeamPage from './kennisbank/TeamPage';
+import NewsPage from './kennisbank/NewsPage';
+import { AgendaPlanning } from './dashboard/AgendaPlanning';
+import { ActionsPriorities } from './dashboard/ActionsPriorities';
+import { ProjectProgress } from './dashboard/ProjectProgress';
+import { RolesOwnership } from './dashboard/RolesOwnership';
+import { KnowledgeHub } from './dashboard/KnowledgeHub';
+import type { PageType } from '../types';
 import { LoginForm } from './auth/LoginForm';
 
-export interface FilterState {
-  klant: string;
-  fase: string;
-  eigenaar: string;
-  datumStart: string;
-  datumEind: string;
+interface Props {
+  children: React.ReactNode;
 }
 
-export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
-
-export default function Dashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginError, setLoginError] = useState('');
+export default function Dashboard({ children }: Props) {
   const [currentPage, setCurrentPage] = useState<PageType>('overzicht');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -77,6 +75,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 

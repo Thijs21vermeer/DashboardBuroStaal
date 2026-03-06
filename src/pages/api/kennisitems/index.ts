@@ -1,27 +1,6 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
-
-const config: sql.config = {
-  server: 'dashboardbs.database.windows.net',
-  database: 'dashboarddb',
-  user: 'databasedashboard',
-  password: 'Knolpower05!',
-  options: {
-    encrypt: true,
-    trustServerCertificate: false,
-    connectTimeout: 30000,
-    requestTimeout: 30000,
-  }
-};
-
-let pool: sql.ConnectionPool | null = null;
-
-async function getPool() {
-  if (!pool) {
-    pool = await sql.connect(config);
-  }
-  return pool;
-}
+import { getPool, handleDbError } from '../../../lib/db-config';
 
 // GET - Haal alle kennisitems op
 export const GET: APIRoute = async () => {
@@ -37,14 +16,13 @@ export const GET: APIRoute = async () => {
 
     return new Response(JSON.stringify(items), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
     });
   } catch (error) {
-    console.error('Error fetching kennisitems:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch kennisitems' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return handleDbError(error, 'fetch kennisitems');
   }
 };
 
@@ -81,10 +59,8 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Error creating kennisitem:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create kennisitem' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return handleDbError(error, 'create kennisitem');
   }
 };
+
+

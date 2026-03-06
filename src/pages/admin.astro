@@ -4,55 +4,9 @@ import AdminPanel from '../components/admin/AdminPanel';
 ---
 
 <MainLayout pageClass="admin">
-  <!-- Fallback content voor debug -->
-  <div id="fallback" style="position: fixed; top: 0; left: 0; right: 0; background: #7ef769; color: black; padding: 1rem; z-index: 9999; text-align: center;">
-    ⏳ Admin Panel aan het laden...
-  </div>
-
-  <AdminPanel client:only="react" />
-
-  <script>
-    // Verberg fallback na 2 seconden als React geladen is
-    setTimeout(() => {
-      const fallback = document.getElementById('fallback');
-      const adminPanel = document.querySelector('[class*="min-h-screen"]');
-
-      console.log('Fallback element:', fallback);
-      console.log('Admin Panel element:', adminPanel);
-
-      if (adminPanel && fallback) {
-        fallback.style.display = 'none';
-        console.log('✅ Admin Panel successfully loaded!');
-      } else {
-        if (fallback) {
-          fallback.innerHTML = '❌ Admin Panel failed to load. Check console for errors.';
-          fallback.style.background = '#ff4444';
-          fallback.style.color = 'white';
-        }
-        console.error('❌ Admin Panel did not render');
-      }
-    }, 3000);
-
-    // Log any errors
-    window.addEventListener('error', (e) => {
-      console.error('Global error:', e.error);
-      const fallback = document.getElementById('fallback');
-      if (fallback) {
-        fallback.innerHTML = '❌ Error: ' + e.message;
-        fallback.style.background = '#ff4444';
-        fallback.style.color = 'white';
-      }
-    });
-
-    window.addEventListener('unhandledrejection', (e) => {
-      console.error('Unhandled promise rejection:', e.reason);
-      const fallback = document.getElementById('fallback');
-      if (fallback) {
-        fallback.innerHTML = '❌ Promise Error: ' + e.reason;
-        fallback.style.background = '#ff4444';
-        fallback.style.color = 'white';
-      }
-    });
-  </script>
+  <AdminPanel client:only="react">
+    <div></div>
+  </AdminPanel>
 </MainLayout>
+
 

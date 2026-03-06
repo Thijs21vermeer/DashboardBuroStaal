@@ -3,7 +3,6 @@
 
 
 
-
 // Centrale type definities voor de hele applicatie
 
 export interface KennisItem {
@@ -121,6 +120,10 @@ export interface AgendaItem {
   locatie?: string;
   notities?: string;
 }
+
+// Dashboard page types
+export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
+
 
 
 

@@ -10,6 +10,7 @@ import { Plus, Edit, Trash2, Search, RefreshCw, Calendar } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { mockNews } from '../../data/mockData';
 import type { NewsItem } from '../../types';
+import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function NewsManager() {
   const [items, setItems] = useState<NewsItem[]>([]);
@@ -24,6 +25,7 @@ export default function NewsManager() {
     tags: '',
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
   useEffect(() => {
     loadItems();
@@ -32,16 +34,27 @@ export default function NewsManager() {
   const loadItems = async () => {
     try {
       const response = await fetch(`${getBaseUrl()}/api/nieuws`);
+      
+      if (!response.ok) {
+        console.warn('API request failed, using mock data');
+        setItems(mockNews);
+        setConnectionStatus('mock');
+        return;
+      }
+      
       const data = await response.json() as NewsItem[];
       
       if (data.length === 0) {
         setItems(mockNews);
+        setConnectionStatus('mock');
       } else {
         setItems(data);
+        setConnectionStatus('connected');
       }
     } catch (error) {
       console.error('Error loading items:', error);
       setItems(mockNews);
+      setConnectionStatus('error');
     }
   };
 
@@ -133,6 +146,9 @@ export default function NewsManager() {
 
   return (
     <div>
+      {/* Connection Status Banner */}
+      <ConnectionStatusBanner status={connectionStatus} onRetry={loadItems} />
+
       <div className="flex justify-between items-center mb-6">
         <div className="flex gap-2 items-center flex-1 max-w-2xl">
           <div className="relative flex-1">
@@ -305,6 +321,8 @@ export default function NewsManager() {
     </div>
   );
 }
+
+
 
 
 

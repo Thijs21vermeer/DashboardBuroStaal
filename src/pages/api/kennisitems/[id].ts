@@ -1,27 +1,6 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
-
-const config: sql.config = {
-  server: 'dashboardbs.database.windows.net',
-  database: 'dashboarddb',
-  user: 'databasedashboard',
-  password: 'Knolpower05!',
-  options: {
-    encrypt: true,
-    trustServerCertificate: false,
-    connectTimeout: 30000,
-    requestTimeout: 30000,
-  }
-};
-
-let pool: sql.ConnectionPool | null = null;
-
-async function getPool() {
-  if (!pool) {
-    pool = await sql.connect(config);
-  }
-  return pool;
-}
+import { getPool, handleDbError } from '../../../lib/db-config';
 
 // GET - Haal één kennisitem op
 export const GET: APIRoute = async ({ params }) => {
@@ -55,11 +34,7 @@ export const GET: APIRoute = async ({ params }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Error fetching kennisitem:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch kennisitem' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return handleDbError(error, 'fetch kennisitem');
   }
 };
 
@@ -121,11 +96,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Error updating kennisitem:', error);
-    return new Response(JSON.stringify({ error: 'Failed to update kennisitem' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return handleDbError(error, 'update kennisitem');
   }
 };
 
@@ -157,10 +128,7 @@ export const DELETE: APIRoute = async ({ params }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Error deleting kennisitem:', error);
-    return new Response(JSON.stringify({ error: 'Failed to delete kennisitem' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return handleDbError(error, 'delete kennisitem');
   }
 };
+

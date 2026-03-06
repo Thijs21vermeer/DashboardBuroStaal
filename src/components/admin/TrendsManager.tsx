@@ -10,6 +10,7 @@ import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { mockTrends } from '../../data/mockData';
 import type { Trend } from '../../types';
+import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function TrendsManager() {
   const [items, setItems] = useState<Trend[]>([]);
@@ -25,6 +26,7 @@ export default function TrendsManager() {
     tags: '',
     impact: '',
   });
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
   useEffect(() => {
     loadItems();
@@ -33,16 +35,27 @@ export default function TrendsManager() {
   const loadItems = async () => {
     try {
       const response = await fetch(`${getBaseUrl()}/api/trends`);
+      
+      if (!response.ok) {
+        console.warn('API request failed, using mock data');
+        setItems(mockTrends);
+        setConnectionStatus('mock');
+        return;
+      }
+      
       const data = await response.json() as Trend[];
       
       if (data.length === 0) {
         setItems(mockTrends);
+        setConnectionStatus('mock');
       } else {
         setItems(data);
+        setConnectionStatus('connected');
       }
     } catch (error) {
       console.error('Error loading items:', error);
       setItems(mockTrends);
+      setConnectionStatus('error');
     }
   };
 
@@ -141,6 +154,9 @@ export default function TrendsManager() {
 
   return (
     <div>
+      {/* Connection Status Banner */}
+      <ConnectionStatusBanner status={connectionStatus} onRetry={loadItems} />
+
       <div className="flex justify-between items-center mb-6">
         <div className="flex gap-2 items-center flex-1 max-w-2xl">
           <div className="relative flex-1">
@@ -308,6 +324,7 @@ export default function TrendsManager() {
     </div>
   );
 }
+
 
 
 

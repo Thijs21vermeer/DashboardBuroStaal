@@ -6,6 +6,7 @@ import TrendsManager from './TrendsManager';
 import NewsManager from './NewsManager';
 import { Settings, Database, ArrowLeft } from 'lucide-react';
 import React from 'react';
+import { baseUrl } from '../../lib/base-url';
 
 export default function AdminPanel() {
   const [error, setError] = React.useState<string | null>(null);
@@ -14,7 +15,7 @@ export default function AdminPanel() {
     // Test if we can access the API
     const testAPI = async () => {
       try {
-        const response = await fetch('/api/kennisitems');
+        const response = await fetch(`${baseUrl}/api/kennisitems`);
         if (!response.ok) {
           console.warn('API test failed, will use mock data');
         }
@@ -50,7 +51,7 @@ export default function AdminPanel() {
       <div className="bg-gradient-to-r from-black to-[#280bc4] text-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <Button
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = `${baseUrl}/`}
             className="mb-6 bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -109,6 +110,8 @@ export default function AdminPanel() {
     </div>
   );
 }
+
+
 
 
 
