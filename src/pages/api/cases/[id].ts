@@ -1,21 +1,34 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import type { CaseStudy } from '../../../types';
 
-// GET - Haal één case op
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToCaseStudy(dbRecord: any): CaseStudy {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    klant: dbRecord.klant,
+    industrie: dbRecord.industrie,
+    uitdaging: dbRecord.uitdaging,
+    oplossing: dbRecord.oplossing,
+    resultaten: dbRecord.resultaten ? JSON.parse(dbRecord.resultaten) : [],
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    eigenaar: dbRecord.eigenaar,
+    datum: dbRecord.datum,
+    imageUrl: dbRecord.image_url || undefined,
+    featured: dbRecord.featured || false,
+  };
+}
+
+// GET - Haal een specifieke case op
 export const GET: APIRoute = async ({ params }) => {
+  const { id } = params;
+  
   try {
-    const { id } = params;
-    if (!id) {
-      return new Response(JSON.stringify({ error: 'ID is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
     const dbPool = await getPool();
     const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
+      .input('id', sql.Int, Number(id))
       .query('SELECT * FROM Cases WHERE id = @id');
 
     if (result.recordset.length === 0) {
@@ -25,17 +38,13 @@ export const GET: APIRoute = async ({ params }) => {
       });
     }
 
-    const item = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...item,
-      resultaten: item.resultaten ? JSON.parse(item.resultaten) : [],
-      tags: item.tags ? JSON.parse(item.tags) : [],
-    }), {
+    const caseItem = mapDbToCaseStudy(result.recordset[0]);
+    return new Response(JSON.stringify(caseItem), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch case');
+    return handleDbError(error, 'fetch case by id');
   }
 };
 
@@ -92,12 +101,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
       });
     }
 
-    const updatedCase = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...updatedCase,
-      resultaten: JSON.parse(updatedCase.resultaten || '[]'),
-      tags: JSON.parse(updatedCase.tags || '[]')
-    }), {
+    const updatedCase = mapDbToCaseStudy(result.recordset[0]);
+    return new Response(JSON.stringify(updatedCase), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -137,4 +142,6 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete case');
   }
 };
+
+
 

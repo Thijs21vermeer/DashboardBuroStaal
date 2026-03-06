@@ -35,17 +35,24 @@ export default function KennisItemsManager() {
   const loadItems = async () => {
     try {
       const baseUrl = getBaseUrl();
+      console.log('[KennisItemsManager] Fetching from:', `${baseUrl}/api/kennisitems`);
+      
       const response = await fetch(`${baseUrl}/api/kennisitems`);
+      console.log('[KennisItemsManager] Response status:', response.status, response.statusText);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('API request failed:', response.status, errorText);
+        console.error('[KennisItemsManager] API request failed:', response.status, errorText);
         setItems(mockKennisItems);
         setConnectionStatus('error');
         return;
       }
       
+      const contentType = response.headers.get('content-type');
+      console.log('[KennisItemsManager] Content-Type:', contentType);
+      
       const data = await response.json() as KennisItem[];
+      console.log('[KennisItemsManager] Received items:', data.length);
       
       // Set items regardless of whether database is empty
       setItems(data);
@@ -53,10 +60,10 @@ export default function KennisItemsManager() {
       
       // If database is empty, log it but don't use mock data
       if (data.length === 0) {
-        console.log('Database is empty - ready to add items');
+        console.log('[KennisItemsManager] Database is empty - ready to add items');
       }
     } catch (error) {
-      console.error('Error loading items:', error);
+      console.error('[KennisItemsManager] Error loading items:', error);
       setItems(mockKennisItems);
       setConnectionStatus('error');
     }
@@ -344,6 +351,7 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
 
 
 

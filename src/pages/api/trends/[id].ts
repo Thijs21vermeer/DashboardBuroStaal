@@ -1,21 +1,31 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import type { Trend } from '../../../types';
 
-// GET - Haal één trend op
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToTrend(dbRecord: any): Trend {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    categorie: dbRecord.categorie,
+    beschrijving: dbRecord.beschrijving,
+    relevantie: dbRecord.relevantie as 'Hoog' | 'Middel' | 'Laag',
+    bronnen: dbRecord.bronnen ? JSON.parse(dbRecord.bronnen) : [],
+    datum: dbRecord.datum,
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    impact: dbRecord.impact || '',
+  };
+}
+
+// GET - Haal een specifieke trend op
 export const GET: APIRoute = async ({ params }) => {
+  const { id } = params;
+  
   try {
-    const { id } = params;
-    if (!id) {
-      return new Response(JSON.stringify({ error: 'ID is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
     const dbPool = await getPool();
     const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
+      .input('id', sql.Int, Number(id))
       .query('SELECT * FROM Trends WHERE id = @id');
 
     if (result.recordset.length === 0) {
@@ -25,17 +35,13 @@ export const GET: APIRoute = async ({ params }) => {
       });
     }
 
-    const item = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...item,
-      bronnen: item.bronnen ? JSON.parse(item.bronnen) : [],
-      tags: item.tags ? JSON.parse(item.tags) : [],
-    }), {
+    const trend = mapDbToTrend(result.recordset[0]);
+    return new Response(JSON.stringify(trend), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch trend');
+    return handleDbError(error, 'fetch trend by id');
   }
 };
 
@@ -84,12 +90,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
       });
     }
 
-    const updatedTrend = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...updatedTrend,
-      bronnen: JSON.parse(updatedTrend.bronnen || '[]'),
-      tags: JSON.parse(updatedTrend.tags || '[]')
-    }), {
+    const updatedTrend = mapDbToTrend(result.recordset[0]);
+    return new Response(JSON.stringify(updatedTrend), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -129,4 +131,6 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete trend');
   }
 };
+
+
 

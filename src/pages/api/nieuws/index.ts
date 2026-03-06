@@ -1,6 +1,20 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import type { NewsItem } from '../../../types';
+
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToNewsItem(dbRecord: any): NewsItem {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    categorie: dbRecord.categorie as 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen',
+    inhoud: dbRecord.inhoud,
+    auteur: dbRecord.auteur,
+    datum: dbRecord.datum,
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+  };
+}
 
 // GET - Haal alle nieuwsitems op
 export const GET: APIRoute = async () => {
@@ -8,15 +22,15 @@ export const GET: APIRoute = async () => {
     const dbPool = await getPool();
     const result = await dbPool.request().query('SELECT * FROM Nieuws ORDER BY datum DESC');
     
-    // Parse JSON fields
-    const nieuws = result.recordset.map(item => ({
-      ...item,
-      tags: item.tags ? JSON.parse(item.tags) : [],
-    }));
+    // Map database records to TypeScript types
+    const news = result.recordset.map(mapDbToNewsItem);
 
-    return new Response(JSON.stringify(nieuws), {
+    return new Response(JSON.stringify(news), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
     });
   } catch (error) {
     return handleDbError(error, 'fetch nieuws');
@@ -43,11 +57,8 @@ export const POST: APIRoute = async ({ request }) => {
         (@titel, @categorie, @inhoud, @auteur, GETDATE(), 0, @tags)
       `);
 
-    const newNieuws = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...newNieuws,
-      tags: JSON.parse(newNieuws.tags || '[]')
-    }), {
+    const newNieuws = mapDbToNewsItem(result.recordset[0]);
+    return new Response(JSON.stringify(newNieuws), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -55,4 +66,6 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create nieuws');
   }
 };
+
+
 

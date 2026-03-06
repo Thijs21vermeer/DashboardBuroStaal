@@ -1,23 +1,41 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import type { CaseStudy } from '../../../types';
+
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToCaseStudy(dbRecord: any): CaseStudy {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    klant: dbRecord.klant,
+    industrie: dbRecord.industrie,
+    uitdaging: dbRecord.uitdaging,
+    oplossing: dbRecord.oplossing,
+    resultaten: dbRecord.resultaten ? JSON.parse(dbRecord.resultaten) : [],
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    eigenaar: dbRecord.eigenaar,
+    datum: dbRecord.datum,
+    imageUrl: dbRecord.image_url || undefined,
+    featured: dbRecord.featured || false,
+  };
+}
 
 // GET - Haal alle cases op
 export const GET: APIRoute = async () => {
   try {
     const dbPool = await getPool();
-    const result = await dbPool.request().query('SELECT * FROM Cases ORDER BY datum_toegevoegd DESC');
+    const result = await dbPool.request().query('SELECT * FROM Cases ORDER BY datum DESC');
     
-    // Parse JSON fields
-    const cases = result.recordset.map(item => ({
-      ...item,
-      resultaten: item.resultaten ? JSON.parse(item.resultaten) : [],
-      tags: item.tags ? JSON.parse(item.tags) : [],
-    }));
+    // Map database records to TypeScript types
+    const cases = result.recordset.map(mapDbToCaseStudy);
 
     return new Response(JSON.stringify(cases), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
     });
   } catch (error) {
     return handleDbError(error, 'fetch cases');
@@ -50,12 +68,8 @@ export const POST: APIRoute = async ({ request }) => {
         (@titel, @klant, @industrie, @uitdaging, @oplossing, @resultaten, @tags, @eigenaar, @project_duur, @team_size, GETDATE(), GETDATE(), 0, @image_url)
       `);
 
-    const newCase = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...newCase,
-      resultaten: JSON.parse(newCase.resultaten || '[]'),
-      tags: JSON.parse(newCase.tags || '[]')
-    }), {
+    const newCase = mapDbToCaseStudy(result.recordset[0]);
+    return new Response(JSON.stringify(newCase), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -63,4 +77,6 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create case');
   }
 };
+
+
 

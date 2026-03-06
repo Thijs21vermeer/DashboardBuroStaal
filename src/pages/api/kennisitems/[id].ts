@@ -1,40 +1,50 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import type { KennisItem } from '../../../types';
 
-// GET - Haal één kennisitem op
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToKennisItem(dbRecord: any): KennisItem {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    type: dbRecord.type,
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    gekoppeldProject: dbRecord.gekoppeld_project || undefined,
+    eigenaar: dbRecord.eigenaar,
+    samenvatting: dbRecord.samenvatting,
+    inhoud: dbRecord.inhoud,
+    datumToegevoegd: dbRecord.datum_toegevoegd,
+    laatstBijgewerkt: dbRecord.laatst_bijgewerkt,
+    views: dbRecord.views || 0,
+    featured: dbRecord.featured || false,
+  };
+}
+
+// GET - Haal een specifiek kennisitem op
 export const GET: APIRoute = async ({ params }) => {
+  const { id } = params;
+  
   try {
-    const { id } = params;
-    if (!id) {
-      return new Response(JSON.stringify({ error: 'ID is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
     const dbPool = await getPool();
     const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
+      .input('id', sql.Int, Number(id))
       .query('SELECT * FROM KennisItems WHERE id = @id');
 
     if (result.recordset.length === 0) {
-      return new Response(JSON.stringify({ error: 'Kennisitem not found' }), {
+      return new Response(JSON.stringify({ error: 'Item not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const item = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...item,
-      tags: item.tags ? JSON.parse(item.tags) : [],
-    }), {
+    const item = mapDbToKennisItem(result.recordset[0]);
+    return new Response(JSON.stringify(item), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch kennisitem');
+    return handleDbError(error, 'fetch kennisitem by id');
   }
 };
 
@@ -87,11 +97,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
       });
     }
 
-    const updatedItem = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...updatedItem,
-      tags: JSON.parse(updatedItem.tags || '[]')
-    }), {
+    const updatedItem = mapDbToKennisItem(result.recordset[0]);
+    return new Response(JSON.stringify(updatedItem), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -131,4 +138,6 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete kennisitem');
   }
 };
+
+
 

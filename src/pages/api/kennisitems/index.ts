@@ -1,6 +1,25 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import type { KennisItem } from '../../../types';
+
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToKennisItem(dbRecord: any): KennisItem {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    type: dbRecord.type,
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    gekoppeldProject: dbRecord.gekoppeld_project || undefined,
+    eigenaar: dbRecord.eigenaar,
+    samenvatting: dbRecord.samenvatting,
+    inhoud: dbRecord.inhoud,
+    datumToegevoegd: dbRecord.datum_toegevoegd,
+    laatstBijgewerkt: dbRecord.laatst_bijgewerkt,
+    views: dbRecord.views || 0,
+    featured: dbRecord.featured || false,
+  };
+}
 
 // GET - Haal alle kennisitems op
 export const GET: APIRoute = async () => {
@@ -8,11 +27,8 @@ export const GET: APIRoute = async () => {
     const dbPool = await getPool();
     const result = await dbPool.request().query('SELECT * FROM KennisItems ORDER BY datum_toegevoegd DESC');
     
-    // Parse JSON fields
-    const items = result.recordset.map(item => ({
-      ...item,
-      tags: item.tags ? JSON.parse(item.tags) : [],
-    }));
+    // Map database records to TypeScript types
+    const items = result.recordset.map(mapDbToKennisItem);
 
     return new Response(JSON.stringify(items), {
       status: 200,
@@ -50,11 +66,8 @@ export const POST: APIRoute = async ({ request }) => {
         (@titel, @type, @tags, @gekoppeld_project, @eigenaar, @samenvatting, @inhoud, @media_type, @media_url, GETDATE(), GETDATE(), 0, 0)
       `);
 
-    const newItem = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...newItem,
-      tags: JSON.parse(newItem.tags || '[]')
-    }), {
+    const newItem = mapDbToKennisItem(result.recordset[0]);
+    return new Response(JSON.stringify(newItem), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -62,5 +75,6 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
 
 

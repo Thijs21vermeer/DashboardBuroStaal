@@ -1,21 +1,29 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import type { NewsItem } from '../../../types';
 
-// GET - Haal één nieuwsitem op
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToNewsItem(dbRecord: any): NewsItem {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    categorie: dbRecord.categorie as 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen',
+    inhoud: dbRecord.inhoud,
+    auteur: dbRecord.auteur,
+    datum: dbRecord.datum,
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+  };
+}
+
+// GET - Haal een specifiek nieuwsitem op
 export const GET: APIRoute = async ({ params }) => {
+  const { id } = params;
+  
   try {
-    const { id } = params;
-    if (!id) {
-      return new Response(JSON.stringify({ error: 'ID is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
     const dbPool = await getPool();
     const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
+      .input('id', sql.Int, Number(id))
       .query('SELECT * FROM Nieuws WHERE id = @id');
 
     if (result.recordset.length === 0) {
@@ -25,16 +33,13 @@ export const GET: APIRoute = async ({ params }) => {
       });
     }
 
-    const item = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...item,
-      tags: item.tags ? JSON.parse(item.tags) : [],
-    }), {
+    const nieuws = mapDbToNewsItem(result.recordset[0]);
+    return new Response(JSON.stringify(nieuws), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch nieuws');
+    return handleDbError(error, 'fetch nieuws by id');
   }
 };
 
@@ -78,11 +83,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
       });
     }
 
-    const updatedNieuws = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...updatedNieuws,
-      tags: JSON.parse(updatedNieuws.tags || '[]')
-    }), {
+    const updatedNieuws = mapDbToNewsItem(result.recordset[0]);
+    return new Response(JSON.stringify(updatedNieuws), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -122,4 +124,6 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete nieuws');
   }
 };
+
+
 

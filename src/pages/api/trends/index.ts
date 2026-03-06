@@ -1,23 +1,38 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import type { Trend } from '../../../types';
+
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToTrend(dbRecord: any): Trend {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    categorie: dbRecord.categorie,
+    beschrijving: dbRecord.beschrijving,
+    relevantie: dbRecord.relevantie as 'Hoog' | 'Middel' | 'Laag',
+    bronnen: dbRecord.bronnen ? JSON.parse(dbRecord.bronnen) : [],
+    datum: dbRecord.datum,
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    impact: dbRecord.impact || '',
+  };
+}
 
 // GET - Haal alle trends op
 export const GET: APIRoute = async () => {
   try {
     const dbPool = await getPool();
-    const result = await dbPool.request().query('SELECT * FROM Trends ORDER BY datum_toegevoegd DESC');
+    const result = await dbPool.request().query('SELECT * FROM Trends ORDER BY datum DESC');
     
-    // Parse JSON fields
-    const trends = result.recordset.map(item => ({
-      ...item,
-      bronnen: item.bronnen ? JSON.parse(item.bronnen) : [],
-      tags: item.tags ? JSON.parse(item.tags) : [],
-    }));
+    // Map database records to TypeScript types
+    const trends = result.recordset.map(mapDbToTrend);
 
     return new Response(JSON.stringify(trends), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
     });
   } catch (error) {
     return handleDbError(error, 'fetch trends');
@@ -46,12 +61,8 @@ export const POST: APIRoute = async ({ request }) => {
         (@titel, @categorie, @beschrijving, @relevantie, @impact, @bronnen, @tags, GETDATE(), GETDATE(), 0)
       `);
 
-    const newTrend = result.recordset[0];
-    return new Response(JSON.stringify({
-      ...newTrend,
-      bronnen: JSON.parse(newTrend.bronnen || '[]'),
-      tags: JSON.parse(newTrend.tags || '[]')
-    }), {
+    const newTrend = mapDbToTrend(result.recordset[0]);
+    return new Response(JSON.stringify(newTrend), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -59,4 +70,6 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create trend');
   }
 };
+
+
 
