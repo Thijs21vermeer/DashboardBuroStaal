@@ -3,7 +3,6 @@
 
 
 
-
 // Centrale type definities voor de hele applicatie
 
 export interface KennisItem {
@@ -22,6 +21,7 @@ export interface KennisItem {
   auteur?: string;
   datumGepubliceerd?: string;
   featured?: boolean;
+  videoLink?: string;
 }
 
 export interface CaseStudy {
@@ -141,6 +141,7 @@ export interface AgendaItem {
 
 // Dashboard page types
 export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
+
 
 
 

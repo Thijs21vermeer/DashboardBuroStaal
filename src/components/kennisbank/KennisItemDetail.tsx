@@ -1,6 +1,7 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Eye, Tag, BookOpen, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Eye, Tag, BookOpen, ExternalLink, Video } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -152,6 +153,34 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
         </CardContent>
       </Card>
 
+      {/* Video Link (if type is Video and link exists) */}
+      {item.type === 'Video' && item.videoLink && (
+        <Card className="border-2 border-[#280bc4]/20">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Video className="w-5 h-5 text-[#280bc4]" />
+              Video
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#280bc4]/5 to-[#280bc4]/10 rounded-lg border border-[#280bc4]/20">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Bekijk de video op:</p>
+                <p className="font-medium text-gray-900 truncate max-w-md">{item.videoLink}</p>
+              </div>
+              <Button 
+                onClick={() => window.open(item.videoLink, '_blank', 'noopener,noreferrer')}
+                className="gap-2 bg-[#280bc4] hover:bg-[#280bc4]/90 text-white"
+                size="lg"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open Video
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Tags */}
       {item.tags && item.tags.length > 0 && (
         <Card>
@@ -211,3 +240,4 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+

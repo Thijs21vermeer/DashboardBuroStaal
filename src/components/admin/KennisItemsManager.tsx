@@ -26,6 +26,7 @@ export default function KennisItemsManager() {
     eigenaar: '',
     samenvatting: '',
     inhoud: '',
+    videoLink: '',
   });
 
   useEffect(() => {
@@ -139,6 +140,7 @@ export default function KennisItemsManager() {
       eigenaar: item.eigenaar,
       samenvatting: item.samenvatting,
       inhoud: item.inhoud,
+      videoLink: item.videoLink || '',
     });
     setIsDialogOpen(true);
   };
@@ -166,6 +168,7 @@ export default function KennisItemsManager() {
       eigenaar: '',
       samenvatting: '',
       inhoud: '',
+      videoLink: '',
     });
   };
 
@@ -244,6 +247,22 @@ export default function KennisItemsManager() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {formData.type === 'Video' && (
+                <div>
+                  <Label htmlFor="videoLink">Video Link</Label>
+                  <Input
+                    id="videoLink"
+                    type="url"
+                    value={formData.videoLink}
+                    onChange={(e) => setFormData({ ...formData, videoLink: e.target.value })}
+                    placeholder="https://youtube.com/watch?v=..."
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Voeg een YouTube, Vimeo of andere video link toe
+                  </p>
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="eigenaar">Eigenaar</Label>
@@ -351,6 +370,10 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
+
+
 
 
 
