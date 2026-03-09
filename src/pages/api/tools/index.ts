@@ -1,22 +1,9 @@
 import type { APIRoute } from 'astro';
-import sql from 'mssql';
-
-const dbConfig = {
-  server: import.meta.env.AZURE_SQL_SERVER || '',
-  database: import.meta.env.AZURE_SQL_DATABASE || '',
-  user: import.meta.env.AZURE_SQL_USER || '',
-  password: import.meta.env.AZURE_SQL_PASSWORD || '',
-  port: parseInt(import.meta.env.AZURE_SQL_PORT || '1433'),
-  options: {
-    encrypt: true,
-    trustServerCertificate: false,
-  },
-};
+import { query } from '../../../lib/azure-db';
 
 export const GET: APIRoute = async () => {
   try {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request().query(`
+    const result = await query(`
       SELECT 
         id,
         titel,
@@ -33,10 +20,8 @@ export const GET: APIRoute = async () => {
       FROM tools
       ORDER BY favoriet DESC, laatst_bijgewerkt DESC
     `);
-    
-    await pool.close();
 
-    const tools = result.recordset.map(row => ({
+    const tools = result.map(row => ({
       ...row,
       favoriet: Boolean(row.favoriet),
       gebruik_count: row.gebruik_count || 0
@@ -48,7 +33,10 @@ export const GET: APIRoute = async () => {
     });
   } catch (error) {
     console.error('Database error:', error);
-    return new Response(JSON.stringify({ error: 'Database error' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -58,32 +46,33 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { titel, categorie, beschrijving, code, taal, tags, eigenaar } = body;
+    const { titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet } = body;
 
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-      .input('titel', sql.NVarChar, titel)
-      .input('categorie', sql.NVarChar, categorie)
-      .input('beschrijving', sql.NVarChar, beschrijving || null)
-      .input('code', sql.NVarChar, code)
-      .input('taal', sql.NVarChar, taal || null)
-      .input('tags', sql.NVarChar, tags || null)
-      .input('eigenaar', sql.NVarChar, eigenaar || null)
-      .query(`
-        INSERT INTO tools (titel, categorie, beschrijving, code, taal, tags, eigenaar)
-        OUTPUT INSERTED.*
-        VALUES (@titel, @categorie, @beschrijving, @code, @taal, @tags, @eigenaar)
-      `);
+    const result = await query(`
+      INSERT INTO tools (titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet)
+      OUTPUT INSERTED.*
+      VALUES (@titel, @categorie, @beschrijving, @code, @taal, @tags, @eigenaar, @favoriet)
+    `, {
+      titel,
+      categorie,
+      beschrijving: beschrijving || null,
+      code,
+      taal: taal || null,
+      tags: tags || null,
+      eigenaar: eigenaar || null,
+      favoriet: favoriet ? 1 : 0
+    });
 
-    await pool.close();
-
-    return new Response(JSON.stringify(result.recordset[0]), {
+    return new Response(JSON.stringify(result[0]), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Database error:', error);
-    return new Response(JSON.stringify({ error: 'Database error' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
