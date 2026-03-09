@@ -15,9 +15,9 @@ const config: sql.config = {
     requestTimeout: 30000,
   },
   pool: {
-    max: 10,
-    min: 2,
-    idleTimeoutMillis: 60000,
+    max: 50,
+    min: 5,
+    idleTimeoutMillis: 30000,
   },
 };
 
@@ -63,9 +63,10 @@ export async function getPool(): Promise<sql.ConnectionPool> {
  * Voer een query uit
  */
 export async function query<T = any>(queryString: string, params?: Record<string, any>): Promise<T[]> {
+  let request;
   try {
     const dbPool = await getPool();
-    const request = dbPool.request();
+    request = dbPool.request();
 
     // Parameters toevoegen als ze er zijn
     if (params) {
@@ -76,18 +77,33 @@ export async function query<T = any>(queryString: string, params?: Record<string
 
     const result = await request.query(queryString);
     return result.recordset as T[];
-  } catch (error) {
+  } catch (error: any) {
     console.error('Database query error:', error);
-    // Reset pool bij error
-    if (pool) {
-      try {
-        await pool.close();
-      } catch (e) {
-        // Ignore close errors
+    
+    // Reset pool alleen bij connection errors
+    if (error?.code === 'ECONNRESET' || error?.code === 'ESOCKET' || error?.code === 'ETIMEOUT') {
+      console.log('Connection error detected, resetting pool');
+      if (pool) {
+        try {
+          await pool.close();
+        } catch (e) {
+          // Ignore close errors
+        }
+        pool = null;
+        connecting = null;
       }
-      pool = null;
     }
+    
     throw error;
+  } finally {
+    // Cleanup request
+    if (request) {
+      try {
+        request.cancel();
+      } catch (e) {
+        // Ignore cancel errors
+      }
+    }
   }
 }
 
@@ -193,21 +209,6 @@ export interface TeamMember {
   specialisatie?: string;
 }
 
-export interface Tool {
-  id: number;
-  naam: string;
-  categorie: string;
-  beschrijving?: string;
-  code?: string;
-  taal?: string;
-  tags?: string; // JSON string
-  eigenaar?: string;
-  favoriet: boolean;
-  gebruik_count: number;
-  datum_toegevoegd: Date;
-  laatst_gebruikt?: Date;
-}
-
 // Helper functie om JSON strings te parsen
 export function parseJsonField(jsonString: string | null | undefined): any {
   if (!jsonString) return null;
@@ -222,3 +223,6 @@ export function parseJsonField(jsonString: string | null | undefined): any {
 export function stringifyJsonField(data: any): string {
   return JSON.stringify(data);
 }
+
+
+
