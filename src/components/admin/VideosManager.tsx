@@ -108,9 +108,15 @@ export default function VideosManager() {
       console.log('Response status:', response.status);
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error:', errorText);
-        throw new Error(`Failed to save video: ${response.status} - ${errorText}`);
+        let errorMessage = `Status ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.details || errorData.error || errorMessage;
+        } catch {
+          errorMessage = await response.text();
+        }
+        console.error('Server error:', errorMessage);
+        throw new Error(errorMessage);
       }
       
       const result = await response.json();
@@ -121,7 +127,8 @@ export default function VideosManager() {
       alert(editingId ? 'Video succesvol bijgewerkt!' : 'Video succesvol toegevoegd!');
     } catch (error) {
       console.error('Error saving video:', error);
-      alert(`Er ging iets mis bij het opslaan van de video: ${error instanceof Error ? error.message : 'Onbekende fout'}`);
+      const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
+      alert(`Er ging iets mis bij het opslaan van de video:\n${errorMessage}`);
     }
   };
 
@@ -410,6 +417,7 @@ export default function VideosManager() {
     </div>
   );
 }
+
 
 
 

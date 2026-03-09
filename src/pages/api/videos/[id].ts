@@ -83,8 +83,17 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const pool = await getPool();
     const { id } = params;
     
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'Video ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
     const body = await request.json();
     const { titel, beschrijving, youtube_url, categorie, tags, eigenaar, featured } = body;
+    
+    console.log('Updating video:', { id, titel, categorie, featured });
     
     // Als youtube_url is gewijzigd, update ook de thumbnail
     let thumbnail_url = body.thumbnail_url;
@@ -93,7 +102,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
     
     const result = await pool.request()
-      .input('id', sql.Int, id)
+      .input('id', sql.Int, parseInt(id))
       .input('titel', sql.NVarChar, titel)
       .input('beschrijving', sql.NVarChar, beschrijving || null)
       .input('youtube_url', sql.NVarChar, youtube_url)
@@ -101,7 +110,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       .input('categorie', sql.NVarChar, categorie)
       .input('tags', sql.NVarChar, tags || null)
       .input('eigenaar', sql.NVarChar, eigenaar || null)
-      .input('featured', sql.Bit, featured || false)
+      .input('featured', sql.Bit, featured ? 1 : 0)
       .query(`
         UPDATE videos 
         SET titel = @titel,
@@ -113,11 +122,12 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
             eigenaar = @eigenaar,
             featured = @featured,
             laatst_bijgewerkt = GETDATE()
-        OUTPUT INSERTED.*
-        WHERE id = @id
+        WHERE id = @id;
+        
+        SELECT * FROM videos WHERE id = @id;
       `);
     
-    if (result.recordset.length === 0) {
+    if (!result.recordset || result.recordset.length === 0) {
       return new Response(JSON.stringify({ error: 'Video not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
@@ -125,6 +135,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
     
     const video = mapVideo(result.recordset[0]);
+    console.log('Video updated successfully:', video.id);
     
     return new Response(JSON.stringify(video), {
       status: 200,
@@ -132,7 +143,11 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     });
   } catch (error) {
     console.error('Error updating video:', error);
-    return new Response(JSON.stringify({ error: 'Failed to update video' }), {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ 
+      error: 'Failed to update video',
+      details: errorMessage 
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -167,5 +182,6 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     });
   }
 };
+
 
 
