@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Video, Plus, Edit, Trash2, Save, X, PlayCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -24,6 +24,7 @@ export default function VideosManager() {
   const [videos, setVideos] = useState<VideoType[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     titel: '',
     beschrijving: '',
@@ -33,6 +34,7 @@ export default function VideosManager() {
     eigenaar: '',
     featured: false
   });
+  const formRef = useRef<HTMLDivElement>(null);
 
   const loadVideos = async () => {
     setLoading(true);
@@ -76,10 +78,17 @@ export default function VideosManager() {
       featured: video.featured
     });
     setEditingId(video.id);
+    
+    // Scroll naar formulier
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('Submitting video:', { editingId, formData });
     
     try {
       const url = editingId 
@@ -88,19 +97,31 @@ export default function VideosManager() {
       
       const method = editingId ? 'PUT' : 'POST';
       
+      console.log(`Making ${method} request to:`, url);
+      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
 
-      if (!response.ok) throw new Error('Failed to save video');
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server error:', errorText);
+        throw new Error(`Failed to save video: ${response.status} - ${errorText}`);
+      }
+      
+      const result = await response.json();
+      console.log('Video saved successfully:', result);
       
       await loadVideos();
       resetForm();
+      alert(editingId ? 'Video succesvol bijgewerkt!' : 'Video succesvol toegevoegd!');
     } catch (error) {
       console.error('Error saving video:', error);
-      alert('Er ging iets mis bij het opslaan van de video');
+      alert(`Er ging iets mis bij het opslaan van de video: ${error instanceof Error ? error.message : 'Onbekende fout'}`);
     }
   };
 
@@ -141,6 +162,18 @@ export default function VideosManager() {
       : '/placeholder-video.jpg';
   };
 
+  const filteredVideos = videos.filter(video => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      video.titel.toLowerCase().includes(query) ||
+      video.beschrijving?.toLowerCase().includes(query) ||
+      video.categorie.toLowerCase().includes(query) ||
+      video.tags?.toLowerCase().includes(query) ||
+      video.eigenaar?.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -157,7 +190,7 @@ export default function VideosManager() {
       </div>
 
       {/* Form */}
-      <Card>
+      <Card ref={formRef} className={editingId ? 'border-2 border-[#280bc4] bg-blue-50/50' : ''}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {editingId ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
@@ -274,19 +307,31 @@ export default function VideosManager() {
       <div className="space-y-4">
         <h3 className="text-xl font-semibold">Bestaande Video's</h3>
         
+        {/* Search Bar */}
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder="Zoek video's op titel, beschrijving, categorie, tags of eigenaar..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+          <Video className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        </div>
+        
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#280bc4]"></div>
           </div>
-        ) : videos.length === 0 ? (
+        ) : filteredVideos.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-gray-500">
-              Nog geen video's toegevoegd
+              {searchQuery ? 'Geen video\'s gevonden voor deze zoekopdracht' : 'Nog geen video\'s toegevoegd'}
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {videos.map((video) => (
+            {filteredVideos.map((video) => (
               <Card key={video.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
@@ -365,3 +410,13 @@ export default function VideosManager() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Code } from 'lucide-react';
+import { Plus, Edit, Trash2, Code, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card } from '../ui/card';
@@ -13,6 +13,7 @@ export default function ToolsManager() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingTool, setEditingTool] = useState<Partial<Tool>>({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchTools = async () => {
     setLoading(true);
@@ -85,6 +86,19 @@ export default function ToolsManager() {
     setEditingTool({});
   };
 
+  const filteredTools = tools.filter((tool) => {
+    if (!searchTerm) return true;
+    const search = searchTerm.toLowerCase();
+    return (
+      tool.titel.toLowerCase().includes(search) ||
+      tool.beschrijving?.toLowerCase().includes(search) ||
+      tool.code.toLowerCase().includes(search) ||
+      tool.tags?.toLowerCase().includes(search) ||
+      tool.categorie.toLowerCase().includes(search) ||
+      tool.taal?.toLowerCase().includes(search)
+    );
+  });
+
   if (loading) {
     return <div className="text-center py-8">Laden...</div>;
   }
@@ -106,6 +120,19 @@ export default function ToolsManager() {
           </Button>
         )}
       </div>
+
+      {!isEditing && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            type="text"
+            placeholder="Zoek tools op titel, beschrijving, code, tags..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      )}
 
       {isEditing && (
         <Card className="p-6">
@@ -230,7 +257,7 @@ export default function ToolsManager() {
       )}
 
       <div className="grid gap-4">
-        {tools.map((tool) => (
+        {filteredTools.map((tool) => (
           <Card key={tool.id} className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -289,4 +316,6 @@ export default function ToolsManager() {
     </div>
   );
 }
+
+
 
