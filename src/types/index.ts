@@ -1,203 +1,115 @@
 
-
-
-
-
-// Centrale type definities voor de hele applicatie
+// Types voor het project
 
 export interface KennisItem {
-  id: string;
+  id: number;
   titel: string;
   type: string;
-  tags: string[];
-  gekoppeldProject?: string;
+  tags: string;
+  gekoppeld_project?: string;
   eigenaar: string;
   samenvatting: string;
   inhoud: string;
-  datumToegevoegd: string;
-  laatstBijgewerkt: string;
-  views: number;
-  categorie?: string;
-  auteur?: string;
-  datumGepubliceerd?: string;
-  featured?: boolean;
-  videoLink?: string;
+  datum_toegevoegd: string;
+  laatst_bijgewerkt: string;
+  video_link?: string;
 }
 
-export interface CaseStudy {
-  id: string;
+export interface Case {
+  id: number;
   titel: string;
   klant: string;
   industrie: string;
   uitdaging: string;
   oplossing: string;
-  resultaten: string[];
-  tags: string[];
+  resultaten: string;
+  tags: string;
   eigenaar: string;
-  datum: string;
-  imageUrl?: string;
-  featured?: boolean;
-  type?: string;
-  projectDuur?: string;
-  team?: string[];
-  status?: string;
-  budget?: string;
+  datum_afgerond: string;
+  featured: boolean;
   roi?: string;
-  referenties?: string[];
+  project_duur?: string;
+  team_leden?: string;
+  referenties?: string;
 }
 
 export interface Trend {
-  id: string;
+  id: number;
   titel: string;
   categorie: string;
-  beschrijving: string;
-  relevantie: 'Hoog' | 'Middel' | 'Laag';
-  bronnen: string[];
+  samenvatting: string;
+  inhoud: string;
   bron?: string;
-  datum: string;
-  datumToegevoegd?: string;
-  tags: string[];
-  impact: string;
-  eigenaar?: string;
+  tags: string;
+  eigenaar: string;
+  datum_gepubliceerd: string;
+  relevantie: string;
+  impact_score?: number;
 }
 
 export interface NewsItem {
-  id: string;
+  id: number;
   titel: string;
-  categorie: 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen';
   inhoud: string;
   auteur: string;
-  datum: string;
-  tags: string[];
-  belangrijk?: boolean;
+  datum_gepubliceerd: string;
+  categorie: string;
+  featured: boolean;
 }
 
 export interface TeamMember {
   id: number;
   naam: string;
   rol: string;
-  email: string;
+  expertise: string;
   bio: string;
-  expertiseGebieden: string[];
-  isEigenaar: boolean;
-  volgorde: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface ExternePartner {
-  id: number;
-  naam: string;
+  foto_url?: string;
+  linkedin_url?: string;
+  email?: string;
+  type: 'intern' | 'extern';
   bedrijf?: string;
-  specialisatie: string;
-  email: string;
-  telefoon?: string;
-  website?: string;
-  beschrijving: string;
-  expertiseGebieden: string[];
-  volgorde: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface Priority {
-  id: string;
-  titel: string;
-  categorie: 'Marketing' | 'Development' | 'Sales' | 'Operations';
-  eigenaar: string;
-  deadline: string;
-  status: 'Open' | 'In Progress' | 'Completed' | 'Blocked';
-  project?: string;
-  notities: string;
-  priority: 'Hoog' | 'Middel' | 'Laag';
-}
-
-export interface Project {
-  id: string;
-  naam: string;
-  klant: string;
-  fase: 'Discovery' | 'Design' | 'Development' | 'Testing' | 'Launch' | 'Maintenance';
-  status: 'On Track' | 'At Risk' | 'Delayed' | 'Completed';
-  voortgang: number;
-  eigenaar: string;
-  startDatum: string;
-  deadline: string;
-  budget?: number;
-  team: string[];
-}
-
-export interface AgendaItem {
-  id: string;
-  titel: string;
-  type: 'Vergadering' | 'Deadline' | 'Event' | 'Milestone';
-  startdatum: string;
-  einddatum?: string;
-  project?: string;
-  eigenaar: string;
-  fase?: string;
-  locatie?: string;
-  notities?: string;
-}
-
-export interface Partner {
-  id: number;
-  naam: string;
-  bedrijf: string;
-  specialisatie: string;
-  email: string;
-  telefoon?: string;
-  bio?: string;
-  expertise_tags?: string;
-  portfolio_url?: string;
-  actief: boolean;
-  datum_toegevoegd?: string;
 }
 
 export interface Tool {
   id: number;
-  titel: string;
+  naam: string;
   categorie: string;
-  beschrijving?: string;
-  code: string;
-  taal?: string;
+  beschrijving: string;
+  url?: string;
+  licentie_info?: string;
+  eigenaar: string;
+  datum_toegevoegd: string;
   tags?: string;
-  eigenaar?: string;
-  datum_toegevoegd?: string;
-  laatst_bijgewerkt?: string;
-  gebruik_count?: number;
-  favoriet?: boolean;
+  logo_url?: string;
+  prijs?: string;
 }
 
-// Dashboard page types
+export interface Video {
+  id: number;
+  titel: string;
+  beschrijving?: string;
+  youtube_url: string;
+  thumbnail_url?: string;
+  categorie: string;
+  tags?: string;
+  eigenaar?: string;
+  datum_toegevoegd: string;
+  laatst_bijgewerkt: string;
+  views: number;
+  featured: boolean;
+}
+
 export type PageType = 
-  | 'overzicht'
-  | 'agenda'
-  | 'acties'
-  | 'projecten'
-  | 'rollen'
-  | 'kennisbank'
-  | 'cases'
-  | 'trends'
+  | 'overzicht' 
+  | 'kennisbank' 
+  | 'cases' 
+  | 'trends' 
+  | 'nieuws' 
   | 'team'
-  | 'nieuws'
   | 'tools'
+  | 'videos'
+  | 'admin'
   | `kennisitem-${number}`
   | `trend-${number}`
   | `nieuws-${number}`;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

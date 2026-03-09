@@ -99,7 +99,7 @@ export default function ToolsManager() {
         {!isEditing && (
           <Button
             onClick={() => setIsEditing(true)}
-            className="bg-[#280bc4] text-white hover:bg-[#1f0a9a]"
+            className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nieuwe Tool
@@ -289,3 +289,4 @@ export default function ToolsManager() {
     </div>
   );
 }
+

@@ -7,6 +7,7 @@ import { TrendsPage } from './kennisbank/TrendsPage';
 import { TeamPage } from './kennisbank/TeamPage';
 import { NewsPage } from './kennisbank/NewsPage';
 import ToolsPage from './kennisbank/ToolsPage';
+import VideosPage from './kennisbank/VideosPage';
 import { KennisItemDetail } from './kennisbank/KennisItemDetail';
 import { TrendDetail } from './kennisbank/TrendDetail';
 import { NewsDetail } from './kennisbank/NewsDetail';
@@ -98,6 +99,8 @@ export default function Dashboard({ children }: Props) {
         return <NewsPage />;
       case 'tools':
         return <ToolsPage />;
+      case 'videos':
+        return <VideosPage />;
       default:
         return null;
     }
@@ -126,6 +129,7 @@ export default function Dashboard({ children }: Props) {
     </div>
   );
 }
+
 
 
 

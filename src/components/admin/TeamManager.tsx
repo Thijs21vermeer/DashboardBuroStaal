@@ -1,5 +1,7 @@
 
 
+
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -272,7 +274,7 @@ export default function TeamManager() {
                 Beheer de teamleden van Buro Staal
               </p>
             </div>
-            <Button onClick={handleAddMember}>
+            <Button onClick={handleAddMember} className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90">
               <UserPlus className="mr-2 h-4 w-4" />
               Teamlid Toevoegen
             </Button>
@@ -334,7 +336,7 @@ export default function TeamManager() {
                 Beheer de externe partners waarmee Buro Staal samenwerkt
               </p>
             </div>
-            <Button onClick={handleAddPartner}>
+            <Button onClick={handleAddPartner} className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90">
               <UserPlus className="mr-2 h-4 w-4" />
               Partner Toevoegen
             </Button>
@@ -666,5 +668,7 @@ export default function TeamManager() {
     </div>
   );
 }
+
+
 
 

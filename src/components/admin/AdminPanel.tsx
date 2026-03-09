@@ -6,9 +6,54 @@ import TrendsManager from './TrendsManager';
 import NewsManager from './NewsManager';
 import TeamManager from './TeamManager';
 import ToolsManager from './ToolsManager';
-import { Settings, Database, ArrowLeft, Users, Code } from 'lucide-react';
+import VideosManager from './VideosManager';
+import { Settings, Database, ArrowLeft, Users, Code, Video } from 'lucide-react';
 import React from 'react';
 import { baseUrl } from '../../lib/base-url';
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Admin Panel Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-white p-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+              <h2 className="text-xl font-bold text-red-800 mb-2">Er is een fout opgetreden</h2>
+              <p className="text-red-600 mb-4">{this.state.error?.message}</p>
+              <pre className="bg-red-100 p-4 rounded text-xs overflow-auto mb-4">
+                {this.state.error?.stack}
+              </pre>
+              <Button 
+                onClick={() => window.location.reload()} 
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Herlaad pagina
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 export default function AdminPanel() {
   const [error, setError] = React.useState<string | null>(null);
@@ -48,6 +93,7 @@ export default function AdminPanel() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-black to-[#280bc4] text-white">
@@ -73,7 +119,7 @@ export default function AdminPanel() {
       {/* Content */}
       <div className="max-w-[1400px] xl:max-w-[1300px] 2xl:max-w-[1400px] mx-auto px-8 sm:px-12 lg:px-16 xl:px-24 2xl:px-32 py-8">
         <Tabs defaultValue="kennisitems" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-8">
+          <TabsList className="grid w-full grid-cols-7 mb-8">
             <TabsTrigger value="kennisitems">
               <Database className="w-4 h-4 mr-2" />
               Kennisitems
@@ -97,6 +143,10 @@ export default function AdminPanel() {
             <TabsTrigger value="tools">
               <Code className="w-4 h-4 mr-2" />
               Tools
+            </TabsTrigger>
+            <TabsTrigger value="videos">
+              <Video className="w-4 h-4 mr-2" />
+              Video's
             </TabsTrigger>
           </TabsList>
 
@@ -123,11 +173,18 @@ export default function AdminPanel() {
           <TabsContent value="tools">
             <ToolsManager />
           </TabsContent>
+
+          <TabsContent value="videos">
+            <VideosManager />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }
+
+
 
 
 
