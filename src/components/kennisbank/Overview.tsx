@@ -1,8 +1,12 @@
 
 
+
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { BookOpen, Briefcase, TrendingUp, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
+import { BookOpen, Briefcase, TrendingUp, Wrench, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -44,7 +48,7 @@ export function Overview({ onNavigate }: OverviewProps) {
     aantalKennisitems: 0,
     aantalCases: 0,
     aantalTrends: 0,
-    totaalViews: 0
+    aantalTools: 0
   });
   const [featured, setFeatured] = useState<any[]>([]);
   const [trends, setTrends] = useState<any[]>([]);
@@ -61,20 +65,18 @@ export function Overview({ onNavigate }: OverviewProps) {
       const baseUrl = getBaseUrl();
       
       // Fetch all data in parallel
-      const [kennisRes, casesRes, trendsRes, newsRes] = await Promise.all([
+      const [kennisRes, casesRes, trendsRes, newsRes, toolsRes] = await Promise.all([
         fetch(`${baseUrl}/api/kennisitems`),
         fetch(`${baseUrl}/api/cases`),
         fetch(`${baseUrl}/api/trends`),
         fetch(`${baseUrl}/api/nieuws`),
+        fetch(`${baseUrl}/api/tools`),
       ]);
 
       // Process kennisitems
       if (kennisRes.ok) {
         const kennisData = await kennisRes.json() as any[];
         setFeatured(kennisData.slice(0, 3));
-        
-        // Calculate total views from all items
-        const totalViews = kennisData.reduce((sum, item) => sum + (item.views || 0), 0);
         
         // Get cases data
         const casesData = casesRes.ok ? await casesRes.json() as any[] : [];
@@ -83,12 +85,15 @@ export function Overview({ onNavigate }: OverviewProps) {
         const trendsData = trendsRes.ok ? await trendsRes.json() as any[] : [];
         setTrends(trendsData.slice(0, 3));
         
+        // Get tools data
+        const toolsData = toolsRes.ok ? await toolsRes.json() as any[] : [];
+        
         // Update stats
         setStats({
           aantalKennisitems: kennisData.length,
           aantalCases: casesData.length,
           aantalTrends: trendsData.length,
-          totaalViews: totalViews,
+          aantalTools: toolsData.length,
         });
       }
       
@@ -214,12 +219,12 @@ export function Overview({ onNavigate }: OverviewProps) {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Totale Views</p>
+                <p className="text-sm text-gray-600">Totaal Aantal Tools</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {stats.totaalViews}
+                  {stats.aantalTools}
                 </p>
               </div>
-              <Eye className="w-8 h-8 text-[#280bc4]" />
+              <Wrench className="w-8 h-8 text-[#280bc4]" />
             </div>
           </CardContent>
         </Card>
@@ -405,6 +410,10 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
+
+
 
 
 
