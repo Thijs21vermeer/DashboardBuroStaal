@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Tag, BookOpen, ExternalLink, Video } from 'lucide-react';
@@ -10,6 +9,20 @@ import { baseUrl } from '../../lib/base-url';
 interface KennisItemDetailProps {
   itemId: number;
   onBack: () => void;
+}
+
+// Helper functie om YouTube video ID te extraheren
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
 }
 
 export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
@@ -76,6 +89,9 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     );
   }
 
+  // Extract YouTube video ID if it's a video item
+  const youtubeId = item.type === 'Video' && item.videoLink ? extractYouTubeId(item.videoLink) : null;
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Back Button */}
@@ -141,6 +157,46 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
         </CardContent>
       </Card>
 
+      {/* Video Player (if type is Video and link exists) */}
+      {item.type === 'Video' && item.videoLink && youtubeId && (
+        <Card className="border-2 border-[#280bc4]/20">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Video className="w-5 h-5 text-[#280bc4]" />
+              Video
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${youtubeId}`}
+                title={item.titel}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+            </div>
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                Bekijk op YouTube
+              </p>
+              <Button 
+                onClick={() => window.open(item.videoLink, '_blank', 'noopener,noreferrer')}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open in YouTube
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Main Content */}
       <Card>
         <CardHeader>
@@ -152,34 +208,6 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
           </div>
         </CardContent>
       </Card>
-
-      {/* Video Link (if type is Video and link exists) */}
-      {item.type === 'Video' && item.videoLink && (
-        <Card className="border-2 border-[#280bc4]/20">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Video className="w-5 h-5 text-[#280bc4]" />
-              Video
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#280bc4]/5 to-[#280bc4]/10 rounded-lg border border-[#280bc4]/20">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Bekijk de video op:</p>
-                <p className="font-medium text-gray-900 truncate max-w-md">{item.videoLink}</p>
-              </div>
-              <Button 
-                onClick={() => window.open(item.videoLink, '_blank', 'noopener,noreferrer')}
-                className="gap-2 bg-[#280bc4] hover:bg-[#280bc4]/90 text-white"
-                size="lg"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Open Video
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Tags */}
       {item.tags && item.tags.length > 0 && (
@@ -240,4 +268,5 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
 
