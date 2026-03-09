@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, BookOpen, TrendingUp, Users, Newspaper, Settings, Briefcase, LogOut } from 'lucide-react';
+import { Home, BookOpen, TrendingUp, Users, Newspaper, Settings, Briefcase, LogOut, Code } from 'lucide-react';
 import { baseUrl } from '../../lib/base-url';
 import { 
   ChevronLeft,
@@ -60,6 +60,12 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
       label: 'Intern Nieuws',
       icon: <Newspaper className="w-5 h-5" />,
       description: 'Bedrijfsupdates'
+    },
+    {
+      id: 'tools',
+      label: 'Developer Tools',
+      icon: <Code className="w-5 h-5" />,
+      description: 'Code snippets & commands'
     }
   ];
 
@@ -172,6 +178,7 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
     </>
   );
 }
+
 
 
 

@@ -139,8 +139,53 @@ export interface AgendaItem {
   notities?: string;
 }
 
+export interface Partner {
+  id: number;
+  naam: string;
+  bedrijf: string;
+  specialisatie: string;
+  email: string;
+  telefoon?: string;
+  bio?: string;
+  expertise_tags?: string;
+  portfolio_url?: string;
+  actief: boolean;
+  datum_toegevoegd?: string;
+}
+
+export interface Tool {
+  id: number;
+  titel: string;
+  categorie: string;
+  beschrijving?: string;
+  code: string;
+  taal?: string;
+  tags?: string;
+  eigenaar?: string;
+  datum_toegevoegd?: string;
+  laatst_bijgewerkt?: string;
+  gebruik_count?: number;
+  favoriet?: boolean;
+}
+
 // Dashboard page types
-export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
+export type PageType = 
+  | 'overzicht'
+  | 'agenda'
+  | 'acties'
+  | 'projecten'
+  | 'rollen'
+  | 'kennisbank'
+  | 'cases'
+  | 'trends'
+  | 'team'
+  | 'nieuws'
+  | 'tools'
+  | `kennisitem-${number}`
+  | `trend-${number}`
+  | `nieuws-${number}`;
+
+
 
 
 

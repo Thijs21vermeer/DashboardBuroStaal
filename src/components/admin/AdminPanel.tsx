@@ -5,7 +5,8 @@ import CasesManager from './CasesManager';
 import TrendsManager from './TrendsManager';
 import NewsManager from './NewsManager';
 import TeamManager from './TeamManager';
-import { Settings, Database, ArrowLeft, Users } from 'lucide-react';
+import ToolsManager from './ToolsManager';
+import { Settings, Database, ArrowLeft, Users, Code } from 'lucide-react';
 import React from 'react';
 import { baseUrl } from '../../lib/base-url';
 
@@ -72,7 +73,7 @@ export default function AdminPanel() {
       {/* Content */}
       <div className="max-w-[1400px] xl:max-w-[1300px] 2xl:max-w-[1400px] mx-auto px-8 sm:px-12 lg:px-16 xl:px-24 2xl:px-32 py-8">
         <Tabs defaultValue="kennisitems" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger value="kennisitems">
               <Database className="w-4 h-4 mr-2" />
               Kennisitems
@@ -92,6 +93,10 @@ export default function AdminPanel() {
             <TabsTrigger value="team">
               <Users className="w-4 h-4 mr-2" />
               Team
+            </TabsTrigger>
+            <TabsTrigger value="tools">
+              <Code className="w-4 h-4 mr-2" />
+              Tools
             </TabsTrigger>
           </TabsList>
 
@@ -114,11 +119,16 @@ export default function AdminPanel() {
           <TabsContent value="team">
             <TeamManager />
           </TabsContent>
+
+          <TabsContent value="tools">
+            <ToolsManager />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
   );
 }
+
 
 
 

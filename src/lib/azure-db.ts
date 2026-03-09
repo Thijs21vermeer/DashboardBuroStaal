@@ -16,21 +16,47 @@ const config: sql.config = {
   },
   pool: {
     max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000,
+    min: 2,
+    idleTimeoutMillis: 60000,
   },
 };
 
 let pool: sql.ConnectionPool | null = null;
+let connecting: Promise<sql.ConnectionPool> | null = null;
 
 /**
- * Krijg de database connection pool
+ * Krijg de database connection pool (met singleton pattern)
  */
 export async function getPool(): Promise<sql.ConnectionPool> {
-  if (!pool) {
-    pool = await sql.connect(config);
+  // Als er al een actieve pool is, gebruik die
+  if (pool && pool.connected) {
+    return pool;
   }
-  return pool;
+
+  // Als er al een connectie bezig is, wacht daarop
+  if (connecting) {
+    return connecting;
+  }
+
+  // Start een nieuwe connectie
+  connecting = sql.connect(config);
+  
+  try {
+    pool = await connecting;
+    connecting = null;
+    
+    // Error handlers
+    pool.on('error', (err) => {
+      console.error('Database pool error:', err);
+      pool = null;
+    });
+
+    return pool;
+  } catch (error) {
+    connecting = null;
+    console.error('Failed to connect to database:', error);
+    throw error;
+  }
 }
 
 /**
@@ -52,6 +78,15 @@ export async function query<T = any>(queryString: string, params?: Record<string
     return result.recordset as T[];
   } catch (error) {
     console.error('Database query error:', error);
+    // Reset pool bij error
+    if (pool) {
+      try {
+        await pool.close();
+      } catch (e) {
+        // Ignore close errors
+      }
+      pool = null;
+    }
     throw error;
   }
 }
@@ -69,9 +104,14 @@ export async function queryOne<T = any>(queryString: string, params?: Record<str
  */
 export async function closePool(): Promise<void> {
   if (pool) {
-    await pool.close();
+    try {
+      await pool.close();
+    } catch (error) {
+      console.error('Error closing pool:', error);
+    }
     pool = null;
   }
+  connecting = null;
 }
 
 // Types voor de database tabellen
@@ -86,6 +126,7 @@ export interface KennisItem {
   inhoud?: string;
   media_type?: string;
   media_url?: string;
+  video_link?: string;
   datum_toegevoegd: Date;
   laatst_bijgewerkt: Date;
   views: number;
@@ -100,10 +141,12 @@ export interface Case {
   uitdaging?: string;
   oplossing?: string;
   resultaten?: string; // JSON string
+  referenties?: string; // JSON string
   tags?: string; // JSON string
   eigenaar?: string;
   project_duur?: string;
   team_size?: string;
+  roi?: string;
   datum_toegevoegd: Date;
   laatst_bijgewerkt: Date;
   featured: boolean;
@@ -119,6 +162,7 @@ export interface Trend {
   impact?: string;
   bronnen?: string; // JSON string
   tags?: string; // JSON string
+  eigenaar?: string;
   datum_toegevoegd: Date;
   laatst_bijgewerkt: Date;
   featured: boolean;
@@ -135,6 +179,35 @@ export interface Nieuws {
   tags?: string; // JSON string
 }
 
+export interface TeamMember {
+  id: number;
+  naam: string;
+  rol: string;
+  expertise?: string; // JSON string
+  bio?: string;
+  email?: string;
+  linkedin?: string;
+  avatar_url?: string;
+  is_partner: boolean;
+  bedrijf?: string;
+  specialisatie?: string;
+}
+
+export interface Tool {
+  id: number;
+  naam: string;
+  categorie: string;
+  beschrijving?: string;
+  code?: string;
+  taal?: string;
+  tags?: string; // JSON string
+  eigenaar?: string;
+  favoriet: boolean;
+  gebruik_count: number;
+  datum_toegevoegd: Date;
+  laatst_gebruikt?: Date;
+}
+
 // Helper functie om JSON strings te parsen
 export function parseJsonField(jsonString: string | null | undefined): any {
   if (!jsonString) return null;
@@ -149,4 +222,3 @@ export function parseJsonField(jsonString: string | null | undefined): any {
 export function stringifyJsonField(data: any): string {
   return JSON.stringify(data);
 }
-

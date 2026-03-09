@@ -6,6 +6,7 @@ import { CasesPage } from './kennisbank/CasesPage';
 import { TrendsPage } from './kennisbank/TrendsPage';
 import { TeamPage } from './kennisbank/TeamPage';
 import { NewsPage } from './kennisbank/NewsPage';
+import ToolsPage from './kennisbank/ToolsPage';
 import { KennisItemDetail } from './kennisbank/KennisItemDetail';
 import { TrendDetail } from './kennisbank/TrendDetail';
 import { NewsDetail } from './kennisbank/NewsDetail';
@@ -95,6 +96,8 @@ export default function Dashboard({ children }: Props) {
         return <TeamPage />;
       case 'nieuws':
         return <NewsPage />;
+      case 'tools':
+        return <ToolsPage />;
       default:
         return null;
     }
@@ -123,6 +126,7 @@ export default function Dashboard({ children }: Props) {
     </div>
   );
 }
+
 
 
 
