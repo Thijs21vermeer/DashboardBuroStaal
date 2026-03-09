@@ -84,3 +84,9 @@ BEGIN
 END
 
 PRINT 'Schema update voltooid!';
+-- Add referenties column to cases table
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[cases]') AND name = 'referenties')
+BEGIN
+    ALTER TABLE cases ADD referenties NVARCHAR(MAX);
+END
+GO

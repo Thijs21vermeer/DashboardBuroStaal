@@ -1,9 +1,10 @@
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo } from 'react';
-import { Users, Mail, Star, Award, Briefcase, ExternalLink, Phone, Globe } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Users, Mail, Star, Award, Briefcase, ExternalLink, Phone, Globe, Sparkles, Building2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { baseUrl } from '../../lib/base-url';
@@ -143,10 +144,10 @@ export function TeamPage() {
 
                 {/* Expertise */}
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                     <Star className="w-4 h-4 text-[#280bc4]" />
                     Expertisegebieden
-                  </h4>
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {member.expertiseGebieden?.map((expertise, idx) => (
                       <Badge 
@@ -210,10 +211,10 @@ export function TeamPage() {
 
                 {/* Expertise */}
                 <div>
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-2 justify-center">
+                  <h3 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-2 justify-center">
                     <Star className="w-3 h-3 text-[#280bc4]" />
                     Expertise
-                  </h4>
+                  </h3>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {member.expertiseGebieden?.map((expertise, idx) => (
                       <Badge 
@@ -310,9 +311,9 @@ export function TeamPage() {
 
                 {/* Expertise */}
                 <div>
-                  <h4 className="text-xs font-semibold text-gray-700 mb-2">
+                  <h3 className="text-xs font-semibold text-gray-700 mb-2">
                     Expertisegebieden
-                  </h4>
+                  </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {partner.expertiseGebieden?.map((expertise, idx) => (
                       <Badge 
@@ -364,6 +365,7 @@ export function TeamPage() {
     </div>
   );
 }
+
 
 
 

@@ -10,14 +10,24 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
     titel: dbRecord.titel,
     klant: dbRecord.klant,
     industrie: dbRecord.industrie,
-    uitdaging: dbRecord.uitdaging,
-    oplossing: dbRecord.oplossing,
-    resultaten: dbRecord.resultaten ? JSON.parse(dbRecord.resultaten) : [],
+    uitdaging: dbRecord.challenge || dbRecord.uitdaging || '',
+    oplossing: dbRecord.solution || dbRecord.oplossing || '',
+    resultaten: dbRecord.results ? 
+      (typeof dbRecord.results === 'string' ? [dbRecord.results] : dbRecord.results) : 
+      (dbRecord.resultaten ? JSON.parse(dbRecord.resultaten) : []),
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
-    eigenaar: dbRecord.eigenaar,
+    eigenaar: dbRecord.eigenaar || 'Onbekend',
     datum: dbRecord.datum_toegevoegd,
     imageUrl: dbRecord.image_url || undefined,
     featured: dbRecord.featured || false,
+    type: dbRecord.type || undefined,
+    // Extra velden uit database
+    projectDuur: dbRecord.projectduur || undefined,
+    team: dbRecord.team ? dbRecord.team.split(',') : [],
+    status: dbRecord.status || 'afgerond',
+    budget: dbRecord.budget || undefined,
+    roi: dbRecord.roi || undefined,
+    referenties: dbRecord.referenties ? JSON.parse(dbRecord.referenties) : [],
   };
 }
 
@@ -70,6 +80,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
       .input('uitdaging', sql.NVarChar(sql.MAX), data.uitdaging || null)
       .input('oplossing', sql.NVarChar(sql.MAX), data.oplossing || null)
       .input('resultaten', sql.NVarChar(sql.MAX), JSON.stringify(data.resultaten || []))
+      .input('referenties', sql.NVarChar(sql.MAX), JSON.stringify(data.referenties || []))
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
       .input('eigenaar', sql.NVarChar, data.eigenaar || null)
       .input('project_duur', sql.NVarChar, data.projectDuur || null)
@@ -84,6 +95,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
           uitdaging = @uitdaging,
           oplossing = @oplossing,
           resultaten = @resultaten,
+          referenties = @referenties,
           tags = @tags,
           eigenaar = @eigenaar,
           project_duur = @project_duur,
@@ -142,6 +154,9 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete case');
   }
 };
+
+
+
 
 
 

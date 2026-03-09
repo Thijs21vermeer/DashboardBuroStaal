@@ -2,6 +2,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Calendar, User, Tag, ArrowRight, BookOpen, RefreshCw } from 'lucide-react';
@@ -272,10 +273,10 @@ export function KennisbankPage() {
           {filteredItems.map((item) => (
             <Card 
               key={item.id} 
-              className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-[#280bc4]"
+              className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-[#280bc4] flex flex-col"
               onClick={() => setSelectedItemId(item.id)}
             >
-              <CardHeader>
+              <CardHeader className="flex-shrink-0">
                 <div className="flex items-start justify-between mb-3">
                   <Badge variant="outline" className="font-medium">
                     {item.type}
@@ -296,7 +297,7 @@ export function KennisbankPage() {
                   {item.samenvatting}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 mt-auto">
                 {/* Meta Info */}
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
@@ -354,6 +355,7 @@ export function KennisbankPage() {
     </div>
   );
 }
+
 
 
 

@@ -37,6 +37,12 @@ export interface CaseStudy {
   imageUrl?: string;
   featured?: boolean;
   type?: string;
+  projectDuur?: string;
+  team?: string[];
+  status?: string;
+  budget?: string;
+  roi?: string;
+  referenties?: string[];
 }
 
 export interface Trend {
@@ -133,6 +139,8 @@ export interface AgendaItem {
 
 // Dashboard page types
 export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
+
+
 
 
 

@@ -18,6 +18,7 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
     datum: dbRecord.datum_toegevoegd,
     imageUrl: dbRecord.image_url || undefined,
     featured: dbRecord.featured || false,
+    referenties: dbRecord.referenties ? JSON.parse(dbRecord.referenties) : [],
   };
 }
 
@@ -55,6 +56,7 @@ export const POST: APIRoute = async ({ request }) => {
       .input('uitdaging', sql.NVarChar(sql.MAX), data.uitdaging || null)
       .input('oplossing', sql.NVarChar(sql.MAX), data.oplossing || null)
       .input('resultaten', sql.NVarChar(sql.MAX), JSON.stringify(data.resultaten || []))
+      .input('referenties', sql.NVarChar(sql.MAX), JSON.stringify(data.referenties || []))
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
       .input('eigenaar', sql.NVarChar, data.eigenaar || null)
       .input('project_duur', sql.NVarChar, data.projectDuur || null)
@@ -62,10 +64,10 @@ export const POST: APIRoute = async ({ request }) => {
       .input('image_url', sql.NVarChar, data.imageUrl || null)
       .query(`
         INSERT INTO Cases 
-        (titel, klant, industrie, uitdaging, oplossing, resultaten, tags, eigenaar, project_duur, team_size, datum_toegevoegd, laatst_bijgewerkt, featured, image_url)
+        (titel, klant, industrie, uitdaging, oplossing, resultaten, referenties, tags, eigenaar, project_duur, team_size, datum_toegevoegd, laatst_bijgewerkt, featured, image_url)
         OUTPUT INSERTED.*
         VALUES 
-        (@titel, @klant, @industrie, @uitdaging, @oplossing, @resultaten, @tags, @eigenaar, @project_duur, @team_size, GETDATE(), GETDATE(), 0, @image_url)
+        (@titel, @klant, @industrie, @uitdaging, @oplossing, @resultaten, @referenties, @tags, @eigenaar, @project_duur, @team_size, GETDATE(), GETDATE(), 0, @image_url)
       `);
 
     const newCase = mapDbToCaseStudy(result.recordset[0]);
@@ -77,6 +79,8 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create case');
   }
 };
+
+
 
 
 

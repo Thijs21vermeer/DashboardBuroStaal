@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -25,6 +26,7 @@ export default function CasesManager() {
     uitdaging: '',
     oplossing: '',
     resultaten: '',
+    referenties: '',
     eigenaar: 'Admin',
   });
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
@@ -67,6 +69,7 @@ export default function CasesManager() {
       ...formData,
       tags: formData.tags.split(',').map(d => d.trim()).filter(Boolean),
       resultaten: formData.resultaten.split('\n').filter(Boolean),
+      referenties: formData.referenties.split('\n').filter(Boolean),
       datum: new Date().toISOString().split('T')[0],
       featured: false,
     };
@@ -108,6 +111,7 @@ export default function CasesManager() {
       uitdaging: item.uitdaging,
       oplossing: item.oplossing,
       resultaten: item.resultaten.join('\n'),
+      referenties: item.referenties ? item.referenties.join('\n') : '',
       eigenaar: item.eigenaar || 'Admin',
     });
     setIsDialogOpen(true);
@@ -136,6 +140,7 @@ export default function CasesManager() {
       uitdaging: '',
       oplossing: '',
       resultaten: '',
+      referenties: '',
       eigenaar: 'Admin',
     });
   };
@@ -271,6 +276,17 @@ export default function CasesManager() {
                 />
               </div>
 
+              <div>
+                <Label htmlFor="referenties">Referenties (één per regel)</Label>
+                <Textarea
+                  id="referenties"
+                  value={formData.referenties}
+                  onChange={(e) => setFormData({ ...formData, referenties: e.target.value })}
+                  rows={3}
+                  placeholder="Buro Staal heeft ons geholpen onze online aanwezigheid drastisch te verbeteren. Hun expertise is ongeëvenaard. - Jan de Vries, CEO"
+                />
+              </div>
+
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Annuleren
@@ -328,6 +344,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

@@ -1,6 +1,8 @@
 
 
 
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Eye, ArrowRight, RefreshCw } from 'lucide-react';
@@ -210,8 +212,8 @@ export function Overview({ onNavigate }: OverviewProps) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {featuredKennis.map((item) => (
-            <Card key={item.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader>
+            <Card key={item.id} className="hover:shadow-lg transition-shadow cursor-pointer flex flex-col">
+              <CardHeader className="flex-shrink-0">
                 <div className="flex items-start justify-between mb-2">
                   <Badge variant="outline">{item.type}</Badge>
                   <Badge className="bg-[#7ef769] text-black">{item.categorie}</Badge>
@@ -219,7 +221,7 @@ export function Overview({ onNavigate }: OverviewProps) {
                 <CardTitle className="text-lg">{item.titel}</CardTitle>
                 <CardDescription>{item.samenvatting}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="mt-auto space-y-3">
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>{item.auteur}</span>
                   <div className="flex items-center gap-1">
@@ -227,7 +229,7 @@ export function Overview({ onNavigate }: OverviewProps) {
                     <span>{item.views}</span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1 mt-3">
+                <div className="flex flex-wrap gap-1">
                   {item.tags.slice(0, 3).map((tag: string) => (
                     <Badge key={tag} variant="secondary" className="text-xs">
                       {tag}
@@ -274,7 +276,7 @@ export function Overview({ onNavigate }: OverviewProps) {
               {latestTrends.map((trend) => (
                 <div key={trend.id} className="border-l-4 border-[#7ef769] pl-4 py-2">
                   <div className="flex items-start justify-between mb-1">
-                    <h4 className="font-semibold text-gray-900">{trend.titel}</h4>
+                    <h3 className="font-semibold text-gray-900">{trend.titel}</h3>
                     <Badge 
                       variant={trend.relevantie === 'Hoog' ? 'default' : 'secondary'}
                       className={trend.relevantie === 'Hoog' ? 'bg-[#280bc4] text-white' : ''}
@@ -331,7 +333,7 @@ export function Overview({ onNavigate }: OverviewProps) {
                   }`}
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-semibold text-gray-900">{item.titel}</h4>
+                    <h3 className="font-semibold text-gray-900">{item.titel}</h3>
                     {item.belangrijk && (
                       <Badge className="bg-[#7ef769] text-black">Belangrijk</Badge>
                     )}
@@ -350,6 +352,8 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
 
 
 
