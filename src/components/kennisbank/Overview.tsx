@@ -3,10 +3,9 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { BookOpen, Briefcase, TrendingUp, Wrench, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
+import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -219,7 +218,7 @@ export function Overview({ onNavigate }: OverviewProps) {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Totaal Aantal Tools</p>
+                <p className="text-sm text-gray-600">Tools</p>
                 <p className="text-3xl font-bold text-gray-900">
                   {stats.aantalTools}
                 </p>
@@ -233,7 +232,7 @@ export function Overview({ onNavigate }: OverviewProps) {
       {/* Featured Content */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Uitgelichte Content</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Uitgelichte Kennis</h2>
           <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
@@ -410,6 +409,9 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
+
 
 
 

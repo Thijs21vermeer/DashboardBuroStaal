@@ -21,6 +21,7 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
     views: dbRecord.views || 0,
     featured: dbRecord.featured || false,
     videoLink: dbRecord.video_link || undefined,
+    afbeelding: dbRecord.afbeelding || undefined,
   };
 }
 
@@ -77,6 +78,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
       .input('media_type', sql.NVarChar, data.mediaType || null)
       .input('media_url', sql.NVarChar, data.mediaUrl || null)
       .input('video_link', sql.NVarChar, data.videoLink || null)
+      .input('afbeelding', sql.NVarChar(sql.MAX), data.afbeelding || null)
       .query(`
         UPDATE KennisItems 
         SET 
@@ -90,6 +92,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
           media_type = @media_type,
           media_url = @media_url,
           video_link = @video_link,
+          afbeelding = @afbeelding,
           laatst_bijgewerkt = GETDATE()
         OUTPUT INSERTED.*
         WHERE id = @id
@@ -143,6 +146,8 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete kennisitem');
   }
 };
+
+
 
 
 

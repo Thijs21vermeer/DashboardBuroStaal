@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -125,7 +128,7 @@ export default function NewsManager() {
     
     setFormData({
       titel: item.titel,
-      categorie: item.categorie,
+      categorie: item.categorie as "Project Lancering" | "Team Update" | "Bedrijfsnieuws" | "Prestatie" | "Algemeen",
       inhoud: item.inhoud,
       auteur: item.auteur || '',
       tags: tagsString,
@@ -134,7 +137,7 @@ export default function NewsManager() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Weet je zeker dat je dit nieuwsitem wilt verwijderen?')) return;
     
     try {
@@ -337,14 +340,14 @@ export default function NewsManager() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600 whitespace-pre-wrap">{item.inhoud}</p>
-              {item.tags && item.tags.length > 0 && (
+              {item.tags && (
                 <div className="flex flex-wrap gap-2 mt-4">
-                  {(Array.isArray(item.tags) ? item.tags : []).map((tag, index) => (
+                  {(typeof item.tags === 'string' ? item.tags.split(',') : Array.isArray(item.tags) ? item.tags : []).map((tag: string, index: number) => (
                     <span 
                       key={`${tag}-${index}`} 
                       className="inline-block text-xs px-3 py-1.5 bg-purple-50 text-[#280bc4] rounded-full font-medium whitespace-nowrap"
                     >
-                      {tag}
+                      {tag.trim()}
                     </span>
                   ))}
                 </div>
@@ -356,6 +359,9 @@ export default function NewsManager() {
     </div>
   );
 }
+
+
+
 
 
 

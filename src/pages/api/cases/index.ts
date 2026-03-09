@@ -5,6 +5,21 @@ import type { CaseStudy } from '../../../types';
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToCaseStudy(dbRecord: any): CaseStudy {
+  // Parse resultaten - handle string (JSON) or already parsed array
+  let resultaten: string[] = [];
+  if (dbRecord.resultaten) {
+    if (typeof dbRecord.resultaten === 'string') {
+      try {
+        resultaten = JSON.parse(dbRecord.resultaten);
+      } catch {
+        // If it's not valid JSON, split by newlines
+        resultaten = dbRecord.resultaten.split('\n').filter(Boolean);
+      }
+    } else if (Array.isArray(dbRecord.resultaten)) {
+      resultaten = dbRecord.resultaten;
+    }
+  }
+
   return {
     id: String(dbRecord.id),
     titel: dbRecord.titel,
@@ -12,7 +27,7 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
     industrie: dbRecord.industrie,
     uitdaging: dbRecord.uitdaging,
     oplossing: dbRecord.oplossing,
-    resultaten: dbRecord.resultaten ? JSON.parse(dbRecord.resultaten) : [],
+    resultaten,
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
     eigenaar: dbRecord.eigenaar,
     datum: dbRecord.datum_toegevoegd,
@@ -79,6 +94,7 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create case');
   }
 };
+
 
 
 

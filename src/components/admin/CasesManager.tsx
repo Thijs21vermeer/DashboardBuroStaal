@@ -1,23 +1,34 @@
 
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { 
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { mockCases } from '../../data/mockData';
-import type { CaseStudy } from '../../types';
+import type { Case } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function CasesManager() {
-  const [items, setItems] = useState<CaseStudy[]>([]);
+  const [items, setItems] = useState<Case[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<CaseStudy | null>(null);
+  const [editingItem, setEditingItem] = useState<Case | null>(null);
   const [formData, setFormData] = useState({
     titel: '',
     klant: '',
@@ -46,7 +57,7 @@ export default function CasesManager() {
         return;
       }
       
-      const data = await response.json() as CaseStudy[];
+      const data = await response.json() as Case[];
       
       if (data.length === 0) {
         setItems(mockCases);
@@ -81,7 +92,7 @@ export default function CasesManager() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(caseData),
         });
-        const updated = await response.json() as CaseStudy;
+        const updated = await response.json() as Case;
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
       } else {
         const response = await fetch(`${getBaseUrl()}/api/cases`, {
@@ -89,7 +100,7 @@ export default function CasesManager() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(caseData),
         });
-        const newCase = await response.json() as CaseStudy;
+        const newCase = await response.json() as Case;
         setItems([newCase, ...items]);
       }
       
@@ -101,32 +112,41 @@ export default function CasesManager() {
     }
   };
 
-  const handleEdit = (item: CaseStudy) => {
+  const handleEdit = (item: Case) => {
     setEditingItem(item);
     setFormData({
       titel: item.titel,
       klant: item.klant,
       industrie: item.industrie,
-      tags: item.tags.join(', '),
+      tags: item.tags,
       uitdaging: item.uitdaging,
       oplossing: item.oplossing,
-      resultaten: item.resultaten.join('\n'),
-      referenties: item.referenties ? item.referenties.join('\n') : '',
+      resultaten: item.resultaten,
+      referenties: item.referenties || '',
       eigenaar: item.eigenaar || 'Admin',
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Weet je zeker dat je deze case wilt verwijderen?')) return;
-    
+  const handleDelete = async (id: number) => {
+    if (!confirm('Weet je zeker dat je deze case wilt verwijderen?')) {
+      return;
+    }
+
     try {
-      await fetch(`${getBaseUrl()}/api/cases/${id}`, {
+      const response = await fetch(`${getBaseUrl()}/api/cases/${id}`, {
         method: 'DELETE',
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete case');
+      }
+
       setItems(items.filter(i => i.id !== id));
-    } catch (error) {
-      console.error('Error deleting case:', error);
+      alert('✅ Case succesvol verwijderd');
+    } catch (err) {
+      console.error('Error deleting case:', err);
+      alert('❌ Fout bij verwijderen van case');
     }
   };
 
@@ -332,7 +352,7 @@ export default function CasesManager() {
               <div>
                 <strong className="text-sm">Resultaten:</strong>
                 <ul className="list-disc list-inside text-sm text-gray-600 mt-1">
-                  {item.resultaten.map((result, idx) => (
+                  {(typeof item.resultaten === 'string' ? item.resultaten.split('\n').filter(Boolean) : Array.isArray(item.resultaten) ? item.resultaten : []).map((result: string, idx: number) => (
                     <li key={idx}>{result}</li>
                   ))}
                 </ul>
@@ -344,6 +364,12 @@ export default function CasesManager() {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 

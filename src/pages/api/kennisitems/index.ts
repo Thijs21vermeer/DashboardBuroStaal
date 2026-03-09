@@ -21,6 +21,7 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
     views: dbRecord.views || 0,
     featured: dbRecord.featured || false,
     videoLink: dbRecord.video_link || undefined,
+    afbeelding: dbRecord.afbeelding || undefined,
   };
 }
 
@@ -62,12 +63,13 @@ export const POST: APIRoute = async ({ request }) => {
       .input('media_type', sql.NVarChar, data.mediaType || null)
       .input('media_url', sql.NVarChar, data.mediaUrl || null)
       .input('video_link', sql.NVarChar, data.videoLink || null)
+      .input('afbeelding', sql.NVarChar(sql.MAX), data.afbeelding || null)
       .query(`
         INSERT INTO KennisItems 
-        (titel, type, tags, gekoppeld_project, eigenaar, samenvatting, inhoud, media_type, media_url, video_link, datum_toegevoegd, laatst_bijgewerkt, views, featured)
+        (titel, type, tags, gekoppeld_project, eigenaar, samenvatting, inhoud, media_type, media_url, video_link, afbeelding, datum_toegevoegd, laatst_bijgewerkt, views, featured)
         OUTPUT INSERTED.*
         VALUES 
-        (@titel, @type, @tags, @gekoppeld_project, @eigenaar, @samenvatting, @inhoud, @media_type, @media_url, @video_link, GETDATE(), GETDATE(), 0, 0)
+        (@titel, @type, @tags, @gekoppeld_project, @eigenaar, @samenvatting, @inhoud, @media_type, @media_url, @video_link, @afbeelding, GETDATE(), GETDATE(), 0, 0)
       `);
 
     const newItem = mapDbToKennisItem(result.recordset[0]);
@@ -79,6 +81,8 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
+
 
 
 

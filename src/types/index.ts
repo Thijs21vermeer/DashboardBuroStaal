@@ -1,4 +1,6 @@
 
+
+
 // Types voor het project
 
 export interface KennisItem {
@@ -13,6 +15,7 @@ export interface KennisItem {
   datum_toegevoegd: string;
   laatst_bijgewerkt: string;
   video_link?: string;
+  afbeelding?: string;
 }
 
 export interface Case {
@@ -53,7 +56,10 @@ export interface NewsItem {
   inhoud: string;
   auteur: string;
   datum_gepubliceerd: string;
+  datum: string;
   categorie: string;
+  tags?: string;
+  belangrijk: boolean;
   featured: boolean;
 }
 
@@ -112,4 +118,6 @@ export type PageType =
   | `kennisitem-${number}`
   | `trend-${number}`
   | `nieuws-${number}`;
+
+
 

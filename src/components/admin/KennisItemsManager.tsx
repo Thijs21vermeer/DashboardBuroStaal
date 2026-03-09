@@ -1,3 +1,7 @@
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -22,11 +26,12 @@ export default function KennisItemsManager() {
     titel: '',
     type: 'Artikel',
     tags: '',
-    gekoppeldProject: '',
+    gekoppeld_project: '',
     eigenaar: '',
     samenvatting: '',
     inhoud: '',
-    videoLink: '',
+    video_link: '',
+    afbeelding: '',
   });
 
   useEffect(() => {
@@ -135,17 +140,18 @@ export default function KennisItemsManager() {
     setFormData({
       titel: item.titel,
       type: item.type,
-      tags: item.tags.join(', '),
-      gekoppeldProject: item.gekoppeldProject || '',
+      tags: item.tags,
+      gekoppeld_project: item.gekoppeld_project || '',
       eigenaar: item.eigenaar,
       samenvatting: item.samenvatting,
       inhoud: item.inhoud,
-      videoLink: item.videoLink || '',
+      video_link: item.video_link || '',
+      afbeelding: item.afbeelding || '',
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Weet je zeker dat je dit item wilt verwijderen?')) return;
     
     try {
@@ -164,11 +170,12 @@ export default function KennisItemsManager() {
       titel: '',
       type: 'Artikel',
       tags: '',
-      gekoppeldProject: '',
+      gekoppeld_project: '',
       eigenaar: '',
       samenvatting: '',
       inhoud: '',
-      videoLink: '',
+      video_link: '',
+      afbeelding: '',
     });
   };
 
@@ -250,12 +257,12 @@ export default function KennisItemsManager() {
 
               {formData.type === 'Video' && (
                 <div>
-                  <Label htmlFor="videoLink">Video Link</Label>
+                  <Label htmlFor="video_link">Video Link</Label>
                   <Input
-                    id="videoLink"
+                    id="video_link"
                     type="url"
-                    value={formData.videoLink}
-                    onChange={(e) => setFormData({ ...formData, videoLink: e.target.value })}
+                    value={formData.video_link}
+                    onChange={(e) => setFormData({ ...formData, video_link: e.target.value })}
                     placeholder="https://youtube.com/watch?v=..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -263,6 +270,48 @@ export default function KennisItemsManager() {
                   </p>
                 </div>
               )}
+
+              <div>
+                <Label htmlFor="afbeelding">Afbeelding (optioneel)</Label>
+                <Input
+                  id="afbeelding"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // Convert to base64
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setFormData({ ...formData, afbeelding: reader.result as string });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload een afbeelding voor dit kennisitem (wordt alleen getoond op de detailpagina)
+                </p>
+                {formData.afbeelding && (
+                  <div className="mt-3">
+                    <img 
+                      src={formData.afbeelding} 
+                      alt="Preview" 
+                      className="max-w-xs rounded-lg border"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => setFormData({ ...formData, afbeelding: '' })}
+                    >
+                      Verwijder afbeelding
+                    </Button>
+                  </div>
+                )}
+              </div>
 
               <div>
                 <Label htmlFor="eigenaar">Eigenaar</Label>
@@ -285,11 +334,11 @@ export default function KennisItemsManager() {
               </div>
 
               <div>
-                <Label htmlFor="gekoppeldProject">Gekoppeld Project (optioneel)</Label>
+                <Label htmlFor="gekoppeld_project">Gekoppeld Project (optioneel)</Label>
                 <Input
-                  id="gekoppeldProject"
-                  value={formData.gekoppeldProject}
-                  onChange={(e) => setFormData({ ...formData, gekoppeldProject: e.target.value })}
+                  id="gekoppeld_project"
+                  value={formData.gekoppeld_project}
+                  onChange={(e) => setFormData({ ...formData, gekoppeld_project: e.target.value })}
                 />
               </div>
 
@@ -357,9 +406,9 @@ export default function KennisItemsManager() {
             <CardContent>
               <p className="text-sm text-gray-600 mb-2">{item.samenvatting}</p>
               <div className="flex flex-wrap gap-1 mt-2">
-                {item.tags.map((tag) => (
-                  <span key={tag} className="text-xs px-2 py-1 bg-gray-100 rounded">
-                    {tag}
+                {(typeof item.tags === 'string' ? item.tags.split(',') : []).map((tag: string, idx: number) => (
+                  <span key={idx} className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                    {tag.trim()}
                   </span>
                 ))}
               </div>
@@ -370,6 +419,14 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 
