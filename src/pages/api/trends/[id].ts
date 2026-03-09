@@ -15,6 +15,7 @@ function mapDbToTrend(dbRecord: any): Trend {
     datum: dbRecord.datum_toegevoegd,
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
     impact: dbRecord.impact || '',
+    eigenaar: dbRecord.eigenaar || 'Onbekend',
   };
 }
 
@@ -68,6 +69,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
       .input('impact', sql.NVarChar(sql.MAX), data.impact || null)
       .input('bronnen', sql.NVarChar(sql.MAX), JSON.stringify(data.bronnen || []))
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
+      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
       .query(`
         UPDATE Trends 
         SET 
@@ -78,6 +80,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
           impact = @impact,
           bronnen = @bronnen,
           tags = @tags,
+          eigenaar = @eigenaar,
           laatst_bijgewerkt = GETDATE()
         OUTPUT INSERTED.*
         WHERE id = @id
@@ -131,6 +134,8 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete trend');
   }
 };
+
+
 
 
 

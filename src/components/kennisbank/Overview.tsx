@@ -1,11 +1,8 @@
 
 
-
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { BookOpen, Briefcase, TrendingUp, Eye, ArrowRight, RefreshCw } from 'lucide-react';
+import { BookOpen, Briefcase, TrendingUp, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -14,6 +11,33 @@ import { Button } from '../ui/button';
 interface OverviewProps {
   onNavigate: (page: string) => void;
 }
+
+// Helper functions for relevantie styling (same as TrendsPage)
+const getRelevantieIcon = (relevantie: string) => {
+  switch (relevantie) {
+    case 'Hoog':
+      return <AlertCircle className="w-4 h-4 text-red-500" />;
+    case 'Gemiddeld':
+      return <TrendingUp className="w-4 h-4 text-yellow-500" />;
+    case 'Laag':
+      return <CheckCircle className="w-4 h-4 text-green-500" />;
+    default:
+      return null;
+  }
+};
+
+const getRelevantieColor = (relevantie: string) => {
+  switch (relevantie) {
+    case 'Hoog':
+      return 'bg-red-100 text-red-800 border-red-300';
+    case 'Gemiddeld':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+    case 'Laag':
+      return 'bg-green-100 text-green-800 border-green-300';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-300';
+  }
+};
 
 export function Overview({ onNavigate }: OverviewProps) {
   const [stats, setStats] = useState({
@@ -83,19 +107,34 @@ export function Overview({ onNavigate }: OverviewProps) {
   const featuredKennis = featured.map((item) => ({
     ...item,
     type: item.type || 'artikel',
-    categorie: item.categorie || 'onbekend',
+    categorie: item.categorie || undefined,
     tags: item.tags || [],
     auteur: item.auteur || item.eigenaar || 'Onbekend',
     views: item.views || 0,
   }));
 
   // Nieuwste trends (top 3)
-  const latestTrends = trends.slice(0, 3).map((trend) => ({
-    ...trend,
-    beschrijving: trend.samenvatting || trend.beschrijving || '',
-    bronnen: trend.bronnen || [],
-    relevantie: trend.relevantie >= 80 ? 'Hoog' : trend.relevantie >= 50 ? 'Gemiddeld' : 'Laag',
-  }));
+  const latestTrends = trends.slice(0, 3).map((trend) => {
+    // Handle both string and numeric relevantie values (same logic as TrendsPage)
+    let relevantieLabel = 'Laag';
+    if (typeof trend.relevantie === 'string') {
+      const rel = trend.relevantie.toLowerCase();
+      if (rel.includes('zeer') || rel === 'hoog') {
+        relevantieLabel = 'Hoog';
+      } else if (rel === 'relevant' || rel === 'gemiddeld' || rel === 'middel') {
+        relevantieLabel = 'Gemiddeld';
+      }
+    } else if (typeof trend.relevantie === 'number') {
+      relevantieLabel = trend.relevantie >= 80 ? 'Hoog' : trend.relevantie >= 50 ? 'Gemiddeld' : 'Laag';
+    }
+    
+    return {
+      ...trend,
+      beschrijving: trend.samenvatting || trend.beschrijving || '',
+      bronnen: trend.bronnen || [],
+      relevantie: relevantieLabel,
+    };
+  });
 
   // Recent nieuws (top 5)
   const recentNews = news.slice(0, 3).map((item) => ({
@@ -212,11 +251,17 @@ export function Overview({ onNavigate }: OverviewProps) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {featuredKennis.map((item) => (
-            <Card key={item.id} className="hover:shadow-lg transition-shadow cursor-pointer flex flex-col">
+            <Card 
+              key={item.id} 
+              className="hover:shadow-lg transition-shadow cursor-pointer flex flex-col"
+              onClick={() => onNavigate(`kennisitem-${item.id}`)}
+            >
               <CardHeader className="flex-shrink-0">
                 <div className="flex items-start justify-between mb-2">
                   <Badge variant="outline">{item.type}</Badge>
-                  <Badge className="bg-[#7ef769] text-black">{item.categorie}</Badge>
+                  {item.categorie && (
+                    <Badge className="bg-[#7ef769] text-black">{item.categorie}</Badge>
+                  )}
                 </div>
                 <CardTitle className="text-lg">{item.titel}</CardTitle>
                 <CardDescription>{item.samenvatting}</CardDescription>
@@ -274,14 +319,21 @@ export function Overview({ onNavigate }: OverviewProps) {
           <CardContent>
             <div className="space-y-4">
               {latestTrends.map((trend) => (
-                <div key={trend.id} className="border-l-4 border-[#7ef769] pl-4 py-2">
+                <div 
+                  key={trend.id} 
+                  className="border-l-4 border-[#7ef769] pl-4 py-2 hover:bg-gray-50 transition-colors cursor-pointer rounded-r"
+                  onClick={() => onNavigate(`trend-${trend.id}`)}
+                >
                   <div className="flex items-start justify-between mb-1">
                     <h3 className="font-semibold text-gray-900">{trend.titel}</h3>
                     <Badge 
-                      variant={trend.relevantie === 'Hoog' ? 'default' : 'secondary'}
-                      className={trend.relevantie === 'Hoog' ? 'bg-[#280bc4] text-white' : ''}
+                      variant="outline"
+                      className={`text-xs font-medium border ${getRelevantieColor(trend.relevantie)}`}
                     >
-                      {trend.relevantie}
+                      <span className="flex items-center gap-1">
+                        {getRelevantieIcon(trend.relevantie)}
+                        {trend.relevantie}
+                      </span>
                     </Badge>
                   </div>
                   <p className="text-sm text-gray-600">{trend.beschrijving}</p>
@@ -326,11 +378,12 @@ export function Overview({ onNavigate }: OverviewProps) {
               {recentNews.map((item) => (
                 <div 
                   key={item.id} 
-                  className={`p-4 rounded-lg ${
+                  className={`p-4 rounded-lg cursor-pointer hover:opacity-90 transition-opacity ${
                     item.belangrijk 
                       ? 'bg-gradient-to-r from-[#7ef769]/10 to-[#7ef769]/5 border border-[#7ef769]/20' 
                       : 'bg-gray-50'
                   }`}
+                  onClick={() => onNavigate(`nieuws-${item.id}`)}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-semibold text-gray-900">{item.titel}</h3>
@@ -352,6 +405,16 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

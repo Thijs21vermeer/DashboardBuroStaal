@@ -3,6 +3,7 @@
 
 
 
+
 // Centrale type definities voor de hele applicatie
 
 export interface KennisItem {
@@ -57,6 +58,7 @@ export interface Trend {
   datumToegevoegd?: string;
   tags: string[];
   impact: string;
+  eigenaar?: string;
 }
 
 export interface NewsItem {
@@ -139,6 +141,7 @@ export interface AgendaItem {
 
 // Dashboard page types
 export type PageType = 'overzicht' | 'kennisbank' | 'cases' | 'trends' | 'team' | 'nieuws';
+
 
 
 

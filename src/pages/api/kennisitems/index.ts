@@ -9,9 +9,11 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
     id: String(dbRecord.id),
     titel: dbRecord.titel,
     type: dbRecord.type,
+    categorie: dbRecord.categorie,
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
     gekoppeldProject: dbRecord.gekoppeld_project || undefined,
     eigenaar: dbRecord.eigenaar,
+    auteur: dbRecord.eigenaar, // Alias voor frontend compatibility
     samenvatting: dbRecord.samenvatting,
     inhoud: dbRecord.inhoud,
     datumToegevoegd: dbRecord.datum_toegevoegd,
@@ -75,6 +77,7 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
 
 
 

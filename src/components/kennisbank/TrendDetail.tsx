@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, TrendingUp, AlertCircle, Lightbulb, Target } from 'lucide-react';
@@ -135,8 +136,8 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
             <div className="flex items-center gap-2 text-gray-600">
               <User className="w-5 h-5" />
               <div>
-                <p className="text-xs text-gray-500">Toegevoegd door</p>
-                <p className="font-medium text-gray-900">{trend.auteur}</p>
+                <p className="text-xs text-gray-500">Eigenaar</p>
+                <p className="font-medium text-gray-900">{trend.eigenaar || 'Onbekend'}</p>
               </div>
             </div>
           </CardContent>
@@ -262,3 +263,4 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+

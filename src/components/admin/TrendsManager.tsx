@@ -25,6 +25,7 @@ export default function TrendsManager() {
     bronnen: '',
     tags: '',
     impact: '',
+    eigenaar: '',
   });
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
@@ -153,6 +154,7 @@ export default function TrendsManager() {
       bronnen: item.bronnen.join('\n'),
       tags: item.tags.join(', '),
       impact: item.impact,
+      eigenaar: item.eigenaar || '',
     });
     setIsDialogOpen(true);
   };
@@ -180,6 +182,7 @@ export default function TrendsManager() {
       bronnen: '',
       tags: '',
       impact: '',
+      eigenaar: '',
     });
   };
 
@@ -286,6 +289,16 @@ export default function TrendsManager() {
               </div>
 
               <div>
+                <Label htmlFor="eigenaar">Eigenaar</Label>
+                <Input
+                  id="eigenaar"
+                  value={formData.eigenaar}
+                  onChange={(e) => setFormData({ ...formData, eigenaar: e.target.value })}
+                  placeholder="Bijv. Rick, Kevin, Rosanne"
+                />
+              </div>
+
+              <div>
                 <Label htmlFor="bronnen">Bronnen (gescheiden door komma's)</Label>
                 <Input
                   id="bronnen"
@@ -373,6 +386,10 @@ export default function TrendsManager() {
     </div>
   );
 }
+
+
+
+
 
 
 

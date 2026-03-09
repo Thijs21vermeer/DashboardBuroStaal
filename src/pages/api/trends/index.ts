@@ -15,6 +15,7 @@ function mapDbToTrend(dbRecord: any): Trend {
     datum: dbRecord.datum_toegevoegd,
     tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
     impact: dbRecord.impact || '',
+    eigenaar: dbRecord.eigenaar || 'Onbekend',
   };
 }
 
@@ -53,12 +54,13 @@ export const POST: APIRoute = async ({ request }) => {
       .input('impact', sql.NVarChar(sql.MAX), data.impact || null)
       .input('bronnen', sql.NVarChar(sql.MAX), JSON.stringify(data.bronnen || []))
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
+      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
       .query(`
         INSERT INTO Trends 
-        (titel, categorie, beschrijving, relevantie, impact, bronnen, tags, datum_toegevoegd, laatst_bijgewerkt, featured)
+        (titel, categorie, beschrijving, relevantie, impact, bronnen, tags, eigenaar, datum_toegevoegd, laatst_bijgewerkt, featured)
         OUTPUT INSERTED.*
         VALUES 
-        (@titel, @categorie, @beschrijving, @relevantie, @impact, @bronnen, @tags, GETDATE(), GETDATE(), 0)
+        (@titel, @categorie, @beschrijving, @relevantie, @impact, @bronnen, @tags, @eigenaar, GETDATE(), GETDATE(), 0)
       `);
 
     const newTrend = mapDbToTrend(result.recordset[0]);
@@ -70,6 +72,8 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create trend');
   }
 };
+
+
 
 
 

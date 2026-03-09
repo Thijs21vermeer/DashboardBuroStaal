@@ -1,3 +1,4 @@
+
 -- Azure SQL Schema Update voor Buro Staal Kennisbank
 -- Dit script voegt ontbrekende kolommen toe aan bestaande tabellen
 
@@ -83,6 +84,10 @@ BEGIN
     ALTER TABLE trends DROP COLUMN bron;
 END
 
+-- Add eigenaar column to trends table if it doesn't exist
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'trends' AND COLUMN_NAME = 'eigenaar')
+    ALTER TABLE trends ADD eigenaar NVARCHAR(200);
+
 PRINT 'Schema update voltooid!';
 -- Add referenties column to cases table
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[cases]') AND name = 'referenties')
@@ -90,3 +95,4 @@ BEGIN
     ALTER TABLE cases ADD referenties NVARCHAR(MAX);
 END
 GO
+

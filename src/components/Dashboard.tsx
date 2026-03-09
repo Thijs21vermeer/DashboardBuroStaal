@@ -6,6 +6,9 @@ import { CasesPage } from './kennisbank/CasesPage';
 import { TrendsPage } from './kennisbank/TrendsPage';
 import { TeamPage } from './kennisbank/TeamPage';
 import { NewsPage } from './kennisbank/NewsPage';
+import { KennisItemDetail } from './kennisbank/KennisItemDetail';
+import { TrendDetail } from './kennisbank/TrendDetail';
+import { NewsDetail } from './kennisbank/NewsDetail';
 import { AgendaPlanning } from './dashboard/AgendaPlanning';
 import { ActionsPriorities } from './dashboard/ActionsPriorities';
 import { ProjectProgress } from './dashboard/ProjectProgress';
@@ -60,9 +63,25 @@ export default function Dashboard({ children }: Props) {
   // Toon login scherm als niet ingelogd
   if (!isAuthenticated) {
     return <LoginForm onLogin={handleLogin} error={loginError} />;
-  }
+  };
 
   const renderContent = () => {
+    // Check for detail pages
+    if (currentPage.startsWith('kennisitem-')) {
+      const itemId = parseInt(currentPage.replace('kennisitem-', ''));
+      return <KennisItemDetail itemId={itemId} onBack={() => setCurrentPage('overzicht')} />;
+    }
+    
+    if (currentPage.startsWith('trend-')) {
+      const trendId = parseInt(currentPage.replace('trend-', ''));
+      return <TrendDetail trendId={trendId} onBack={() => setCurrentPage('overzicht')} />;
+    }
+    
+    if (currentPage.startsWith('nieuws-')) {
+      const newsId = parseInt(currentPage.replace('nieuws-', ''));
+      return <NewsDetail newsId={newsId} onBack={() => setCurrentPage('overzicht')} />;
+    }
+
     switch (currentPage) {
       case 'overzicht':
         return <Overview onNavigate={(page) => setCurrentPage(page as PageType)} />;
@@ -104,6 +123,7 @@ export default function Dashboard({ children }: Props) {
     </div>
   );
 }
+
 
 
 

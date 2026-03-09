@@ -2,6 +2,8 @@
 
 
 
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { TrendingUp, Search, Calendar, AlertCircle, ArrowRight, BarChart3, Target, RefreshCw, Lightbulb, Filter, CheckCircle, ExternalLink } from 'lucide-react';
@@ -33,7 +35,28 @@ export function TrendsPage() {
       const response = await fetch(`${baseUrl}/api/trends`);
       if (response.ok) {
         const data = await response.json();
-        setTrends(data);
+        
+        // Convert relevantie values to consistent labels
+        const processedTrends = data.map((trend: any) => {
+          let relevantieLabel = 'Laag';
+          if (typeof trend.relevantie === 'string') {
+            const rel = trend.relevantie.toLowerCase();
+            if (rel.includes('zeer') || rel === 'hoog') {
+              relevantieLabel = 'Hoog';
+            } else if (rel === 'relevant' || rel === 'gemiddeld' || rel === 'middel') {
+              relevantieLabel = 'Gemiddeld';
+            }
+          } else if (typeof trend.relevantie === 'number') {
+            relevantieLabel = trend.relevantie >= 80 ? 'Hoog' : trend.relevantie >= 50 ? 'Gemiddeld' : 'Laag';
+          }
+          
+          return {
+            ...trend,
+            relevantie: relevantieLabel
+          };
+        });
+        
+        setTrends(processedTrends);
       }
     } catch (error) {
       console.error('Fout bij laden trends:', error);
@@ -60,7 +83,7 @@ export function TrendsPage() {
     })
     .sort((a, b) => {
       if (sortBy === 'relevantie') {
-        const relevantieOrder = { 'Hoog': 0, 'Middel': 1, 'Laag': 2 };
+        const relevantieOrder = { 'Hoog': 0, 'Gemiddeld': 1, 'Laag': 2 };
         return relevantieOrder[a.relevantie] - relevantieOrder[b.relevantie];
       } else if (sortBy === 'titel') {
         return a.titel.localeCompare(b.titel);
@@ -83,7 +106,7 @@ export function TrendsPage() {
     switch (relevantie) {
       case 'Hoog':
         return <AlertCircle className="w-5 h-5 text-red-500" />;
-      case 'Middel':
+      case 'Gemiddeld':
         return <TrendingUp className="w-5 h-5 text-yellow-500" />;
       case 'Laag':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
@@ -96,7 +119,7 @@ export function TrendsPage() {
     switch (relevantie) {
       case 'Hoog':
         return 'bg-red-100 text-red-800 border-red-300';
-      case 'Middel':
+      case 'Gemiddeld':
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'Laag':
         return 'bg-green-100 text-green-800 border-green-300';
@@ -206,7 +229,7 @@ export function TrendsPage() {
                   <SelectContent>
                     <SelectItem value="alle">Alle niveaus</SelectItem>
                     <SelectItem value="Hoog">Hoog</SelectItem>
-                    <SelectItem value="Middel">Middel</SelectItem>
+                    <SelectItem value="Gemiddeld">Gemiddeld</SelectItem>
                     <SelectItem value="Laag">Laag</SelectItem>
                   </SelectContent>
                 </Select>
@@ -375,6 +398,10 @@ export function TrendsPage() {
     </div>
   );
 }
+
+
+
+
 
 
 
