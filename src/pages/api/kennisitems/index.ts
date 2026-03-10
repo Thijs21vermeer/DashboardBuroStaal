@@ -25,6 +25,56 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
   };
 }
 
+// Helper functie om Slack notificatie te sturen
+async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
+  try {
+    const message = {
+      text: `📚 Nieuw kennisitem: ${item.titel}`,
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: "📚 Nieuw Kennisitem Toegevoegd",
+            emoji: true
+          }
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*${item.titel}*\n\n${item.samenvatting}`
+          }
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `<https://burostaaldashboard.netlify.app|Bekijk in dashboard ›>`
+          }
+        }
+      ]
+    };
+
+    const response = await fetch(slackWebhook, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
+
+    if (!response.ok) {
+      console.error('Failed to send Slack notification:', response.status, response.statusText);
+    } else {
+      console.log('✅ Slack notification sent successfully');
+    }
+  } catch (error) {
+    console.error('Error sending Slack notification:', error);
+    // Don't throw - we don't want to fail the API request if Slack fails
+  }
+}
+
 // GET - Haal alle kennisitems op
 export const GET: APIRoute = async () => {
   try {
@@ -47,7 +97,7 @@ export const GET: APIRoute = async () => {
 };
 
 // POST - Voeg een nieuw kennisitem toe
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const data = await request.json();
     const dbPool = await getPool();
@@ -73,6 +123,16 @@ export const POST: APIRoute = async ({ request }) => {
       `);
 
     const newItem = mapDbToKennisItem(result.recordset[0]);
+    
+    // Stuur Slack notificatie
+    const slackWebhook = locals?.runtime?.env?.SLACK_WEBHOOK || import.meta.env.SLACK_WEBHOOK;
+    if (slackWebhook) {
+      // Don't await - send in background
+      sendSlackNotification(newItem, slackWebhook);
+    } else {
+      console.warn('⚠️ SLACK_WEBHOOK not configured - skipping notification');
+    }
+    
     return new Response(JSON.stringify(newItem), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
@@ -81,6 +141,8 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
+
 
 
 

@@ -1,4 +1,5 @@
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Tag, BookOpen, ExternalLink, Video } from 'lucide-react';
@@ -198,21 +199,6 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
         </Card>
       )}
 
-      {/* Image Display (if exists) */}
-      {item.afbeelding && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="rounded-lg overflow-hidden">
-              <img 
-                src={item.afbeelding} 
-                alt={item.titel}
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Main Content */}
       <Card>
         <CardHeader>
@@ -224,6 +210,21 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Image Display (if exists) - moved after content */}
+      {item.afbeelding && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="rounded-lg overflow-hidden max-w-2xl mx-auto">
+              <img 
+                src={item.afbeelding} 
+                alt={item.titel}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tags */}
       {item.tags && item.tags.length > 0 && (
@@ -284,6 +285,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
 
 
 

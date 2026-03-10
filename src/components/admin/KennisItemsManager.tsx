@@ -142,7 +142,7 @@ export default function KennisItemsManager() {
     setFormData({
       titel: item.titel,
       type: item.type,
-      tags: item.tags,
+      tags: Array.isArray(item.tags) ? item.tags.join(', ') : item.tags,
       gekoppeld_project: item.gekoppeld_project || '',
       eigenaar: item.eigenaar,
       samenvatting: item.samenvatting,
@@ -278,7 +278,7 @@ export default function KennisItemsManager() {
                 {!formData.afbeelding ? (
                   <div className="mt-2">
                     <label 
-                      htmlFor="afbeelding" 
+                      htmlFor="afbeelding-upload" 
                       className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
                     >
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -292,7 +292,7 @@ export default function KennisItemsManager() {
                       </div>
                     </label>
                     <Input
-                      id="afbeelding"
+                      id="afbeelding-upload"
                       type="file"
                       accept="image/*"
                       onChange={(e) => {
@@ -318,16 +318,46 @@ export default function KennisItemsManager() {
                         className="max-w-full h-auto rounded-lg border"
                       />
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-3"
-                      onClick={() => setFormData({ ...formData, afbeelding: '' })}
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Verwijder afbeelding
-                    </Button>
+                    <div className="flex gap-2 mt-3">
+                      <label htmlFor="afbeelding-replace">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          asChild
+                        >
+                          <span>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Vervang afbeelding
+                          </span>
+                        </Button>
+                      </label>
+                      <Input
+                        id="afbeelding-replace"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setFormData({ ...formData, afbeelding: reader.result as string });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setFormData({ ...formData, afbeelding: '' })}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Verwijder afbeelding
+                      </Button>
+                    </div>
                   </div>
                 )}
                 <p className="text-xs text-gray-500 mt-2">
@@ -432,6 +462,8 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
 
 
 
