@@ -35,7 +35,7 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
       id: 'kennisbank',
       label: 'Kennisbank',
       icon: <BookOpen className="w-5 h-5" />,
-      description: 'Artikelen, whitepapers & video\'s'
+      description: 'Artikelen, whitepapers & presentaties'
     },
     {
       id: 'cases',
@@ -182,6 +182,7 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
     </>
   );
 }
+
 
 
 

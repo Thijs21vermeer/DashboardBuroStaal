@@ -3,6 +3,7 @@
 
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -118,11 +119,11 @@ export default function CasesManager() {
       titel: item.titel,
       klant: item.klant,
       industrie: item.industrie,
-      tags: item.tags,
+      tags: Array.isArray(item.tags) ? item.tags.join(', ') : item.tags,
       uitdaging: item.uitdaging,
       oplossing: item.oplossing,
-      resultaten: item.resultaten,
-      referenties: item.referenties || '',
+      resultaten: Array.isArray(item.resultaten) ? item.resultaten.join('\n') : item.resultaten,
+      referenties: Array.isArray(item.referenties) ? item.referenties.join('\n') : (item.referenties || ''),
       eigenaar: item.eigenaar || 'Admin',
     });
     setIsDialogOpen(true);
@@ -364,6 +365,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

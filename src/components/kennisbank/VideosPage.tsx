@@ -3,6 +3,7 @@
 
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Video, PlayCircle, Filter, RefreshCw, Eye, Calendar, Link2, Check, Sparkles, Search } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -131,7 +132,7 @@ export default function VideosPage() {
               <h1 className="text-4xl font-bold text-white">Video Catalogus</h1>
             </div>
             <p className="text-lg text-white/90 max-w-2xl mb-8">
-              Ontdek onze collectie instructievideo's en tutorials voor het beheren van je website
+              Onze collectie instructievideo's en tutorials voor het helpen van onze klanten
             </p>
             
             {/* Stats */}
@@ -509,6 +510,7 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
 
 
 
