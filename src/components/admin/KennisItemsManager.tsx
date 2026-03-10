@@ -2,6 +2,8 @@
 
 
 
+
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -273,44 +275,64 @@ export default function KennisItemsManager() {
 
               <div>
                 <Label htmlFor="afbeelding">Afbeelding (optioneel)</Label>
-                <Input
-                  id="afbeelding"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      // Convert to base64
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setFormData({ ...formData, afbeelding: reader.result as string });
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                  className="cursor-pointer"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Upload een afbeelding voor dit kennisitem (wordt alleen getoond op de detailpagina)
-                </p>
-                {formData.afbeelding && (
-                  <div className="mt-3">
-                    <img 
-                      src={formData.afbeelding} 
-                      alt="Preview" 
-                      className="max-w-xs rounded-lg border"
+                {!formData.afbeelding ? (
+                  <div className="mt-2">
+                    <label 
+                      htmlFor="afbeelding" 
+                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg className="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="mb-2 text-sm text-gray-600">
+                          <span className="font-semibold">Klik om een afbeelding te uploaden</span>
+                        </p>
+                        <p className="text-xs text-gray-500">PNG, JPG, GIF tot 10MB</p>
+                      </div>
+                    </label>
+                    <Input
+                      id="afbeelding"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          // Convert to base64
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData({ ...formData, afbeelding: reader.result as string });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden"
                     />
+                  </div>
+                ) : (
+                  <div className="mt-3">
+                    <div className="relative">
+                      <img 
+                        src={formData.afbeelding} 
+                        alt="Preview" 
+                        className="max-w-full h-auto rounded-lg border"
+                      />
+                    </div>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="mt-2"
+                      className="mt-3"
                       onClick={() => setFormData({ ...formData, afbeelding: '' })}
                     >
+                      <Trash2 className="w-4 h-4 mr-2" />
                       Verwijder afbeelding
                     </Button>
                   </div>
                 )}
+                <p className="text-xs text-gray-500 mt-2">
+                  Upload een afbeelding voor dit kennisitem (wordt alleen getoond op de detailpagina)
+                </p>
               </div>
 
               <div>
@@ -330,15 +352,6 @@ export default function KennisItemsManager() {
                   value={formData.tags}
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                   placeholder="SEO, Marketing, Strategie"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="gekoppeld_project">Gekoppeld Project (optioneel)</Label>
-                <Input
-                  id="gekoppeld_project"
-                  value={formData.gekoppeld_project}
-                  onChange={(e) => setFormData({ ...formData, gekoppeld_project: e.target.value })}
                 />
               </div>
 
@@ -419,6 +432,8 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
 
 
 

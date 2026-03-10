@@ -56,13 +56,13 @@ export const POST: APIRoute = async ({ request }) => {
       .input('titel', sql.NVarChar, data.titel)
       .input('type', sql.NVarChar, data.type)
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .input('gekoppeld_project', sql.NVarChar, data.gekoppeldProject || null)
+      .input('gekoppeld_project', sql.NVarChar, data.gekoppeld_project || null)
       .input('eigenaar', sql.NVarChar, data.eigenaar)
       .input('samenvatting', sql.NVarChar, data.samenvatting || null)
       .input('inhoud', sql.NVarChar(sql.MAX), data.inhoud || null)
-      .input('media_type', sql.NVarChar, data.mediaType || null)
-      .input('media_url', sql.NVarChar, data.mediaUrl || null)
-      .input('video_link', sql.NVarChar, data.videoLink || null)
+      .input('media_type', sql.NVarChar, data.media_type || null)
+      .input('media_url', sql.NVarChar, data.media_url || null)
+      .input('video_link', sql.NVarChar, data.video_link || null)
       .input('afbeelding', sql.NVarChar(sql.MAX), data.afbeelding || null)
       .query(`
         INSERT INTO KennisItems 
@@ -81,6 +81,7 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
 
 
 
