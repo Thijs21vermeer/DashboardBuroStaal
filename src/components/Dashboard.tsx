@@ -119,7 +119,7 @@ export default function Dashboard({ children }: Props) {
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <div className="container mx-auto px-8 sm:px-12 lg:px-16 xl:px-24 2xl:px-32 py-6 max-w-[1400px] xl:max-w-[1300px] 2xl:max-w-[1400px]">
+        <div className="w-full px-[4%] sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-6">
           {renderContent()}
         </div>
       </div>
@@ -129,6 +129,10 @@ export default function Dashboard({ children }: Props) {
     </div>
   );
 }
+
+
+
+
 
 
 

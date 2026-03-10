@@ -97,10 +97,11 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-black to-[#280bc4] text-white">
-        <div className="max-w-[1400px] xl:max-w-[1300px] 2xl:max-w-[1400px] mx-auto px-8 sm:px-12 lg:px-16 xl:px-24 2xl:px-32 py-16">
+        <div className="w-full px-[4%] sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-16">
           <Button
             onClick={() => window.location.href = `${baseUrl}/`}
             className="mb-6 bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold"
+            style={{ color: 'black' }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Terug naar Dashboard
@@ -117,7 +118,7 @@ export default function AdminPanel() {
       </div>
 
       {/* Content */}
-      <div className="max-w-[1400px] xl:max-w-[1300px] 2xl:max-w-[1400px] mx-auto px-8 sm:px-12 lg:px-16 xl:px-24 2xl:px-32 py-8">
+      <div className="w-full px-[4%] sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-8">
         <Tabs defaultValue="kennisitems" className="w-full">
           <TabsList className="grid w-full grid-cols-7 mb-8">
             <TabsTrigger value="kennisitems">
@@ -183,6 +184,8 @@ export default function AdminPanel() {
     </ErrorBoundary>
   );
 }
+
+
 
 
 

@@ -28,6 +28,10 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
 // Helper functie om Slack notificatie te sturen
 async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
   try {
+    console.log('🔔 Attempting to send Slack notification...');
+    console.log('📝 Item:', item.titel);
+    console.log('🔗 Webhook URL exists:', slackWebhook ? 'Yes' : 'No');
+    
     const message = {
       text: `📚 Nieuw kennisitem: ${item.titel}`,
       blocks: [
@@ -43,7 +47,7 @@ async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*${item.titel}*\n\n${item.samenvatting}`
+            text: `*${item.titel}*\n\n${item.samenvatting || 'Geen samenvatting beschikbaar'}`
           }
         },
         {
@@ -56,6 +60,7 @@ async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
       ]
     };
 
+    console.log('📤 Sending to Slack...');
     const response = await fetch(slackWebhook, {
       method: 'POST',
       headers: {
@@ -64,13 +69,18 @@ async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
       body: JSON.stringify(message),
     });
 
+    const responseText = await response.text();
+    
     if (!response.ok) {
-      console.error('Failed to send Slack notification:', response.status, response.statusText);
+      console.error('❌ Failed to send Slack notification');
+      console.error('Status:', response.status, response.statusText);
+      console.error('Response:', responseText);
     } else {
       console.log('✅ Slack notification sent successfully');
+      console.log('Response:', responseText);
     }
   } catch (error) {
-    console.error('Error sending Slack notification:', error);
+    console.error('❌ Error sending Slack notification:', error);
     // Don't throw - we don't want to fail the API request if Slack fails
   }
 }
@@ -141,6 +151,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
 
 
 

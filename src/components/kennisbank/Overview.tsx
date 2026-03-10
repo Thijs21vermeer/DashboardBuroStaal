@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
@@ -150,7 +151,7 @@ export function Overview({ onNavigate }: OverviewProps) {
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 rounded-xl shadow-lg p-8 md:p-12 text-white">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 md:p-12 text-white">
         <div className="max-w-4xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Dashboard Buro Staal
@@ -164,10 +165,10 @@ export function Overview({ onNavigate }: OverviewProps) {
           <div className="flex flex-wrap gap-4">
             <Button 
               onClick={() => onNavigate('kennisbank')}
-              className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90 font-semibold border-2 border-[#7ef769]"
+              className="bg-[#7ef769] !text-black hover:bg-[#7ef769]/90 font-semibold border-2 border-[#7ef769] transition-colors"
             >
-              Verken de Kennisbank
-              <ArrowRight className="ml-2 w-4 h-4" />
+              <span className="text-black">Verken de Kennisbank</span>
+              <ArrowRight className="ml-2 w-4 h-4 text-black" />
             </Button>
             <Button 
               onClick={() => onNavigate('cases')}
@@ -409,6 +410,13 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,8 @@
 
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Video, PlayCircle, Filter, RefreshCw, Eye, Calendar, Link2, Check, Sparkles, Search } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -105,7 +109,7 @@ export default function VideosPage() {
   };
 
   const featuredVideos = filteredVideos.filter(v => v.featured);
-  const regularVideos = filteredVideos.filter(v => !v.featured);
+  const regularVideos = filteredVideos; // Show all videos including featured ones
 
   return (
     <div className="flex-1 overflow-auto bg-gray-50 min-h-screen">
@@ -113,8 +117,8 @@ export default function VideosPage() {
       <div className="h-6"></div>
       
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#280bc4] via-[#5c3dd1] to-[#7f56d9] rounded-3xl shadow-lg">
+      <div className="mb-8">
+        <div className="relative overflow-hidden bg-gradient-to-r from-black to-[#280bc4] rounded-3xl shadow-lg">
           {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#7ef769]/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
@@ -171,7 +175,7 @@ export default function VideosPage() {
       </div>
 
       {/* Filters */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+      <div className="mb-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <div className="flex flex-col gap-4">
             {/* Search Bar */}
@@ -220,7 +224,7 @@ export default function VideosPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <div className="pb-12">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
@@ -321,17 +325,22 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
         <img 
           src={getThumbnail(video)} 
           alt={video.titel}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <div className="transform scale-75 group-hover:scale-100 transition-transform duration-300">
-            <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full">
-              <PlayCircle className="h-12 w-12 text-white" />
+        {/* Overlay voor lagere helderheid */}
+        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300"></div>
+        
+        {/* Hover play button */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="transform scale-90 group-hover:scale-100 transition-transform duration-300">
+            <div className="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg">
+              <PlayCircle className="h-10 w-10 text-[#280bc4]" />
             </div>
           </div>
         </div>
+        
         {video.featured && (
-          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-[#7ef769] to-[#6de659] text-black font-semibold shadow-lg border-0">
+          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-[#7ef769] to-[#6de659] text-black font-semibold shadow-lg border-0 z-10">
             ⭐ Featured
           </Badge>
         )}
@@ -382,10 +391,10 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
           <Button
             onClick={handleCopyLink}
             size="sm"
-            className={`w-full transition-all duration-200 ${
+            className={`w-full transition-all duration-200 shadow-sm ${
               copied 
-                ? 'bg-green-600 hover:bg-green-700 text-white border-0' 
-                : 'bg-[#280bc4] hover:bg-[#5c3dd1] text-white border-0'
+                ? 'bg-[#6de659] hover:bg-[#5dd548] text-black font-semibold border-0' 
+                : 'bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold border-0'
             }`}
           >
             {copied ? (
@@ -500,6 +509,12 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 

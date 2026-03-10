@@ -1,5 +1,7 @@
 
 
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Newspaper, Calendar, User, TrendingUp, Award, Rocket, PartyPopper, Briefcase, Users, RefreshCw } from 'lucide-react';
@@ -289,6 +291,8 @@ export function NewsPage() {
     </div>
   );
 }
+
+
 
 
 

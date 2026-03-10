@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { TrendingUp, Search, Calendar, AlertCircle, ArrowRight, BarChart3, Target, RefreshCw, Lightbulb, Filter, CheckCircle, ExternalLink } from 'lucide-react';
@@ -143,7 +142,7 @@ export function TrendsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#280bc4] to-purple-600 rounded-xl shadow-lg p-8 text-white">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-[#7ef769]" />
@@ -301,7 +300,7 @@ export function TrendsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredTrends.map((trend) => (
             <Card 
               key={trend.id} 
@@ -381,7 +380,7 @@ export function TrendsPage() {
 
                 {/* CTA Button */}
                 <Button 
-                  className="w-full bg-[#280bc4] hover:bg-[#280bc4]/90 text-white font-medium text-sm mt-auto"
+                  className="w-full bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold text-sm mt-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedTrendId(trend.id);
@@ -398,6 +397,11 @@ export function TrendsPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

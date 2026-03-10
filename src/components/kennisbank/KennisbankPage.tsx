@@ -106,7 +106,7 @@ export function KennisbankPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 rounded-xl shadow-lg p-8 text-white">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <BookOpen className="w-8 h-8 text-[#7ef769]" />
@@ -338,7 +338,7 @@ export function KennisbankPage() {
 
                 {/* Read More Button */}
                 <Button 
-                  className="w-full bg-[#280bc4] hover:bg-[#280bc4]/90 text-white group-hover:bg-[#7ef769] group-hover:text-black transition-colors"
+                  className="w-full bg-[#7ef769] hover:bg-[#7ef769]/90 text-black font-semibold transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedItemId(item.id);
@@ -355,6 +355,8 @@ export function KennisbankPage() {
     </div>
   );
 }
+
+
 
 
 

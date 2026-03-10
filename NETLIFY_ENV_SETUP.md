@@ -1,227 +1,85 @@
-# 🔐 Netlify Environment Variables Setup
 
-## Vereiste Environment Variables
+# 🔧 Netlify Environment Variables Setup
 
-Om de admin panel te laten werken in Netlify, moet je de volgende environment variables instellen in het Netlify Dashboard.
+## Probleem
+De Slack notificaties werken lokaal maar niet in productie omdat de `SLACK_WEBHOOK` environment variable niet is ingesteld in Netlify.
 
-### Stap 1: Open Netlify Dashboard
+## Oplossing
 
-1. Ga naar [app.netlify.com](https://app.netlify.com)
-2. Selecteer je site
-3. Ga naar **Site settings**
-4. Klik op **Environment variables** (in het linker menu)
+### Optie 1: Via Netlify Dashboard (Aanbevolen)
 
-### Stap 2: Voeg Azure SQL Credentials Toe
+1. Ga naar https://app.netlify.com
+2. Selecteer je site: **burostaaldashboard**
+3. Ga naar **Site settings** → **Environment variables**
+4. Klik op **Add a variable**
+5. Voeg toe:
+   - **Key**: `SLACK_WEBHOOK`
+   - **Value**: `[Je Slack Webhook URL hier]`
+   - **Scopes**: Selecteer alle scopes (Production, Deploy previews, Branch deploys)
+6. Klik op **Create variable**
+7. **Trigger een nieuwe deploy** (Site settings → Build & deploy → Trigger deploy → Deploy site)
 
-Klik op **Add a variable** en voeg de volgende variabelen toe:
-
-```
-Variable name: AZURE_SQL_SERVER
-Value: dashboardbs.database.windows.net
-```
-
-```
-Variable name: AZURE_SQL_DATABASE  
-Value: dashboarddb
-```
-
-```
-Variable name: AZURE_SQL_USER
-Value: databasedashboard
-```
-
-```
-Variable name: AZURE_SQL_PASSWORD
-Value: Knolpower05!
-```
-
-```
-Variable name: AZURE_SQL_PORT
-Value: 1433
-```
-
-### Stap 3: Save & Deploy
-
-1. Klik op **Save** voor elke variabele
-2. Netlify zal automatisch een nieuwe deployment triggeren
-3. Wacht tot de deployment compleet is (~2 minuten)
-
----
-
-## ✅ Verificatie
-
-### Test Health Endpoint
-
-Na deployment, test of de environment variables correct zijn:
+### Optie 2: Via Netlify CLI
 
 ```bash
-curl https://jouw-site.netlify.app/api/health
+# Installeer Netlify CLI (als nog niet geïnstalleerd)
+npm install -g netlify-cli
+
+# Login
+netlify login
+
+# Stel environment variable in
+netlify env:set SLACK_WEBHOOK "[Je Slack Webhook URL hier]"
+
+# Trigger nieuwe deploy
+netlify deploy --prod
 ```
 
-**Verwachte response:**
-```json
-{
-  "status": "ok",
-  "timestamp": "2025-01-20T10:30:00.000Z",
-  "environment": {
-    "hasAzureServer": true,     ✅
-    "hasAzureDatabase": true,   ✅
-    "hasAzureUser": true,       ✅
-    "hasAzurePassword": true    ✅
-  }
-}
-```
+## ⚠️ Bestaande Environment Variables
 
-Als een van de `has*` velden `false` is, dan ontbreekt die environment variable!
+Zorg ervoor dat ook deze zijn ingesteld (deze staan waarschijnlijk al in Netlify):
 
-### Test Admin Panel
+- `AZURE_SQL_SERVER`
+- `AZURE_SQL_DATABASE`
+- `AZURE_SQL_USER`
+- `AZURE_SQL_PASSWORD`
+- `AZURE_SQL_PORT`
 
-Ga naar: `https://jouw-site.netlify.app/admin`
+## Verificatie
 
-Je zou één van de volgende banners moeten zien:
+Na het instellen en deployen:
 
-- **✅ Groene banner**: "Verbonden met database" - Perfect!
-- **⚠️ Gele banner**: "Gebruik Mock Data" - Database is leeg (seed data toevoegen)
-- **❌ Rode banner**: "Database Connectie Mislukt" - Check firewall rules
+1. Ga naar `/admin` op je live site
+2. Voeg een nieuw kennisitem toe
+3. Check je Slack kanaal - je zou een notificatie moeten zien! 📢
 
----
+## Debug
 
-## 🔥 Troubleshooting
+Als het nog steeds niet werkt, check de Netlify deploy logs:
 
-### Rode Banner: "Database Connectie Mislukt"
+1. Ga naar je site in Netlify Dashboard
+2. Klik op **Deploys**
+3. Klik op de laatste deploy
+4. Check de **Function logs** voor errors
+5. Zoek naar de logs met 🔔, 📤, ✅ of ❌ emoji's
 
-**Mogelijke oorzaken:**
+## Test Lokaal
 
-1. **Environment variables niet ingesteld**
-   - Check `/api/health` endpoint
-   - Zorg dat alle 5 variabelen zijn ingesteld
-
-2. **Azure Firewall blokkeert Netlify**
-   
-   **Oplossing:**
-   
-   a. Open [Azure Portal](https://portal.azure.com)
-   
-   b. Ga naar je SQL Database:
-      - Resources > `dashboarddb`
-   
-   c. Klik op **Set server firewall** (in de toolbar)
-   
-   d. Zet **Allow Azure services** op `ON`:
-      ```
-      Allow Azure services and resources to access this server: ON
-      ```
-   
-   e. Optioneel: Voeg Netlify IP ranges toe:
-      ```
-      Rule name: Netlify
-      Start IP:  0.0.0.0
-      End IP:    255.255.255.255
-      ```
-      
-      ⚠️ Dit opent de database voor alle IP's. Voor productie, gebruik specifieke Netlify IP ranges.
-   
-   f. Klik **Save**
-
-3. **Credentials zijn incorrect**
-   - Double-check username en password
-   - Test met Azure Data Studio of SSMS
-
-4. **Database bestaat niet**
-   - Check of `dashboarddb` bestaat in Azure Portal
-   - Check of de tables zijn aangemaakt (run `azure-schema.sql`)
-
-### Gele Banner: "Gebruik Mock Data"
-
-Dit betekent dat de database **bereikbaar** is maar **leeg**.
-
-**Oplossing:** Seed de database
+Test de Slack integratie lokaal met:
 
 ```bash
-# Optie 1: Via API (als backend draait)
-cd azure-functions-api
-npm run seed
-
-# Optie 2: Via SSMS/Azure Data Studio
-# Run azure-seed.sql in je database
+npx tsx test-slack-notification.ts
 ```
 
----
+Dit zou een test notificatie naar Slack moeten sturen.
 
-## 🎯 Productie Best Practices
+## 🔒 Security Opmerking
 
-### 1. Gebruik Azure Key Vault
+**BELANGRIJK**: De webhook URL die in deze chat is verschenen is nu publiek zichtbaar. Overweeg om:
 
-Voor extra beveiliging, bewaar credentials in Azure Key Vault:
+1. Deze webhook te revoeren in Slack
+2. Een nieuwe webhook aan te maken
+3. De nieuwe URL in Netlify en `.env` te zetten
 
-```bash
-# In Netlify env vars
-AZURE_KEY_VAULT_NAME=burostaal-vault
-AZURE_CLIENT_ID=...
-AZURE_CLIENT_SECRET=...
-AZURE_TENANT_ID=...
-```
+Doe dit via: https://api.slack.com/apps → Je app → Incoming Webhooks
 
-### 2. Restrictieve Firewall Rules
-
-In plaats van `0.0.0.0 - 255.255.255.255`, gebruik specifieke IP ranges:
-
-Netlify IP ranges vind je hier:
-- [Netlify IP Addresses Documentation](https://docs.netlify.com/routing/netlify-ip-addresses/)
-
-### 3. Read-Only User voor Frontend
-
-Maak een aparte SQL user met **alleen** read permissions:
-
-```sql
-CREATE USER [kennisbank_readonly] WITH PASSWORD = 'SecurePassword123!';
-GRANT SELECT ON SCHEMA::dbo TO [kennisbank_readonly];
-```
-
-Dan in Netlify:
-```
-AZURE_SQL_USER=kennisbank_readonly
-AZURE_SQL_PASSWORD=SecurePassword123!
-```
-
-### 4. Connection Pooling
-
-De app gebruikt al connection pooling via `getPool()` in `src/lib/db-config.ts`.
-
-Voor betere performance, overweeg:
-- Azure SQL Database Elastic Pool
-- Redis caching layer
-- Azure Functions als dedicated backend
-
----
-
-## 📋 Deployment Checklist
-
-Voordat je deployed naar productie:
-
-- [ ] Environment variables ingesteld in Netlify
-- [ ] Azure SQL firewall regels geconfigureerd
-- [ ] Database schema aangemaakt (`azure-schema.sql`)
-- [ ] Database geseeded met data (`azure-seed.sql`)
-- [ ] Health endpoint test succesvol (`/api/health`)
-- [ ] Admin panel test succesvol (`/admin`)
-- [ ] Read-only user aangemaakt (optioneel)
-- [ ] Key Vault configuratie (optioneel)
-- [ ] Restrictieve firewall rules (optioneel)
-
----
-
-## 🔗 Handige Links
-
-- [Netlify Environment Variables Docs](https://docs.netlify.com/environment-variables/overview/)
-- [Azure SQL Firewall Configuration](https://learn.microsoft.com/azure/azure-sql/database/firewall-configure)
-- [Azure Key Vault Integration](https://learn.microsoft.com/azure/key-vault/)
-
----
-
-**Status na deze fix:**
-- ✅ Sandbox preview: Werkt perfect
-- ⏳ Netlify deployment: Volg deze guide
-- 📝 Next: Test in Netlify en rapporteer resultaten
-
-**Made with 💜 for Buro Staal**

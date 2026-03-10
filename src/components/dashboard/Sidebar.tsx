@@ -81,10 +81,10 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed left-4 top-4 z-50 p-3 bg-gradient-to-br from-[#280bc4] to-[#7ef769] text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          className="fixed left-4 top-4 z-50 p-3 bg-gradient-to-br from-black to-[#280bc4] text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
           title="Open menu"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-6 h-6 text-white" />
         </button>
       )}
 
@@ -93,19 +93,13 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
         <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 z-40 shadow-xl">
           <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-[#280bc4] to-[#7ef769] rounded-lg flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-gray-900">Phoenix</h2>
-                  <p className="text-xs text-gray-500">Buro Staal</p>
-                </div>
+            <div className="relative border-b border-gray-200 h-32 flex items-start justify-center pt-6">
+              <div className="w-48 h-20">
+                <img src={`${baseUrl}/logo.svg`} alt="Buro Staal Logo" className="w-full h-full object-contain" />
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                className="absolute top-4 right-4 p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-600" />
               </button>
@@ -131,7 +125,11 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
                       {item.icon}
                     </span>
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-sm">{item.label}</div>
+                      <div className={`font-medium text-sm ${
+                        currentPage === item.id ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        {item.label}
+                      </div>
                       <div className={`text-xs ${
                         currentPage === item.id ? 'text-white/80' : 'text-gray-500'
                       }`}>
@@ -174,16 +172,30 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
         </aside>
       )}
 
-      {/* Mobile Overlay */}
+      {/* Overlay */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          className="fixed inset-0 bg-black/50 z-30 transition-opacity duration-1000 ease-in-out"
           onClick={() => setIsOpen(false)}
         />
       )}
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

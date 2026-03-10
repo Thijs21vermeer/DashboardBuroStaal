@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Briefcase, TrendingUp, Users, ArrowRight, Target, CheckCircle2, RefreshCw, Building2, Filter, Award } from 'lucide-react';
@@ -320,7 +321,7 @@ export function CasesPage() {
 
                 {/* CTA */}
                 <Button 
-                  className="w-full bg-[#280bc4] text-white hover:bg-[#280bc4]/90 font-medium text-sm mt-auto"
+                  className="w-full bg-[#7ef769] text-black hover:bg-[#7ef769]/90 font-medium text-sm mt-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedCaseId(caseItem.id);
@@ -337,6 +338,9 @@ export function CasesPage() {
     </div>
   );
 }
+
+
+
 
 
 

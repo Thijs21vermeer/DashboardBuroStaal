@@ -121,206 +121,207 @@ export default function ToolsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-[1400px] mx-auto px-8 sm:px-12 lg:px-16 xl:px-24 2xl:px-32 py-8">
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#280bc4]"></div>
-          </div>
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#280bc4]"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-[1400px] mx-auto px-8 sm:px-12 lg:px-16 xl:px-24 2xl:px-32 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-4xl font-bold text-black">Tools & Snippets</h1>
-            <Button
-              onClick={fetchTools}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Vernieuw
-            </Button>
-          </div>
-          <p className="text-gray-600">
-            Herbruikbare code snippets, commando's en configuraties voor het team
-          </p>
-        </div>
-
-        {/* Search and Filter */}
-        <div className="mb-6 space-y-4">
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input
-                type="text"
-                placeholder="Zoek tools, tags, eigenaar..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <Filter className="w-4 h-4 text-gray-500" />
-            {categories.map(category => (
-              <Button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                variant={selectedCategory === category ? 'default' : 'outline'}
-                size="sm"
-                className={selectedCategory === category ? 'bg-[#280bc4] hover:bg-[#280bc4]/90' : ''}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Totaal Tools</p>
-                <p className="text-2xl font-bold text-black">{tools.length}</p>
-              </div>
-              <Code2 className="w-8 h-8 text-[#280bc4]" />
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Commands</p>
-                <p className="text-2xl font-bold text-black">
-                  {tools.filter(t => t.categorie === 'Command').length}
-                </p>
-              </div>
-              <Terminal className="w-8 h-8 text-green-600" />
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Snippets</p>
-                <p className="text-2xl font-bold text-black">
-                  {tools.filter(t => t.categorie === 'Code Snippet').length}
-                </p>
-              </div>
-              <FileCode className="w-8 h-8 text-blue-600" />
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Configuraties</p>
-                <p className="text-2xl font-bold text-black">
-                  {tools.filter(t => t.categorie === 'Configuration').length}
-                </p>
-              </div>
-              <Settings className="w-8 h-8 text-purple-600" />
-            </div>
-          </Card>
-        </div>
-
-        {/* Results Count */}
-        <div className="mb-4">
-          <p className="text-sm text-gray-600">
-            {filteredTools.length} {filteredTools.length === 1 ? 'tool' : 'tools'} gevonden
-          </p>
-        </div>
-
-        {/* Tools Grid */}
-        {filteredTools.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Code2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Geen tools gevonden</h3>
-            <p className="text-gray-600">
-              Probeer een andere zoekopdracht of filter
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Tools & Snippets</h1>
+            <p className="text-white/90">
+              Herbruikbare code snippets, commando's en configuraties voor het team
             </p>
-          </Card>
-        ) : (
-          <div className="grid gap-6">
-            {filteredTools.map((tool) => (
-              <Card key={tool.id} className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-4 flex-1">
-                    <div className="p-3 bg-gray-100 rounded-lg">
-                      {getCategoryIcon(tool.categorie)}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-black mb-2">
-                        {tool.titel}
-                      </h3>
-                      <p className="text-gray-600 mb-3">{tool.beschrijving}</p>
-                      
-                      <div className="flex items-center gap-2 flex-wrap mb-4">
-                        <Badge variant="outline" className="bg-[#280bc4] text-white border-[#280bc4]">
-                          {tool.categorie}
+          </div>
+          <Button
+            onClick={fetchTools}
+            variant="outline"
+            size="icon"
+            title="Ververs tools"
+            className="bg-white/10 border-white/20 hover:bg-white/20 text-white"
+          >
+            <RefreshCw className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="space-y-4">
+        <div className="flex gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Input
+              type="text"
+              placeholder="Zoek tools, tags, eigenaar..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Category Filter */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Filter className="w-4 h-4 text-gray-500" />
+          {categories.map(category => (
+            <Button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              variant={selectedCategory === category ? 'default' : 'outline'}
+              size="sm"
+              className={selectedCategory === category ? 'bg-[#280bc4] hover:bg-[#280bc4]/90' : ''}
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Totaal Tools</p>
+              <p className="text-2xl font-bold text-black">{tools.length}</p>
+            </div>
+            <Code2 className="w-8 h-8 text-[#280bc4]" />
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Commands</p>
+              <p className="text-2xl font-bold text-black">
+                {tools.filter(t => t.categorie === 'Command').length}
+              </p>
+            </div>
+            <Terminal className="w-8 h-8 text-green-600" />
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Snippets</p>
+              <p className="text-2xl font-bold text-black">
+                {tools.filter(t => t.categorie === 'Code Snippet').length}
+              </p>
+            </div>
+            <FileCode className="w-8 h-8 text-blue-600" />
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Configuraties</p>
+              <p className="text-2xl font-bold text-black">
+                {tools.filter(t => t.categorie === 'Configuration').length}
+              </p>
+            </div>
+            <Settings className="w-8 h-8 text-purple-600" />
+          </div>
+        </Card>
+      </div>
+
+      {/* Results Count */}
+      <div>
+        <p className="text-sm text-gray-600">
+          {filteredTools.length} {filteredTools.length === 1 ? 'tool' : 'tools'} gevonden
+        </p>
+      </div>
+
+      {/* Tools Grid */}
+      {filteredTools.length === 0 ? (
+        <Card className="p-12 text-center">
+          <Code2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Geen tools gevonden</h3>
+          <p className="text-gray-600">
+            Probeer een andere zoekopdracht of filter
+          </p>
+        </Card>
+      ) : (
+        <div className="grid gap-6">
+          {filteredTools.map((tool) => (
+            <Card key={tool.id} className="p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="p-3 bg-gray-100 rounded-lg">
+                    {getCategoryIcon(tool.categorie)}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-black mb-2">
+                      {tool.titel}
+                    </h3>
+                    <p className="text-gray-600 mb-3">{tool.beschrijving}</p>
+                    
+                    <div className="flex items-center gap-2 flex-wrap mb-4">
+                      <Badge variant="outline" className="bg-[#280bc4] text-white border-[#280bc4]">
+                        {tool.categorie}
+                      </Badge>
+                      {tool.taal && (
+                        <Badge variant="outline" className={getLanguageColor(tool.taal)}>
+                          {tool.taal}
                         </Badge>
-                        {tool.taal && (
-                          <Badge variant="outline" className={getLanguageColor(tool.taal)}>
-                            {tool.taal}
-                          </Badge>
+                      )}
+                      {tool.tags && tool.tags.split(',').map((tag, idx) => (
+                        <Badge key={idx} variant="outline" className="bg-gray-100">
+                          {tag.trim()}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    {/* Code Block */}
+                    <div className="relative bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto">
+                      <Button
+                        onClick={() => handleCopy(tool.id, tool.code)}
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 bg-gray-800 hover:bg-gray-700 text-white"
+                      >
+                        {copiedId === tool.id ? (
+                          <>
+                            <Check className="w-4 h-4 mr-1" />
+                            Gekopieerd
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4 mr-1" />
+                            Kopieer
+                          </>
                         )}
-                        {tool.tags && tool.tags.split(',').map((tag, idx) => (
-                          <Badge key={idx} variant="outline" className="bg-gray-100">
-                            {tag.trim()}
-                          </Badge>
-                        ))}
-                      </div>
+                      </Button>
+                      <pre className="text-sm font-mono whitespace-pre-wrap break-all">
+                        {tool.code}
+                      </pre>
+                    </div>
 
-                      {/* Code Block */}
-                      <div className="relative bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto">
-                        <Button
-                          onClick={() => handleCopy(tool.id, tool.code)}
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-2 right-2 bg-gray-800 hover:bg-gray-700 text-white"
-                        >
-                          {copiedId === tool.id ? (
-                            <>
-                              <Check className="w-4 h-4 mr-1" />
-                              Gekopieerd
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4 mr-1" />
-                              Kopieer
-                            </>
-                          )}
-                        </Button>
-                        <pre className="text-sm font-mono whitespace-pre-wrap break-all">
-                          {tool.code}
-                        </pre>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
-                        <span>Door: <span className="font-semibold text-black">{tool.eigenaar}</span></span>
-                        <span>
-                          {new Date(tool.datum_toegevoegd).toLocaleDateString('nl-NL', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
+                      <span>Door: <span className="font-semibold text-black">{tool.eigenaar}</span></span>
+                      <span>
+                        {new Date(tool.datum_toegevoegd).toLocaleDateString('nl-NL', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </span>
                     </div>
                   </div>
                 </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+
+

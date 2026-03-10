@@ -1,6 +1,8 @@
 
 
 
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo } from 'react';
 import { Users, Mail, Star, Award, Briefcase, ExternalLink, Phone, Globe, Sparkles, Building2 } from 'lucide-react';
@@ -66,7 +68,7 @@ export function TeamPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 rounded-xl shadow-lg p-8 text-white">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
         <div className="flex items-center gap-3 mb-3">
           <Users className="w-8 h-8 text-[#7ef769]" />
           <h1 className="text-3xl font-bold">Ons Team & Expertise</h1>
@@ -164,7 +166,7 @@ export function TeamPage() {
                 {/* Contact */}
                 <div className="pt-4 border-t">
                   <Button 
-                    className="w-full bg-[#280bc4] hover:bg-[#280bc4]/90 text-white"
+                    className="w-full bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold"
                     onClick={() => window.location.href = `mailto:${member.email}`}
                   >
                     <Mail className="w-4 h-4 mr-2" />
@@ -231,7 +233,7 @@ export function TeamPage() {
                 {/* Contact */}
                 <div className="pt-2">
                   <Button 
-                    className="w-full bg-white border-2 border-[#280bc4] text-[#280bc4] hover:bg-[#280bc4] hover:text-white transition-colors"
+                    className="w-full bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold"
                     onClick={() => window.location.href = `mailto:${member.email}`}
                   >
                     <Mail className="w-4 h-4 mr-2" />
@@ -365,6 +367,8 @@ export function TeamPage() {
     </div>
   );
 }
+
+
 
 
 
