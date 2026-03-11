@@ -1,5 +1,4 @@
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, Building2, Award, Target, TrendingUp, Users, Clock, DollarSign, CheckCircle2, Briefcase, Quote } from 'lucide-react';
@@ -38,306 +37,297 @@ export function CaseDetail({ caseId, onBack }: CaseDetailProps) {
 
   if (loading) {
     return (
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-7xl mx-auto">
-          <Button 
-            variant="ghost" 
-            onClick={onBack}
-            className="mb-6"
-          >
-            <ArrowLeft className="mr-2 w-4 h-4" />
-            Terug naar cases
-          </Button>
-          <Card>
-            <CardContent className="py-16 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#280bc4] mx-auto"></div>
-              <p className="text-gray-600 mt-4">Case laden...</p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-6">
+        <Button 
+          variant="ghost" 
+          onClick={onBack}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 w-4 h-4" />
+          Terug naar cases
+        </Button>
+        <Card>
+          <CardContent className="py-12 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#280bc4] mx-auto"></div>
+            <p className="text-gray-600 mt-4">Case laden...</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!caseItem) {
     return (
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-7xl mx-auto">
-          <Button 
-            variant="ghost" 
-            onClick={onBack}
-            className="mb-6"
-          >
-            <ArrowLeft className="mr-2 w-4 h-4" />
-            Terug naar cases
-          </Button>
-          <Card>
-            <CardContent className="py-16 text-center">
-              <p className="text-gray-600">Case niet gevonden</p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-6">
+        <Button 
+          variant="ghost" 
+          onClick={onBack}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 w-4 h-4" />
+          Terug naar cases
+        </Button>
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-gray-600">Case niet gevonden</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          onClick={onBack}
-          className="mb-8 hover:bg-gray-100 -ml-2"
-        >
-          <ArrowLeft className="mr-2 w-4 h-4" />
-          Terug naar cases
-        </Button>
+    <div className="space-y-6">
+      {/* Back Button */}
+      <Button 
+        variant="ghost" 
+        onClick={onBack}
+        className="mb-4 hover:bg-gray-100"
+      >
+        <ArrowLeft className="mr-2 w-4 h-4" />
+        Terug naar cases
+      </Button>
 
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 rounded-2xl shadow-xl p-8 lg:p-12 text-white">
-            <div className="flex items-center gap-3 mb-6 flex-wrap">
-              <Award className="w-10 h-10 text-[#7ef769]" />
-              <Badge className="bg-[#7ef769] text-black font-semibold px-4 py-1.5 text-sm">
-                {caseItem.industrie}
-              </Badge>
-              {caseItem.status && (
-                <Badge className="bg-white/20 text-white border-white/30 font-semibold px-4 py-1.5 text-sm">
-                  {caseItem.status}
-                </Badge>
-              )}
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">{caseItem.titel}</h1>
-            <div className="flex items-center gap-6 text-white/90 flex-wrap text-base">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5" />
-                <span className="font-medium">{caseItem.klant}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5" />
-                <span className="font-medium">{caseItem.eigenaar}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                <span>{new Date(caseItem.datum).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              </div>
-              {caseItem.projectDuur && (
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  <span>{caseItem.projectDuur}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {caseItem.roi && (
-              <Card className="border-2 border-[#7ef769]/30 hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6 pb-6">
-                  <div className="flex flex-col gap-4">
-                    <div className="w-14 h-14 bg-[#7ef769]/10 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="w-7 h-7 text-[#7ef769]" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 font-medium mb-1">ROI</p>
-                      <p className="text-3xl font-bold text-gray-900">{caseItem.roi}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {caseItem.budget && (
-              <Card className="border-2 border-[#280bc4]/30 hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6 pb-6">
-                  <div className="flex flex-col gap-4">
-                    <div className="w-14 h-14 bg-[#280bc4]/10 rounded-xl flex items-center justify-center">
-                      <DollarSign className="w-7 h-7 text-[#280bc4]" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 font-medium mb-1">Budget</p>
-                      <p className="text-2xl font-bold text-gray-900">{caseItem.budget}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {caseItem.team && caseItem.team.length > 0 && (
-              <Card className="border-2 border-gray-200 hover:shadow-lg transition-shadow">
-                <CardContent className="pt-6 pb-6">
-                  <div className="flex flex-col gap-4">
-                    <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center">
-                      <Users className="w-7 h-7 text-gray-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600 font-medium mb-1">Team</p>
-                      <p className="text-2xl font-bold text-gray-900">{caseItem.team.length} leden</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Team Members */}
-          {caseItem.team && caseItem.team.length > 0 && (
-            <Card className="shadow-md">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-xl">
-                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-blue-600" />
-                  </div>
-                  Team Leden
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-3">
-                  {caseItem.team.map((member: string, index: number) => (
-                    <Badge 
-                      key={index} 
-                      variant="secondary"
-                      className="text-base px-5 py-2 bg-blue-50 text-blue-700 font-medium"
-                    >
-                      {member.trim()}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <Award className="w-8 h-8 text-[#7ef769]" />
+          <Badge className="bg-[#7ef769] text-black font-semibold px-4 py-1.5 text-sm">
+            {caseItem.industrie}
+          </Badge>
+          {caseItem.status && (
+            <Badge className="bg-white/20 text-white border-white/30 font-semibold px-4 py-1.5 text-sm">
+              {caseItem.status}
+            </Badge>
           )}
-
-          {/* Challenge & Solution */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="shadow-md">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-xl">
-                  <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-red-600" />
-                  </div>
-                  Uitdaging
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed text-base whitespace-pre-wrap">
-                  {caseItem.uitdaging || 'Geen uitdaging beschikbaar'}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-md">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-xl">
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Award className="w-6 h-6 text-green-600" />
-                  </div>
-                  Oplossing
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 leading-relaxed text-base whitespace-pre-wrap">
-                  {caseItem.oplossing || 'Geen oplossing beschikbaar'}
-                </p>
-              </CardContent>
-            </Card>
+        </div>
+        <h1 className="text-3xl font-bold mb-3 leading-tight">{caseItem.titel}</h1>
+        <div className="flex items-center gap-6 text-white/90 flex-wrap text-base">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-5 h-5" />
+            <span className="font-medium">{caseItem.klant}</span>
           </div>
+          <div className="flex items-center gap-2">
+            <Briefcase className="w-5 h-5" />
+            <span className="font-medium">{caseItem.eigenaar}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            <span>{new Date(caseItem.datum).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          </div>
+          {caseItem.projectDuur && (
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              <span>{caseItem.projectDuur}</span>
+            </div>
+          )}
+        </div>
+      </div>
 
-          {/* Results */}
-          <Card className="border-2 border-[#7ef769]/50 shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-2xl">
-                <div className="w-11 h-11 bg-[#7ef769] rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-black" />
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {caseItem.roi && (
+          <Card className="border-2 border-[#7ef769]/30 hover:shadow-lg transition-shadow">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex flex-col gap-4">
+                <div className="w-14 h-14 bg-[#7ef769]/10 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-7 h-7 text-[#7ef769]" />
                 </div>
-                Resultaten
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {caseItem.resultaten && caseItem.resultaten.length > 0 ? (
-                <div className="space-y-4">
-                  {caseItem.resultaten.map((result: string, index: number) => (
-                    <div key={index} className="flex items-start gap-4 bg-gray-50 p-4 rounded-lg">
-                      <CheckCircle2 className="w-6 h-6 text-[#7ef769] mt-0.5 flex-shrink-0" />
-                      <p className="text-gray-800 leading-relaxed text-base font-medium">
-                        {result}
-                      </p>
-                    </div>
-                  ))}
+                <div>
+                  <p className="text-sm text-gray-600 font-medium mb-1">ROI</p>
+                  <p className="text-3xl font-bold text-gray-900">{caseItem.roi}</p>
                 </div>
-              ) : (
-                <p className="text-gray-700 leading-relaxed text-base">
-                  Geen resultaten beschikbaar
-                </p>
-              )}
+              </div>
             </CardContent>
           </Card>
+        )}
 
-          {/* Referenties */}
-          {caseItem.referenties && caseItem.referenties.length > 0 && (
-            <Card className="shadow-lg border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-2xl">
-                  <div className="w-11 h-11 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <Quote className="w-6 h-6 text-purple-600" />
-                  </div>
-                  Referenties
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {caseItem.referenties.map((referentie: string, index: number) => (
-                    <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
-                      <Quote className="w-8 h-8 text-purple-300 mb-3" />
-                      <p className="text-gray-800 leading-relaxed text-base italic">
-                        "{referentie}"
-                      </p>
-                    </div>
-                  ))}
+        {caseItem.budget && (
+          <Card className="border-2 border-[#280bc4]/30 hover:shadow-lg transition-shadow">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex flex-col gap-4">
+                <div className="w-14 h-14 bg-[#280bc4]/10 rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-7 h-7 text-[#280bc4]" />
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Tags */}
-          {caseItem.tags && caseItem.tags.length > 0 && (
-            <Card className="shadow-md">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl">Tags</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {caseItem.tags.map((tag: string) => (
-                    <Badge 
-                      key={tag} 
-                      variant="secondary"
-                      className="text-sm px-4 py-2 font-medium"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
+                <div>
+                  <p className="text-sm text-gray-600 font-medium mb-1">Budget</p>
+                  <p className="text-2xl font-bold text-gray-900">{caseItem.budget}</p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Back Button Bottom */}
-          <div className="flex justify-center pt-4 pb-8">
-            <Button 
-              onClick={onBack}
-              variant="outline"
-              size="lg"
-              className="gap-2 px-8 py-6 text-base font-medium"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Terug naar cases
-            </Button>
-          </div>
-        </div>
+        {caseItem.team && caseItem.team.length > 0 && (
+          <Card className="border-2 border-gray-200 hover:shadow-lg transition-shadow">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex flex-col gap-4">
+                <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center">
+                  <Users className="w-7 h-7 text-gray-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 font-medium mb-1">Team</p>
+                  <p className="text-2xl font-bold text-gray-900">{caseItem.team.length} leden</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Team Members */}
+      {caseItem.team && caseItem.team.length > 0 && (
+        <Card className="shadow-md">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              Team Leden
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              {caseItem.team.map((member: string, index: number) => (
+                <Badge 
+                  key={index} 
+                  variant="secondary"
+                  className="text-base px-5 py-2 bg-blue-50 text-blue-700 font-medium"
+                >
+                  {member.trim()}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Challenge & Solution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="shadow-md">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                <Target className="w-6 h-6 text-red-600" />
+              </div>
+              Uitdaging
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 leading-relaxed text-base whitespace-pre-wrap">
+              {caseItem.uitdaging || 'Geen uitdaging beschikbaar'}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-md">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <Award className="w-6 h-6 text-green-600" />
+              </div>
+              Oplossing
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 leading-relaxed text-base whitespace-pre-wrap">
+              {caseItem.oplossing || 'Geen oplossing beschikbaar'}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Results */}
+      <Card className="border-2 border-[#7ef769]/50 shadow-lg">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-3 text-2xl">
+            <div className="w-11 h-11 bg-[#7ef769] rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-black" />
+            </div>
+            Resultaten
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {caseItem.resultaten && caseItem.resultaten.length > 0 ? (
+            <div className="space-y-4">
+              {caseItem.resultaten.map((result: string, index: number) => (
+                <div key={index} className="flex items-start gap-4 bg-gray-50 p-4 rounded-lg">
+                  <CheckCircle2 className="w-6 h-6 text-[#7ef769] mt-0.5 flex-shrink-0" />
+                  <p className="text-gray-800 leading-relaxed text-base font-medium">
+                    {result}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-700 leading-relaxed text-base">
+              Geen resultaten beschikbaar
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Referenties */}
+      {caseItem.referenties && caseItem.referenties.length > 0 && (
+        <Card className="shadow-lg border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-2xl">
+              <div className="w-11 h-11 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Quote className="w-6 h-6 text-purple-600" />
+              </div>
+              Referenties
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {caseItem.referenties.map((referentie: string, index: number) => (
+                <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-purple-100">
+                  <Quote className="w-8 h-8 text-purple-300 mb-3" />
+                  <p className="text-gray-800 leading-relaxed text-base italic">
+                    "{referentie}"
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Tags */}
+      {caseItem.tags && caseItem.tags.length > 0 && (
+        <Card className="shadow-md">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl">Tags</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {caseItem.tags.map((tag: string) => (
+                <Badge 
+                  key={tag} 
+                  variant="secondary"
+                  className="text-sm px-4 py-2 font-medium"
+                >
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Back Button Bottom */}
+      <div className="flex justify-center pt-2">
+        <Button 
+          onClick={onBack}
+          variant="outline"
+          size="lg"
+          className="gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Terug naar cases
+        </Button>
       </div>
     </div>
   );
 }
-
 

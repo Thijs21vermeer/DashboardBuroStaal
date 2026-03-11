@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Calendar, User, Tag, ArrowRight, BookOpen, RefreshCw } from 'lucide-react';
@@ -276,8 +277,8 @@ export function KennisbankPage() {
               className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-[#280bc4] flex flex-col"
               onClick={() => setSelectedItemId(item.id)}
             >
-              <CardHeader className="flex-shrink-0">
-                <div className="flex items-start justify-between mb-3">
+              <CardHeader className="flex-shrink-0 pb-4 p-8 pt-4 space-y-2">
+                <div className="flex items-start justify-between">
                   <Badge variant="outline" className="font-medium">
                     {item.type}
                   </Badge>
@@ -287,40 +288,40 @@ export function KennisbankPage() {
                     </Badge>
                   )}
                 </div>
-                <Badge className="bg-[#280bc4] text-white mb-3 w-fit">
+                <Badge className="bg-[#280bc4] text-white w-fit">
                   {item.categorie}
                 </Badge>
-                <CardTitle className="text-lg group-hover:text-[#280bc4] transition-colors">
+                <CardTitle className="text-lg group-hover:text-[#280bc4] transition-colors leading-snug">
                   {item.titel}
                 </CardTitle>
-                <CardDescription className="line-clamp-2">
+                <CardDescription className="line-clamp-2 text-base leading-relaxed">
                   {item.samenvatting}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 mt-auto">
+              <CardContent className="space-y-4 mt-auto pt-0 p-8 pb-2">
                 {/* Meta Info */}
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    <span>{item.auteur}</span>
+                <div className="space-y-2.5 text-sm text-gray-600 py-4 border-t">
+                  <div className="flex items-center gap-3">
+                    <User className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{item.auteur}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
                     <span>{new Date(item.datumToegevoegd || item.datumToegevoegd).toLocaleDateString('nl-NL')}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-4 h-4" />
+                  <div className="flex items-center gap-3">
+                    <Eye className="w-4 h-4 flex-shrink-0" />
                     <span>{item.views} views</span>
                   </div>
                 </div>
 
                 {/* Tags */}
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {item.tags.slice(0, 4).map((tag) => (
                     <Badge 
                       key={tag} 
                       variant="secondary" 
-                      className="text-xs cursor-pointer hover:bg-gray-300"
+                      className="text-xs cursor-pointer hover:bg-gray-300 px-2.5 py-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedTag(tag);
@@ -330,7 +331,7 @@ export function KennisbankPage() {
                     </Badge>
                   ))}
                   {item.tags.length > 4 && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs px-2.5 py-1">
                       +{item.tags.length - 4}
                     </Badge>
                   )}
@@ -355,6 +356,13 @@ export function KennisbankPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,6 @@
 
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Newspaper, Tag } from 'lucide-react';
@@ -111,7 +113,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6">
       {/* Back Button */}
       <Button 
         variant="ghost" 
@@ -123,7 +125,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
       </Button>
 
       {/* Header */}
-      <div className={`bg-gradient-to-r from-gray-900 to-gray-700 rounded-xl shadow-lg p-8 border-l-8 ${getCategoryBorderColor(news.categorie)}`}>
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
         <div className="flex items-center gap-3 mb-4">
           <Newspaper className="w-8 h-8 text-[#7ef769]" />
           <Badge className={`${getCategoryColor(news.categorie)} text-white`}>
@@ -215,7 +217,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
       )}
 
       {/* Back Button Bottom */}
-      <div className="flex justify-center pt-8 pb-4">
+      <div className="flex justify-center pt-2">
         <Button 
           onClick={onBack}
           variant="outline"
@@ -229,4 +231,6 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
     </div>
   );
 }
+
+
 

@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Briefcase, TrendingUp, Users, ArrowRight, Target, CheckCircle2, RefreshCw, Building2, Filter, Award } from 'lucide-react';
@@ -255,14 +254,14 @@ export function CasesPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCases.map((caseItem) => (
             <Card 
               key={caseItem.id} 
               className="hover:shadow-xl transition-all cursor-pointer group border-2 hover:border-[#280bc4] flex flex-col"
               onClick={() => setSelectedCaseId(caseItem.id)}
             >
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-4 pt-4 space-y-2">
                 <div className="flex flex-wrap items-start gap-2 mb-2">
                   {caseItem.featured && (
                     <Badge className="bg-[#7ef769] text-black text-xs">
@@ -277,59 +276,61 @@ export function CasesPage() {
                 <CardTitle className="text-lg group-hover:text-[#280bc4] transition-colors line-clamp-2">
                   {caseItem.titel}
                 </CardTitle>
-                <div className="flex items-center gap-2 text-gray-600 text-sm pt-1">
+                <div className="flex items-center gap-2 text-gray-600 text-sm">
                   <Building2 className="w-3 h-3" />
                   <span className="font-medium">{caseItem.klant}</span>
                 </div>
               </CardHeader>
               
-              <CardContent className="space-y-3 flex-1 flex flex-col">
+              <CardContent className="flex-1 flex flex-col pb-2">
                 {/* Brief Description */}
-                <p className="text-sm text-gray-600 line-clamp-3 flex-1">
+                <p className="text-sm text-gray-600 line-clamp-3 mb-3 flex-1">
                   {caseItem.uitdaging}
                 </p>
 
-                {/* Key Result Highlight */}
-                {caseItem.resultaten && caseItem.resultaten.length > 0 && (
-                  <div className="bg-gradient-to-r from-[#280bc4]/10 to-[#7ef769]/10 rounded-lg p-3">
-                    <div className="flex items-start gap-2">
-                      <TrendingUp className="w-4 h-4 text-[#280bc4] mt-0.5 flex-shrink-0" />
-                      <p className="text-sm font-medium text-gray-900 line-clamp-2">
-                        {caseItem.resultaten[0]}
-                      </p>
+                <div className="space-y-3">
+                  {/* Key Result Highlight */}
+                  {caseItem.resultaten && caseItem.resultaten.length > 0 && (
+                    <div className="bg-gradient-to-r from-[#280bc4]/10 to-[#7ef769]/10 rounded-lg p-3">
+                      <div className="flex items-start gap-2">
+                        <TrendingUp className="w-4 h-4 text-[#280bc4] mt-0.5 flex-shrink-0" />
+                        <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                          {caseItem.resultaten[0]}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {(caseItem.tags || []).slice(0, 3).map((tag: string) => (
-                    <Badge 
-                      key={tag} 
-                      variant="secondary" 
-                      className="text-xs"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                  {caseItem.tags && caseItem.tags.length > 3 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{caseItem.tags.length - 3}
-                    </Badge>
                   )}
-                </div>
 
-                {/* CTA */}
-                <Button 
-                  className="w-full bg-[#7ef769] text-black hover:bg-[#7ef769]/90 font-medium text-sm mt-auto"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedCaseId(caseItem.id);
-                  }}
-                >
-                  Bekijk details
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {(caseItem.tags || []).slice(0, 3).map((tag: string) => (
+                      <Badge 
+                        key={tag} 
+                        variant="secondary" 
+                        className="text-xs"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                    {caseItem.tags && caseItem.tags.length > 3 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{caseItem.tags.length - 3}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* CTA */}
+                  <Button 
+                    className="w-full bg-[#7ef769] text-black hover:bg-[#7ef769]/90 font-medium text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedCaseId(caseItem.id);
+                    }}
+                  >
+                    Bekijk details
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -338,6 +339,11 @@ export function CasesPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

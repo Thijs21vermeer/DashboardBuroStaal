@@ -1,4 +1,9 @@
 
+
+
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, TrendingUp, AlertCircle, Lightbulb, Target } from 'lucide-react';
@@ -95,7 +100,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6">
       {/* Back Button */}
       <Button 
         variant="ghost" 
@@ -107,45 +112,34 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
       </Button>
 
       {/* Header */}
-      <div className={`bg-gradient-to-r ${getRelevanceBgColor(trend.relevantie)} rounded-xl shadow-lg p-8 border-2 ${
-        trend.relevantie === 'hoog' ? 'border-red-500' : 
-        trend.relevantie === 'gemiddeld' ? 'border-orange-500' : 
-        'border-yellow-500'
-      }`}>
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
         <div className="flex items-center gap-3 mb-4">
-          <TrendingUp className={`w-8 h-8 ${
-            trend.relevantie === 'hoog' ? 'text-red-600' : 
-            trend.relevantie === 'gemiddeld' ? 'text-orange-600' : 
-            'text-yellow-600'
-          }`} />
-          <Badge className="bg-[#280bc4] text-white">
+          <TrendingUp className="w-8 h-8 text-[#7ef769]" />
+          <Badge className="bg-white/20 text-white border-white/30">
             {trend.categorie}
           </Badge>
           <Badge className={`${getRelevanceColor(trend.relevantie)} text-white`}>
             {trend.relevantie.charAt(0).toUpperCase() + trend.relevantie.slice(1)} Relevantie
           </Badge>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">{trend.titel}</h1>
-        <p className="text-gray-700 text-lg">{trend.samenvatting}</p>
+        <h1 className="text-3xl font-bold mb-3">{trend.titel}</h1>
+        <p className="text-white/90 text-lg">{trend.samenvatting}</p>
       </div>
 
       {/* Meta Information */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2 text-gray-600">
-              <User className="w-5 h-5" />
+              <User className="w-5 h-5 text-[#280bc4]" />
               <div>
                 <p className="text-xs text-gray-500">Eigenaar</p>
                 <p className="font-medium text-gray-900">{trend.eigenaar || 'Onbekend'}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
+            <div className="h-8 w-px bg-gray-200"></div>
             <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="w-5 h-5" />
+              <Calendar className="w-5 h-5 text-[#280bc4]" />
               <div>
                 <p className="text-xs text-gray-500">Datum</p>
                 <p className="font-medium text-gray-900">
@@ -153,31 +147,33 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-gray-600">
-              <Eye className="w-5 h-5" />
-              <div>
-                <p className="text-xs text-gray-500">Views</p>
-                <p className="font-medium text-gray-900">{trend.views}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-gray-600">
-              <TrendingUp className="w-5 h-5" />
-              <div>
-                <p className="text-xs text-gray-500">Sector</p>
-                <p className="font-medium text-gray-900">{trend.sector}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            {trend.views && (
+              <>
+                <div className="h-8 w-px bg-gray-200"></div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Eye className="w-5 h-5 text-[#280bc4]" />
+                  <div>
+                    <p className="text-xs text-gray-500">Views</p>
+                    <p className="font-medium text-gray-900">{trend.views}</p>
+                  </div>
+                </div>
+              </>
+            )}
+            {trend.sector && (
+              <>
+                <div className="h-8 w-px bg-gray-200"></div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <TrendingUp className="w-5 h-5 text-[#280bc4]" />
+                  <div>
+                    <p className="text-xs text-gray-500">Sector</p>
+                    <p className="font-medium text-gray-900">{trend.sector}</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Main Content */}
       <Card>
@@ -249,7 +245,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
       )}
 
       {/* Back Button Bottom */}
-      <div className="flex justify-center pt-8 pb-4">
+      <div className="flex justify-center pt-2">
         <Button 
           onClick={onBack}
           variant="outline"
@@ -263,4 +259,11 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+
+
+
+
+
+
+
 

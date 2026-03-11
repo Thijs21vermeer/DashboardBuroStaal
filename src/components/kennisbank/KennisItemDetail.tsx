@@ -1,5 +1,9 @@
 
 
+
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Tag, BookOpen, ExternalLink, Video } from 'lucide-react';
@@ -95,7 +99,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
   const youtubeId = item.type === 'Video' && item.videoLink ? extractYouTubeId(item.videoLink) : null;
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6">
       {/* Back Button */}
       <Button 
         variant="ghost" 
@@ -107,7 +111,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
       </Button>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 rounded-xl shadow-lg p-8 text-white">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
         <div className="flex items-center gap-3 mb-4">
           <BookOpen className="w-8 h-8 text-[#7ef769]" />
           <Badge className="bg-white/20 text-white border-white/30">
@@ -159,46 +163,6 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
         </CardContent>
       </Card>
 
-      {/* Video Player (if type is Video and link exists) */}
-      {item.type === 'Video' && item.videoLink && youtubeId && (
-        <Card className="border-2 border-[#280bc4]/20">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Video className="w-5 h-5 text-[#280bc4]" />
-              Video
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
-              <iframe
-                width="100%"
-                height="100%"
-                src={`https://www.youtube.com/embed/${youtubeId}`}
-                title={item.titel}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              ></iframe>
-            </div>
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                Bekijk op YouTube
-              </p>
-              <Button 
-                onClick={() => window.open(item.videoLink, '_blank', 'noopener,noreferrer')}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Open in YouTube
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Main Content */}
       <Card>
         <CardHeader>
@@ -210,6 +174,48 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Video Player (if type is Video and link exists) */}
+      {item.type === 'Video' && item.videoLink && youtubeId && (
+        <Card className="border-2 border-[#280bc4]/20">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Video className="w-5 h-5 text-[#280bc4]" />
+              Video
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-3xl mx-auto">
+              <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${youtubeId}`}
+                  title={item.titel}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <p className="text-sm text-gray-600">
+                  Bekijk op YouTube
+                </p>
+                <Button 
+                  onClick={() => window.open(item.videoLink, '_blank', 'noopener,noreferrer')}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Open in YouTube
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Image Display (if exists) - moved after content */}
       {item.afbeelding && (
@@ -271,7 +277,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
       )}
 
       {/* Back Button Bottom */}
-      <div className="flex justify-center pt-8 pb-4">
+      <div className="flex justify-center pt-2">
         <Button 
           onClick={onBack}
           variant="outline"
@@ -285,6 +291,10 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
+
+
+
 
 
 
