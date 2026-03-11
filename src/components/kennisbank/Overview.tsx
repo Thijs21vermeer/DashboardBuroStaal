@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
@@ -233,7 +232,7 @@ export function Overview({ onNavigate }: OverviewProps) {
       {/* Featured Content */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Uitgelichte Kennis</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Laatste kennisitems</h2>
           <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
@@ -410,6 +409,7 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
 
 
 
