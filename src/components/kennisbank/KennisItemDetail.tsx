@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Tag, BookOpen, ExternalLink, Video } from 'lucide-react';
@@ -99,69 +98,70 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
   const youtubeId = item.type === 'Video' && item.videoLink ? extractYouTubeId(item.videoLink) : null;
 
   return (
-    <div className="space-y-6">
-      {/* Back Button */}
-      <Button 
-        variant="ghost" 
-        onClick={onBack}
-        className="mb-4 hover:bg-gray-100"
-      >
-        <ArrowLeft className="mr-2 w-4 h-4" />
-        Terug naar overzicht
-      </Button>
-
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
-        <div className="flex items-center gap-3 mb-4">
-          <BookOpen className="w-8 h-8 text-[#7ef769]" />
-          <Badge className="bg-white/20 text-white border-white/30">
-            {item.type}
-          </Badge>
-          <Badge className="bg-[#7ef769] text-black">
-            {item.categorie}
-          </Badge>
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-6 sm:p-8 md:p-10 text-white mb-6">
+        <Button
+          onClick={onBack}
+          variant="ghost"
+          className="mb-4 text-white hover:bg-white/10 -ml-2 sm:-ml-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Terug naar overzicht
+        </Button>
+        
+        <div className="flex flex-col sm:flex-row items-start gap-4 mb-4 sm:mb-6">
+          <div className="p-3 sm:p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+            <BookOpen className="w-8 h-8 sm:w-12 sm:h-12 text-[#7ef769]" />
+          </div>
+          <div className="flex-1">
+            <div className="flex flex-wrap gap-2 mb-2 sm:mb-3">
+              <Badge className="bg-[#7ef769] text-black text-xs sm:text-sm">{item.type}</Badge>
+              {item.categorie && (
+                <Badge variant="outline" className="border-white/30 text-white text-xs sm:text-sm">
+                  {item.categorie}
+                </Badge>
+              )}
+            </div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3">{item.titel}</h1>
+            <p className="text-base sm:text-lg md:text-xl text-white/90">{item.samenvatting}</p>
+          </div>
         </div>
-        <h1 className="text-3xl font-bold mb-3">{item.titel}</h1>
-        <p className="text-white/90 text-lg">{item.samenvatting}</p>
       </div>
 
       {/* Meta Information */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2 text-gray-600">
-              <User className="w-5 h-5" />
-              <div>
-                <p className="text-xs text-gray-500">Auteur</p>
-                <p className="font-medium text-gray-900">{item.auteur}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="w-5 h-5" />
-              <div>
-                <p className="text-xs text-gray-500">Datum</p>
-                <p className="font-medium text-gray-900">
-                  {new Date(item.datumToegevoegd).toLocaleDateString('nl-NL')}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <Eye className="w-5 h-5" />
-              <div>
-                <p className="text-xs text-gray-500">Views</p>
-                <p className="font-medium text-gray-900">{item.views}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <Tag className="w-5 h-5" />
-              <div>
-                <p className="text-xs text-gray-500">Tags</p>
-                <p className="font-medium text-gray-900">{item.tags?.length || 0}</p>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="flex items-center gap-2 text-gray-600">
+          <User className="w-5 h-5" />
+          <div>
+            <p className="text-xs text-gray-500">Auteur</p>
+            <p className="font-medium text-gray-900">{item.auteur}</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="flex items-center gap-2 text-gray-600">
+          <Calendar className="w-5 h-5" />
+          <div>
+            <p className="text-xs text-gray-500">Datum</p>
+            <p className="font-medium text-gray-900">
+              {new Date(item.datumToegevoegd).toLocaleDateString('nl-NL')}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-gray-600">
+          <Eye className="w-5 h-5" />
+          <div>
+            <p className="text-xs text-gray-500">Views</p>
+            <p className="font-medium text-gray-900">{item.views}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-gray-600">
+          <Tag className="w-5 h-5" />
+          <div>
+            <p className="text-xs text-gray-500">Tags</p>
+            <p className="font-medium text-gray-900">{item.tags?.length || 0}</p>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
       <Card>
@@ -291,6 +291,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
 
 
 

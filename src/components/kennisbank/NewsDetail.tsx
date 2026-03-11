@@ -1,6 +1,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Newspaper, Tag } from 'lucide-react';
@@ -113,49 +114,49 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Back Button */}
       <Button 
         variant="ghost" 
         onClick={onBack}
-        className="mb-4 hover:bg-gray-100"
+        className="mb-2 sm:mb-4 hover:bg-gray-100"
       >
         <ArrowLeft className="mr-2 w-4 h-4" />
         Terug naar nieuws
       </Button>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
-        <div className="flex items-center gap-3 mb-4">
-          <Newspaper className="w-8 h-8 text-[#7ef769]" />
-          <Badge className={`${getCategoryColor(news.categorie)} text-white`}>
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-6 sm:p-8 text-white">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <Newspaper className="w-6 h-6 sm:w-8 sm:h-8 text-[#7ef769]" />
+          <Badge className={`${getCategoryColor(news.categorie)} text-white text-xs sm:text-sm`}>
             {news.categorie}
           </Badge>
         </div>
-        <h1 className="text-3xl font-bold text-white mb-3">{news.titel}</h1>
-        <p className="text-white/90 text-lg">{news.samenvatting}</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3">{news.titel}</h1>
+        <p className="text-white/90 text-base sm:text-lg">{news.samenvatting}</p>
       </div>
 
       {/* Meta Information */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center gap-2 text-gray-600">
-              <User className="w-5 h-5" />
+              <User className="w-4 h-4 sm:w-5 sm:h-5" />
               <div>
                 <p className="text-xs text-gray-500">Auteur</p>
-                <p className="font-medium text-gray-900">{news.auteur}</p>
+                <p className="font-medium text-gray-900 text-sm sm:text-base">{news.auteur}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="w-5 h-5" />
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
               <div>
                 <p className="text-xs text-gray-500">Datum</p>
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-gray-900 text-sm sm:text-base">
                   {new Date(news.datum).toLocaleDateString('nl-NL', {
                     day: 'numeric',
                     month: 'long',
@@ -167,12 +168,12 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center gap-2 text-gray-600">
-              <Eye className="w-5 h-5" />
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
               <div>
                 <p className="text-xs text-gray-500">Views</p>
-                <p className="font-medium text-gray-900">{news.views || 0}</p>
+                <p className="font-medium text-gray-900 text-sm sm:text-base">{news.views || 0}</p>
               </div>
             </div>
           </CardContent>
@@ -182,10 +183,10 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
       {/* Main Content */}
       <Card className={`border-l-4 ${getCategoryBorderColor(news.categorie)}`}>
         <CardHeader>
-          <CardTitle>Volledig Artikel</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">Volledig Artikel</CardTitle>
         </CardHeader>
-        <CardContent className="prose prose-lg max-w-none">
-          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+        <CardContent className="prose prose-sm sm:prose-lg max-w-none">
+          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
             {news.inhoud}
           </div>
         </CardContent>
@@ -195,8 +196,8 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
       {news.tags && news.tags.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Tag className="w-5 h-5" />
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
               Tags
             </CardTitle>
           </CardHeader>
@@ -206,7 +207,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
                 <Badge 
                   key={tag} 
                   variant="secondary"
-                  className="text-sm px-3 py-1"
+                  className="text-xs sm:text-sm px-2 sm:px-3 py-1"
                 >
                   {tag}
                 </Badge>
@@ -222,7 +223,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
           onClick={onBack}
           variant="outline"
           size="lg"
-          className="gap-2"
+          className="gap-2 w-full sm:w-auto"
         >
           <ArrowLeft className="w-4 h-4" />
           Terug naar nieuws
@@ -231,6 +232,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
     </div>
   );
 }
+
 
 
 

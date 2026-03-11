@@ -105,25 +105,25 @@ export function KennisbankPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
-        <div className="flex items-center justify-between mb-3">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-6 sm:p-8 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <div className="flex items-center gap-3">
-            <BookOpen className="w-8 h-8 text-[#7ef769]" />
-            <h1 className="text-3xl font-bold">Onze Kennisbank</h1>
+            <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-[#7ef769]" />
+            <h1 className="text-2xl sm:text-3xl font-bold">Onze Kennisbank</h1>
           </div>
           <Button 
             variant="outline" 
             size="icon"
             onClick={loadItems}
             title="Ververs kennisbank"
-            className="bg-white/10 border-white/20 hover:bg-white/20 text-white"
+            className="bg-white/10 border-white/20 hover:bg-white/20 text-white self-start sm:self-auto"
           >
             <RefreshCw className="w-5 h-5" />
           </Button>
         </div>
-        <p className="text-white/90 text-lg mb-6">
+        <p className="text-white/90 text-base sm:text-lg mb-4 sm:mb-6">
           Centraal overzicht van alle kennis, documenten en resources
         </p>
       </div>
@@ -132,32 +132,32 @@ export function KennisbankPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-gray-600" />
-            <CardTitle>Zoeken & Filteren</CardTitle>
+            <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+            <CardTitle className="text-base sm:text-lg">Zoeken & Filteren</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {/* Search Bar */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
               <Input
                 type="text"
                 placeholder="Zoek op titel, beschrijving of tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-base"
+                className="pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base"
               />
             </div>
 
             {/* Filters Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                   Categorie
                 </label>
                 <Select value={selectedCategorie} onValueChange={setSelectedCategorie}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -170,11 +170,11 @@ export function KennisbankPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                   Type Media
                 </label>
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -187,11 +187,11 @@ export function KennisbankPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                   Tag
                 </label>
                 <Select value={selectedTag} onValueChange={setSelectedTag}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -204,11 +204,11 @@ export function KennisbankPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                   Sorteren op
                 </label>
                 <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -270,58 +270,58 @@ export function KennisbankPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {filteredItems.map((item) => (
             <Card 
               key={item.id} 
               className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-[#280bc4] flex flex-col"
               onClick={() => setSelectedItemId(item.id)}
             >
-              <CardHeader className="flex-shrink-0 pb-4 p-8 pt-4 space-y-2">
-                <div className="flex items-start justify-between">
-                  <Badge variant="outline" className="font-medium">
+              <CardHeader className="flex-shrink-0 pb-3 sm:pb-4 p-3 sm:p-6 lg:p-8 pt-3 sm:pt-4 space-y-1.5 sm:space-y-2">
+                <div className="flex items-start justify-between gap-1">
+                  <Badge variant="outline" className="font-medium text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                     {item.type}
                   </Badge>
                   {item.featured && (
-                    <Badge className="bg-[#7ef769] text-black">
+                    <Badge className="bg-[#7ef769] text-black text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                       Featured
                     </Badge>
                   )}
                 </div>
-                <Badge className="bg-[#280bc4] text-white w-fit">
+                <Badge className="bg-[#280bc4] text-white w-fit text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                   {item.categorie}
                 </Badge>
-                <CardTitle className="text-lg group-hover:text-[#280bc4] transition-colors leading-snug">
+                <CardTitle className="text-sm sm:text-base lg:text-lg group-hover:text-[#280bc4] transition-colors leading-snug line-clamp-2">
                   {item.titel}
                 </CardTitle>
-                <CardDescription className="line-clamp-2 text-base leading-relaxed">
+                <CardDescription className="line-clamp-2 text-xs sm:text-sm lg:text-base leading-relaxed">
                   {item.samenvatting}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 mt-auto pt-0 p-8 pb-2">
+              <CardContent className="space-y-2 sm:space-y-3 lg:space-y-4 mt-auto pt-0 p-3 sm:p-6 lg:p-8 pb-2">
                 {/* Meta Info */}
-                <div className="space-y-2.5 text-sm text-gray-600 py-4 border-t">
-                  <div className="flex items-center gap-3">
-                    <User className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate">{item.auteur}</span>
+                <div className="space-y-1.5 sm:space-y-2.5 text-xs sm:text-sm text-gray-600 py-2 sm:py-4 border-t">
+                  <div className="flex items-center gap-1.5 sm:gap-3">
+                    <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="truncate text-xs sm:text-sm">{item.auteur}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-4 h-4 flex-shrink-0" />
-                    <span>{new Date(item.datumToegevoegd || item.datumToegevoegd).toLocaleDateString('nl-NL')}</span>
+                  <div className="flex items-center gap-1.5 sm:gap-3">
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm">{new Date(item.datumToegevoegd || item.datumToegevoegd).toLocaleDateString('nl-NL')}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Eye className="w-4 h-4 flex-shrink-0" />
-                    <span>{item.views} views</span>
+                  <div className="flex items-center gap-1.5 sm:gap-3">
+                    <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm">{item.views} views</span>
                   </div>
                 </div>
 
                 {/* Tags */}
-                <div className="flex flex-wrap gap-2">
-                  {item.tags.slice(0, 4).map((tag) => (
+                <div className="flex flex-wrap gap-1 sm:gap-2">
+                  {item.tags.slice(0, 2).map((tag) => (
                     <Badge 
                       key={tag} 
                       variant="secondary" 
-                      className="text-xs cursor-pointer hover:bg-gray-300 px-2.5 py-1"
+                      className="text-[10px] sm:text-xs cursor-pointer hover:bg-gray-300 px-1.5 sm:px-2.5 py-0.5 sm:py-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedTag(tag);
@@ -330,23 +330,24 @@ export function KennisbankPage() {
                       {tag}
                     </Badge>
                   ))}
-                  {item.tags.length > 4 && (
-                    <Badge variant="secondary" className="text-xs px-2.5 py-1">
-                      +{item.tags.length - 4}
+                  {item.tags.length > 2 && (
+                    <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2.5 py-0.5 sm:py-1">
+                      +{item.tags.length - 2}
                     </Badge>
                   )}
                 </div>
 
                 {/* Read More Button */}
                 <Button 
-                  className="w-full bg-[#7ef769] hover:bg-[#7ef769]/90 text-black font-semibold transition-colors"
+                  className="w-full bg-[#7ef769] hover:bg-[#7ef769]/90 text-black font-semibold transition-colors text-xs sm:text-sm h-8 sm:h-10"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedItemId(item.id);
                   }}
                 >
-                  Lees meer
-                  <ArrowRight className="ml-2 w-4 h-4" />
+                  <span className="hidden sm:inline">Lees meer</span>
+                  <span className="sm:hidden">Lees</span>
+                  <ArrowRight className="ml-1 sm:ml-2 w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
               </CardContent>
             </Card>
@@ -356,6 +357,10 @@ export function KennisbankPage() {
     </div>
   );
 }
+
+
+
+
 
 
 

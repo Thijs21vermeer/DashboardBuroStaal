@@ -97,59 +97,62 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-black to-[#280bc4] text-white">
-        <div className="w-full px-[4%] sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-16">
+        <div className="w-full px-4 sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-8 sm:py-12 md:py-16">
           <Button
             onClick={() => window.location.href = `${baseUrl}/`}
-            className="mb-6 bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold"
+            className="mb-4 sm:mb-6 bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold text-sm sm:text-base"
             style={{ color: 'black' }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             Terug naar Dashboard
           </Button>
           
-          <div className="flex items-center gap-3 mb-3">
-            <Settings className="w-8 h-8 text-[#7ef769]" />
-            <h1 className="text-3xl font-bold">Admin Panel</h1>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+            <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#7ef769]" />
+            <h1 className="text-2xl sm:text-3xl font-bold">Admin Panel</h1>
           </div>
-          <p className="text-white/90 text-lg">
+          <p className="text-white/90 text-sm sm:text-base md:text-lg">
             Beheer de kennisbank, cases, trends en nieuws
           </p>
         </div>
       </div>
 
       {/* Content */}
-      <div className="w-full px-[4%] sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-8">
+      <div className="w-full px-4 sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-6 sm:py-8">
         <Tabs defaultValue="kennisitems" className="w-full">
-          <TabsList className="grid w-full grid-cols-7 mb-8">
-            <TabsTrigger value="kennisitems">
-              <Database className="w-4 h-4 mr-2" />
-              Kennisitems
-            </TabsTrigger>
-            <TabsTrigger value="cases">
-              <Database className="w-4 h-4 mr-2" />
-              Cases
-            </TabsTrigger>
-            <TabsTrigger value="trends">
-              <Database className="w-4 h-4 mr-2" />
-              Trends
-            </TabsTrigger>
-            <TabsTrigger value="nieuws">
-              <Database className="w-4 h-4 mr-2" />
-              Nieuws
-            </TabsTrigger>
-            <TabsTrigger value="team">
-              <Users className="w-4 h-4 mr-2" />
-              Team
-            </TabsTrigger>
-            <TabsTrigger value="tools">
-              <Code className="w-4 h-4 mr-2" />
-              Tools
-            </TabsTrigger>
-            <TabsTrigger value="videos">
-              <Video className="w-4 h-4 mr-2" />
-              Video's
-            </TabsTrigger>
-          </TabsList>
+          <div className="mb-6 sm:mb-8 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 mb-0 min-w-max sm:min-w-0">
+              <TabsTrigger value="kennisitems" className="text-xs sm:text-sm whitespace-nowrap">
+                <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Kennisitems</span>
+                <span className="sm:hidden">Kennis</span>
+              </TabsTrigger>
+              <TabsTrigger value="cases" className="text-xs sm:text-sm whitespace-nowrap">
+                <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Cases
+              </TabsTrigger>
+              <TabsTrigger value="trends" className="text-xs sm:text-sm whitespace-nowrap">
+                <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Trends
+              </TabsTrigger>
+              <TabsTrigger value="nieuws" className="text-xs sm:text-sm whitespace-nowrap">
+                <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Nieuws
+              </TabsTrigger>
+              <TabsTrigger value="team" className="text-xs sm:text-sm whitespace-nowrap">
+                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Team
+              </TabsTrigger>
+              <TabsTrigger value="tools" className="text-xs sm:text-sm whitespace-nowrap">
+                <Code className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Tools
+              </TabsTrigger>
+              <TabsTrigger value="videos" className="text-xs sm:text-sm whitespace-nowrap">
+                <Video className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                Video's
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="kennisitems">
             <KennisItemsManager />
@@ -184,6 +187,7 @@ export default function AdminPanel() {
     </ErrorBoundary>
   );
 }
+
 
 
 

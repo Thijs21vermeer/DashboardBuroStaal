@@ -104,16 +104,16 @@ export default function ToolsManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Code className="w-8 h-8 text-[#280bc4]" />
-          <h2 className="text-2xl font-bold">Developer Tools</h2>
+    <div className="space-y-4 sm:space-y-6 max-w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Code className="w-6 h-6 sm:w-8 sm:h-8 text-[#280bc4]" />
+          <h2 className="text-xl sm:text-2xl font-bold">Developer Tools</h2>
         </div>
         {!isEditing && (
           <Button
             onClick={() => setIsEditing(true)}
-            className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90"
+            className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90 w-full sm:w-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nieuwe Tool
@@ -135,8 +135,8 @@ export default function ToolsManager() {
       )}
 
       {isEditing && (
-        <Card className="p-6">
-          <h3 className="text-xl font-bold mb-4">
+        <Card className="p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold mb-4">
             {editingTool.id ? 'Tool Bewerken' : 'Nieuwe Tool'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -150,14 +150,14 @@ export default function ToolsManager() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Categorie *</label>
                 <select
                   required
                   value={editingTool.categorie || ''}
                   onChange={(e) => setEditingTool({ ...editingTool, categorie: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border rounded-lg text-sm"
                 >
                   <option value="">Selecteer...</option>
                   <option value="Command">Command</option>
@@ -173,7 +173,7 @@ export default function ToolsManager() {
                 <select
                   value={editingTool.taal || ''}
                   onChange={(e) => setEditingTool({ ...editingTool, taal: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border rounded-lg text-sm"
                 >
                   <option value="">Selecteer...</option>
                   <option value="bash">Bash</option>
@@ -196,6 +196,7 @@ export default function ToolsManager() {
                 onChange={(e) => setEditingTool({ ...editingTool, beschrijving: e.target.value })}
                 placeholder="Korte uitleg over wat deze tool doet..."
                 rows={2}
+                className="text-sm"
               />
             </div>
 
@@ -207,17 +208,18 @@ export default function ToolsManager() {
                 onChange={(e) => setEditingTool({ ...editingTool, code: e.target.value })}
                 placeholder="De tool, snippet of command..."
                 rows={6}
-                className="font-mono text-sm"
+                className="font-mono text-xs sm:text-sm"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Tags (komma gescheiden)</label>
                 <Input
                   value={editingTool.tags || ''}
                   onChange={(e) => setEditingTool({ ...editingTool, tags: e.target.value })}
                   placeholder="deploy, azure, database"
+                  className="text-sm"
                 />
               </div>
 
@@ -227,6 +229,7 @@ export default function ToolsManager() {
                   value={editingTool.eigenaar || ''}
                   onChange={(e) => setEditingTool({ ...editingTool, eigenaar: e.target.value })}
                   placeholder="Bijv: Rick"
+                  className="text-sm"
                 />
               </div>
             </div>
@@ -244,11 +247,11 @@ export default function ToolsManager() {
               </label>
             </div>
 
-            <div className="flex gap-2">
-              <Button type="submit" className="bg-[#280bc4] text-white hover:bg-[#1f0a9a]">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button type="submit" className="bg-[#280bc4] text-white hover:bg-[#1f0a9a] w-full sm:w-auto">
                 {editingTool.id ? 'Bijwerken' : 'Toevoegen'}
               </Button>
-              <Button type="button" variant="outline" onClick={handleCancel}>
+              <Button type="button" variant="outline" onClick={handleCancel} className="w-full sm:w-auto">
                 Annuleren
               </Button>
             </div>
@@ -256,40 +259,43 @@ export default function ToolsManager() {
         </Card>
       )}
 
-      <div className="grid gap-4">
+      <div className="grid gap-3 sm:gap-4">
         {filteredTools.map((tool) => (
-          <Card key={tool.id} className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold">{tool.titel}</h3>
+          <Card key={tool.id} className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <h3 className="font-bold text-sm sm:text-base break-words">{tool.titel}</h3>
                   {tool.favoriet && (
-                    <Badge className="bg-yellow-100 text-yellow-800">Favoriet</Badge>
+                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">Favoriet</Badge>
                   )}
-                  <Badge variant="outline">{tool.categorie}</Badge>
+                  <Badge variant="outline" className="text-xs">{tool.categorie}</Badge>
                   {tool.taal && (
-                    <Badge variant="secondary">{tool.taal}</Badge>
+                    <Badge variant="secondary" className="text-xs">{tool.taal}</Badge>
                   )}
                 </div>
                 {tool.beschrijving && (
-                  <p className="text-sm text-gray-600 mb-2">{tool.beschrijving}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2 break-words">{tool.beschrijving}</p>
                 )}
-                <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2">
-                  <code>{tool.code.length > 100 ? tool.code.substring(0, 100) + '...' : tool.code}</code>
-                </pre>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <div className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2 max-w-full">
+                  <pre className="whitespace-pre-wrap break-all">
+                    <code>{tool.code.length > 100 ? tool.code.substring(0, 100) + '...' : tool.code}</code>
+                  </pre>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500">
                   {tool.eigenaar && <span>👤 {tool.eigenaar}</span>}
                   {tool.gebruik_count !== undefined && tool.gebruik_count > 0 && (
                     <span>📋 {tool.gebruik_count}x gebruikt</span>
                   )}
-                  {tool.tags && <span>🏷️ {tool.tags}</span>}
+                  {tool.tags && <span className="break-words">🏷️ {tool.tags}</span>}
                 </div>
               </div>
-              <div className="flex gap-2 ml-4">
+              <div className="flex gap-2 sm:ml-4 self-start sm:self-auto">
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => handleEdit(tool)}
+                  className="h-8 px-2 sm:px-3"
                 >
                   <Edit className="w-4 h-4" />
                 </Button>
@@ -297,7 +303,7 @@ export default function ToolsManager() {
                   size="sm"
                   variant="ghost"
                   onClick={() => handleDelete(tool.id)}
-                  className="text-red-600 hover:text-red-700"
+                  className="text-red-600 hover:text-red-700 h-8 px-2 sm:px-3"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -308,14 +314,15 @@ export default function ToolsManager() {
       </div>
 
       {tools.length === 0 && !isEditing && (
-        <div className="text-center py-12 text-gray-500">
-          <Code className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <p>Nog geen tools toegevoegd</p>
+        <div className="text-center py-8 sm:py-12 text-gray-500">
+          <Code className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-300" />
+          <p className="text-sm sm:text-base">Nog geen tools toegevoegd</p>
         </div>
       )}
     </div>
   );
 }
+
 
 
 

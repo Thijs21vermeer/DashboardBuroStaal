@@ -1,7 +1,10 @@
 
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, Building2, Award, Target, TrendingUp, Users, Clock, DollarSign, CheckCircle2, Briefcase, Quote } from 'lucide-react';
+import { ArrowLeft, Calendar, Building2, Award, Target, TrendingUp, Users, Clock, DollarSign, CheckCircle2, Briefcase, Quote, Tag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -76,52 +79,51 @@ export function CaseDetail({ caseId, onBack }: CaseDetailProps) {
     );
   }
 
+  // Ensure tags is an array
+  const tags = Array.isArray(caseItem.tags) ? caseItem.tags : [];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Back Button */}
       <Button 
         variant="ghost" 
         onClick={onBack}
-        className="mb-4 hover:bg-gray-100"
+        className="mb-2 sm:mb-4 hover:bg-gray-100"
       >
         <ArrowLeft className="mr-2 w-4 h-4" />
         Terug naar cases
       </Button>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <Award className="w-8 h-8 text-[#7ef769]" />
-          <Badge className="bg-[#7ef769] text-black font-semibold px-4 py-1.5 text-sm">
-            {caseItem.industrie}
-          </Badge>
-          {caseItem.status && (
-            <Badge className="bg-white/20 text-white border-white/30 font-semibold px-4 py-1.5 text-sm">
-              {caseItem.status}
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-6 sm:p-8 text-white">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <Briefcase className="w-6 h-6 sm:w-8 sm:h-8 text-[#7ef769]" />
+          {caseItem.industrie && (
+            <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm">
+              {caseItem.industrie}
             </Badge>
           )}
         </div>
-        <h1 className="text-3xl font-bold mb-3 leading-tight">{caseItem.titel}</h1>
-        <div className="flex items-center gap-6 text-white/90 flex-wrap text-base">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-5 h-5" />
-            <span className="font-medium">{caseItem.klant}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Briefcase className="w-5 h-5" />
-            <span className="font-medium">{caseItem.eigenaar}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            <span>{new Date(caseItem.datum).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-          </div>
-          {caseItem.projectDuur && (
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              <span>{caseItem.projectDuur}</span>
-            </div>
-          )}
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3">{caseItem.klant}</h1>
+        <h2 className="text-xl sm:text-2xl text-white/90 mb-2 sm:mb-3">{caseItem.titel}</h2>
+      </div>
+
+      {/* Meta Information */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="flex items-center gap-2">
+          <Building2 className="w-5 h-5" />
+          <span className="font-medium">{caseItem.eigenaar}</span>
         </div>
+        <div className="flex items-center gap-2">
+          <Calendar className="w-5 h-5" />
+          <span>{new Date(caseItem.datum).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        </div>
+        {caseItem.projectDuur && (
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            <span>{caseItem.projectDuur}</span>
+          </div>
+        )}
       </div>
 
       {/* Key Metrics */}
@@ -294,16 +296,16 @@ export function CaseDetail({ caseId, onBack }: CaseDetailProps) {
       )}
 
       {/* Tags */}
-      {caseItem.tags && caseItem.tags.length > 0 && (
+      {tags.length > 0 && (
         <Card className="shadow-md">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl">Tags</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {caseItem.tags.map((tag: string) => (
+              {tags.map((tag: string, index: number) => (
                 <Badge 
-                  key={tag} 
+                  key={index} 
                   variant="secondary"
                   className="text-sm px-4 py-2 font-medium"
                 >
@@ -330,4 +332,7 @@ export function CaseDetail({ caseId, onBack }: CaseDetailProps) {
     </div>
   );
 }
+
+
+
 

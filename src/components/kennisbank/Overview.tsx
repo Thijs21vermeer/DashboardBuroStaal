@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
@@ -148,30 +149,30 @@ export function Overview({ onNavigate }: OverviewProps) {
   }));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 md:p-12 text-white">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-6 sm:p-8 md:p-12 text-white">
         <div className="max-w-4xl">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
             Dashboard Buro Staal
           </h1>
-          <p className="text-xl md:text-2xl mb-6 text-white/90">
+          <p className="text-lg sm:text-xl md:text-2xl mb-4 sm:mb-6 text-white/90">
             Al onze kennis, cases en trends op één plek
           </p>
-          <p className="text-lg mb-8 text-white/80 leading-relaxed">
+          <p className="text-base sm:text-lg mb-6 sm:mb-8 text-white/80 leading-relaxed">
             Ons interne dashboard om kennis te delen, projecten te volgen en op de hoogte te blijven van ontwikkelingen in de maakindustrie.
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
             <Button 
               onClick={() => onNavigate('kennisbank')}
-              className="bg-[#7ef769] !text-black hover:bg-[#7ef769]/90 font-semibold border-2 border-[#7ef769] transition-colors"
+              className="bg-[#7ef769] !text-black hover:bg-[#7ef769]/90 font-semibold border-2 border-[#7ef769] transition-colors w-full sm:w-auto"
             >
               <span className="text-black">Verken de Kennisbank</span>
               <ArrowRight className="ml-2 w-4 h-4 text-black" />
             </Button>
             <Button 
               onClick={() => onNavigate('cases')}
-              className="bg-transparent text-white hover:bg-white/10 font-semibold border-2 border-white"
+              className="bg-transparent text-white hover:bg-white/10 font-semibold border-2 border-white w-full sm:w-auto"
             >
               Bekijk Cases
             </Button>
@@ -180,50 +181,50 @@ export function Overview({ onNavigate }: OverviewProps) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Kennisitems</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.aantalKennisitems}</p>
+                <p className="text-xs sm:text-sm text-gray-600">Kennisitems</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.aantalKennisitems}</p>
               </div>
-              <BookOpen className="w-8 h-8 text-[#280bc4]" />
+              <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-[#280bc4]" />
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Case Studies</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.aantalCases}</p>
+                <p className="text-xs sm:text-sm text-gray-600">Case Studies</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.aantalCases}</p>
               </div>
-              <Briefcase className="w-8 h-8 text-[#280bc4]" />
+              <Briefcase className="w-6 h-6 sm:w-8 sm:h-8 text-[#280bc4]" />
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Trends</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.aantalTrends}</p>
+                <p className="text-xs sm:text-sm text-gray-600">Trends</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.aantalTrends}</p>
               </div>
-              <TrendingUp className="w-8 h-8 text-[#280bc4]" />
+              <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-[#280bc4]" />
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Tools</p>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-xs sm:text-sm text-gray-600">Tools</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                   {stats.aantalTools}
                 </p>
               </div>
-              <Wrench className="w-8 h-8 text-[#280bc4]" />
+              <Wrench className="w-6 h-6 sm:w-8 sm:h-8 text-[#280bc4]" />
             </div>
           </CardContent>
         </Card>
@@ -231,8 +232,8 @@ export function Overview({ onNavigate }: OverviewProps) {
 
       {/* Featured Content */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Laatste kennisitems</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Laatste kennisitems</h2>
           <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
@@ -246,14 +247,14 @@ export function Overview({ onNavigate }: OverviewProps) {
             <Button 
               variant="ghost" 
               onClick={() => onNavigate('kennisbank')}
-              className="text-[#280bc4]"
+              className="text-[#280bc4] text-sm sm:text-base"
             >
               Bekijk alles
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {featuredKennis.map((item) => (
             <Card 
               key={item.id} 
@@ -292,7 +293,7 @@ export function Overview({ onNavigate }: OverviewProps) {
       </div>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Trends */}
         <Card>
           <CardHeader>
@@ -409,6 +410,11 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
+
+
+
 
 
 

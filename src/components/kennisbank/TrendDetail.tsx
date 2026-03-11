@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, TrendingUp, AlertCircle, Lightbulb, Target } from 'lucide-react';
@@ -100,73 +99,73 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Back Button */}
       <Button 
         variant="ghost" 
         onClick={onBack}
-        className="mb-4 hover:bg-gray-100"
+        className="mb-2 sm:mb-4 hover:bg-gray-100"
       >
         <ArrowLeft className="mr-2 w-4 h-4" />
         Terug naar trends
       </Button>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
-        <div className="flex items-center gap-3 mb-4">
-          <TrendingUp className="w-8 h-8 text-[#7ef769]" />
-          <Badge className="bg-white/20 text-white border-white/30">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-6 sm:p-8 text-white">
+        <div className="flex flex-wrap items-center gap-2 mb-3 sm:mb-4">
+          <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-[#7ef769]" />
+          <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm">
             {trend.categorie}
           </Badge>
-          <Badge className={`${getRelevanceColor(trend.relevantie)} text-white`}>
+          <Badge className={`${getRelevanceColor(trend.relevantie)} text-white text-xs sm:text-sm`}>
             {trend.relevantie.charAt(0).toUpperCase() + trend.relevantie.slice(1)} Relevantie
           </Badge>
         </div>
-        <h1 className="text-3xl font-bold mb-3">{trend.titel}</h1>
-        <p className="text-white/90 text-lg">{trend.samenvatting}</p>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3">{trend.titel}</h1>
+        <p className="text-white/90 text-base sm:text-lg">{trend.samenvatting}</p>
       </div>
 
       {/* Meta Information */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap items-center gap-6">
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2 text-gray-600">
-              <User className="w-5 h-5 text-[#280bc4]" />
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#280bc4]" />
               <div>
                 <p className="text-xs text-gray-500">Eigenaar</p>
-                <p className="font-medium text-gray-900">{trend.eigenaar || 'Onbekend'}</p>
+                <p className="font-medium text-gray-900 text-sm sm:text-base">{trend.eigenaar || 'Onbekend'}</p>
               </div>
             </div>
-            <div className="h-8 w-px bg-gray-200"></div>
+            <div className="h-6 sm:h-8 w-px bg-gray-200"></div>
             <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="w-5 h-5 text-[#280bc4]" />
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-[#280bc4]" />
               <div>
                 <p className="text-xs text-gray-500">Datum</p>
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-gray-900 text-sm sm:text-base">
                   {new Date(trend.datum).toLocaleDateString('nl-NL')}
                 </p>
               </div>
             </div>
             {trend.views && (
               <>
-                <div className="h-8 w-px bg-gray-200"></div>
+                <div className="h-6 sm:h-8 w-px bg-gray-200"></div>
                 <div className="flex items-center gap-2 text-gray-600">
-                  <Eye className="w-5 h-5 text-[#280bc4]" />
+                  <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-[#280bc4]" />
                   <div>
                     <p className="text-xs text-gray-500">Views</p>
-                    <p className="font-medium text-gray-900">{trend.views}</p>
+                    <p className="font-medium text-gray-900 text-sm sm:text-base">{trend.views}</p>
                   </div>
                 </div>
               </>
             )}
             {trend.sector && (
               <>
-                <div className="h-8 w-px bg-gray-200"></div>
+                <div className="h-6 sm:h-8 w-px bg-gray-200"></div>
                 <div className="flex items-center gap-2 text-gray-600">
-                  <TrendingUp className="w-5 h-5 text-[#280bc4]" />
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#280bc4]" />
                   <div>
                     <p className="text-xs text-gray-500">Sector</p>
-                    <p className="font-medium text-gray-900">{trend.sector}</p>
+                    <p className="font-medium text-gray-900 text-sm sm:text-base">{trend.sector}</p>
                   </div>
                 </div>
               </>
@@ -178,13 +177,13 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
       {/* Main Content */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="w-6 h-6 text-[#280bc4]" />
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#280bc4]" />
             Beschrijving
           </CardTitle>
         </CardHeader>
-        <CardContent className="prose prose-lg max-w-none">
-          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+        <CardContent className="prose prose-sm sm:prose-lg max-w-none">
+          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
             {trend.beschrijving}
           </div>
         </CardContent>
@@ -193,13 +192,13 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
       {/* Impact */}
       <Card className="border-2 border-[#280bc4]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-6 h-6 text-[#280bc4]" />
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Target className="w-5 h-5 sm:w-6 sm:h-6 text-[#280bc4]" />
             Impact voor de Maakindustrie
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-lg">
+          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base lg:text-lg">
             {trend.impact}
           </p>
         </CardContent>
@@ -209,13 +208,13 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
       {trend.aanbevelingen && (
         <Card className="border-2 border-[#7ef769]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="w-6 h-6 text-[#7ef769]" />
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 text-[#7ef769]" />
               Aanbevelingen
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-lg">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base lg:text-lg">
               {trend.aanbevelingen}
             </p>
           </CardContent>
@@ -226,7 +225,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
       {trend.tags && trend.tags.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Tags</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Tags</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -234,7 +233,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
                 <Badge 
                   key={tag} 
                   variant="secondary"
-                  className="text-sm px-3 py-1"
+                  className="text-xs sm:text-sm px-2 sm:px-3 py-1"
                 >
                   {tag}
                 </Badge>
@@ -250,7 +249,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
           onClick={onBack}
           variant="outline"
           size="lg"
-          className="gap-2"
+          className="gap-2 w-full sm:w-auto"
         >
           <ArrowLeft className="w-4 h-4" />
           Terug naar trends
@@ -259,6 +258,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+
 
 
 

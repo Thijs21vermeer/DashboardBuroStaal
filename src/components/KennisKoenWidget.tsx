@@ -17,19 +17,19 @@ export default function KennisKoenWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="!fixed !bottom-6 !right-6 z-[9999] w-14 h-14 bg-[#280bc4] hover:bg-[#1a0880] text-white rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 group relative"
+          className="!fixed !bottom-4 !right-4 sm:!bottom-6 sm:!right-6 z-[9999] w-12 h-12 sm:w-14 sm:h-14 bg-[#280bc4] hover:bg-[#1a0880] text-white rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 group relative"
           aria-label="Open Kennis Koen widget"
-          style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem' }}
+          style={{ position: 'fixed', bottom: '1rem', right: '1rem' }}
         >
-          <MessageCircle className="w-6 h-6 text-[#7ef769] group-hover:scale-110 transition-transform" />
-          <Sparkles className="w-4 h-4 text-[#7ef769] absolute -top-1 -right-1 animate-bounce" />
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#7ef769] group-hover:scale-110 transition-transform" />
+          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-[#7ef769] absolute -top-1 -right-1 animate-bounce" />
         </button>
       )}
 
       {/* Widget Panel */}
       {isOpen && (
-        <div className="!fixed !bottom-6 !right-6 z-[9999] w-[280px] h-[400px] bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300"
-          style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem' }}
+        <div className="!fixed !bottom-4 !right-4 sm:!bottom-6 sm:!right-6 z-[9999] w-[calc(100vw-2rem)] max-w-[280px] h-[400px] bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300"
+          style={{ position: 'fixed', bottom: '1rem', right: '1rem' }}
         >
           {/* Header */}
           <div className="bg-gradient-to-r from-[#280bc4] to-[#1a0880] text-white p-3 flex items-center justify-between">
@@ -88,6 +88,7 @@ export default function KennisKoenWidget() {
     </>
   );
 }
+
 
 
 

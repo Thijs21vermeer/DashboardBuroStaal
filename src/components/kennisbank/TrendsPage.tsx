@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { TrendingUp, Search, Calendar, AlertCircle, ArrowRight, BarChart3, Target, RefreshCw, Lightbulb, Filter, CheckCircle, ExternalLink } from 'lucide-react';
@@ -140,72 +141,72 @@ export function TrendsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-8 text-white">
-        <div className="flex items-center justify-between mb-3">
+      <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-6 sm:p-8 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <div className="flex items-center gap-3">
-            <TrendingUp className="w-8 h-8 text-[#7ef769]" />
-            <h1 className="text-3xl font-bold">Trends & Insights</h1>
+            <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-[#7ef769]" />
+            <h1 className="text-2xl sm:text-3xl font-bold">Trends & Inzichten</h1>
           </div>
           <Button 
             variant="outline" 
             size="icon"
             onClick={loadTrends}
             title="Ververs trends"
-            className="bg-white/10 border-white/20 hover:bg-white/20 text-white"
+            className="bg-white/10 border-white/20 hover:bg-white/20 text-white self-start sm:self-auto"
           >
             <RefreshCw className="w-5 h-5" />
           </Button>
         </div>
-        <p className="text-white/90 text-lg mb-6">
-          Actuele ontwikkelingen en trends die wij in de gaten houden
+        <p className="text-white/90 text-base sm:text-lg mb-4 sm:mb-6">
+          Belangrijke ontwikkelingen in de maakindustrie
         </p>
         
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-2 mb-1">
-              <Lightbulb className="w-5 h-5 text-[#7ef769]" />
-              <span className="text-sm font-medium">Totaal Trends</span>
+              <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-[#7ef769]" />
+              <span className="text-xs sm:text-sm font-medium">Totaal Trends</span>
             </div>
-            <p className="text-3xl font-bold">{trends.length}</p>
+            <p className="text-2xl sm:text-3xl font-bold">{trends.length}</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-2 mb-1">
-              <AlertCircle className="w-5 h-5 text-red-400" />
-              <span className="text-sm font-medium">Hoge Relevantie</span>
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+              <span className="text-xs sm:text-sm font-medium">Hoge Relevantie</span>
             </div>
-            <p className="text-3xl font-bold">{hoogRelevantieTrends}</p>
+            <p className="text-2xl sm:text-3xl font-bold">{hoogRelevantieTrends}</p>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-5 h-5 text-[#7ef769]" />
-              <span className="text-sm font-medium">Categorieën</span>
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#7ef769]" />
+              <span className="text-xs sm:text-sm font-medium">Categorieën</span>
             </div>
-            <p className="text-3xl font-bold">{allCategories.length}</p>
+            <p className="text-2xl sm:text-3xl font-bold">{allCategories.length}</p>
           </div>
         </div>
       </div>
 
       {/* Filters */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3 sm:pb-6">
           <div className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-gray-600" />
-            <CardTitle>Filteren</CardTitle>
+            <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+            <CardTitle className="text-base sm:text-lg">Filteren</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Filters Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                   Categorie
                 </label>
                 <Select value={selectedCategorie} onValueChange={setSelectedCategorie}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -218,11 +219,11 @@ export function TrendsPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                   Relevantie
                 </label>
                 <Select value={selectedRelevantie} onValueChange={setSelectedRelevantie}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -234,12 +235,12 @@ export function TrendsPage() {
                 </Select>
               </div>
 
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
+              <div className="col-span-2 md:col-span-1">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                   Sorteren op
                 </label>
                 <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -253,14 +254,14 @@ export function TrendsPage() {
             {/* Active Filters & Reset */}
             {hasActiveFilters && (
               <div className="flex items-center justify-between pt-2 border-t">
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600">
                   {filteredTrends.length} trend{filteredTrends.length !== 1 ? 's' : ''} gevonden
                 </p>
                 <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={resetFilters}
-                  className="text-[#280bc4]"
+                  className="text-[#280bc4] text-xs sm:text-sm h-8 sm:h-9"
                 >
                   Reset filters
                 </Button>
@@ -300,34 +301,34 @@ export function TrendsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
           {filteredTrends.map((trend) => (
             <Card 
               key={trend.id} 
               className="hover:shadow-xl transition-all border-2 hover:border-[#280bc4] cursor-pointer group flex flex-col"
               onClick={() => setSelectedTrendId(trend.id)}
             >
-              <CardHeader className="pb-3">
-                <div className="flex flex-wrap items-start gap-2 mb-2">
-                  <Badge className="bg-[#280bc4] text-white text-xs">
+              <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-6">
+                <div className="flex flex-wrap items-start gap-1 sm:gap-2 mb-1 sm:mb-2">
+                  <Badge className="bg-[#280bc4] text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                     {trend.categorie}
                   </Badge>
                   <Badge 
                     variant="outline" 
-                    className={`text-xs font-medium border ${getRelevantieColor(trend.relevantie)}`}
+                    className={`text-[10px] sm:text-xs font-medium border px-1.5 sm:px-2 py-0.5 ${getRelevantieColor(trend.relevantie)}`}
                   >
-                    <span className="flex items-center gap-1">
-                      {getRelevantieIcon(trend.relevantie)}
+                    <span className="flex items-center gap-0.5 sm:gap-1">
+                      <span className="hidden sm:inline">{getRelevantieIcon(trend.relevantie)}</span>
                       {trend.relevantie}
                     </span>
                   </Badge>
                 </div>
-                <CardTitle className="text-lg group-hover:text-[#280bc4] transition-colors line-clamp-2 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-[#280bc4] flex-shrink-0" />
+                <CardTitle className="text-sm sm:text-base lg:text-lg group-hover:text-[#280bc4] transition-colors line-clamp-2 flex items-start gap-1.5 sm:gap-2">
+                  <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-[#280bc4] flex-shrink-0 mt-0.5" />
                   <span className="line-clamp-2">{trend.titel}</span>
                 </CardTitle>
-                <div className="flex items-center gap-2 text-xs text-gray-600 pt-1">
-                  <Calendar className="w-3 h-3" />
+                <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-gray-600 pt-0.5 sm:pt-1">
+                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span>
                     {new Date(trend.datumToegevoegd || trend.datum).toLocaleDateString('nl-NL', {
                       day: 'numeric',
@@ -338,20 +339,20 @@ export function TrendsPage() {
                 </div>
               </CardHeader>
               
-              <CardContent className="space-y-3 flex-1 flex flex-col">
+              <CardContent className="space-y-2 sm:space-y-3 flex-1 flex flex-col p-3 sm:p-6 pt-0">
                 {/* Brief Description */}
-                <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-[#280bc4] flex-1">
-                  <p className="text-sm text-gray-700 line-clamp-3 leading-relaxed">
+                <div className="bg-gray-50 rounded-lg p-2 sm:p-3 border-l-2 sm:border-l-4 border-[#280bc4] flex-1">
+                  <p className="text-xs sm:text-sm text-gray-700 line-clamp-2 sm:line-clamp-3 leading-relaxed">
                     {trend.beschrijving}
                   </p>
                 </div>
 
                 {/* Key Impact Highlight */}
                 {trend.impact && (
-                  <div className="bg-gradient-to-br from-[#7ef769]/10 to-[#7ef769]/5 rounded-lg p-3 border-l-4 border-[#7ef769]">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="w-4 h-4 text-[#7ef769] mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed">
+                  <div className="bg-gradient-to-br from-[#7ef769]/10 to-[#7ef769]/5 rounded-lg p-2 sm:p-3 border-l-2 sm:border-l-4 border-[#7ef769]">
+                    <div className="flex items-start gap-1.5 sm:gap-2">
+                      <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4 text-[#7ef769] mt-0.5 flex-shrink-0" />
+                      <p className="text-xs sm:text-sm text-gray-700 line-clamp-2 leading-relaxed">
                         {trend.impact}
                       </p>
                     </div>
@@ -360,18 +361,18 @@ export function TrendsPage() {
 
                 {/* Sources */}
                 {trend.bronnen && trend.bronnen.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1 sm:gap-1.5">
                     {trend.bronnen.slice(0, 2).map((bron, idx) => (
                       <Badge 
                         key={idx} 
                         variant="secondary"
-                        className="text-xs"
+                        className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
                       >
                         {bron}
                       </Badge>
                     ))}
                     {trend.bronnen.length > 2 && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                         +{trend.bronnen.length - 2}
                       </Badge>
                     )}
@@ -380,14 +381,15 @@ export function TrendsPage() {
 
                 {/* CTA Button */}
                 <Button 
-                  className="w-full bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold text-sm mt-auto"
+                  className="w-full bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold text-xs sm:text-sm h-8 sm:h-9 mt-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedTrendId(trend.id);
                   }}
                 >
-                  Lees meer
-                  <ArrowRight className="ml-2 w-4 h-4" />
+                  <span className="hidden sm:inline">Lees meer</span>
+                  <span className="sm:hidden">Lees</span>
+                  <ArrowRight className="ml-1 sm:ml-2 w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
               </CardContent>
             </Card>
@@ -397,6 +399,13 @@ export function TrendsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

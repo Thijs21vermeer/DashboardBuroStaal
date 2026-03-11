@@ -81,16 +81,16 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed left-4 top-4 z-50 p-3 bg-gradient-to-br from-black to-[#280bc4] text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          className="fixed left-2 top-2 sm:left-4 sm:top-4 z-50 p-2 sm:p-3 bg-gradient-to-br from-black to-[#280bc4] text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
           title="Open menu"
         >
-          <ChevronRight className="w-6 h-6 text-white" />
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </button>
       )}
 
       {/* Sidebar */}
       {isOpen && (
-        <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 z-40 shadow-xl">
+        <aside className="fixed left-0 top-0 h-screen w-[280px] sm:w-64 bg-white border-r border-gray-200 z-40 shadow-xl">
           <div className="h-full flex flex-col">
             {/* Header */}
             <div className="relative border-b border-gray-200 h-32 flex items-start justify-center pt-6">
@@ -182,6 +182,7 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
     </>
   );
 }
+
 
 
 
