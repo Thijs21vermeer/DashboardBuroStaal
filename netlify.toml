@@ -1,3 +1,4 @@
+
 [build]
   command = "BUILD_TARGET=netlify npm run build"
   publish = "dist"
@@ -11,3 +12,5 @@
 # AZURE_SQL_USER
 # AZURE_SQL_PASSWORD
 # AZURE_SQL_PORT (optioneel, default 1433)
+# SLACK_WEBHOOK (optioneel, voor notificaties bij nieuwe kennisitems)
+
