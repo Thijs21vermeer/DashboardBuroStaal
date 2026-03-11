@@ -138,7 +138,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const slackWebhook = locals?.runtime?.env?.SLACK_WEBHOOK || import.meta.env.SLACK_WEBHOOK;
     if (slackWebhook) {
       // Don't await - send in background
-      sendSlackNotification(newItem, slackWebhook);
+      // Stuur alleen relevante data naar Slack (zonder grote afbeelding)
+      const slackData = {
+        titel: newItem.titel,
+        type: newItem.type,
+        categorie: newItem.categorie,
+        eigenaar: newItem.eigenaar,
+        samenvatting: newItem.samenvatting,
+        datumToegevoegd: newItem.datumToegevoegd,
+      };
+      sendSlackNotification(slackData as KennisItem, slackWebhook);
     } else {
       console.warn('⚠️ SLACK_WEBHOOK not configured - skipping notification');
     }
@@ -151,6 +160,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
 
 
 
