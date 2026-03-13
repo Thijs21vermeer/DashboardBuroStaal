@@ -5,12 +5,26 @@ import type { KennisItem } from '../../../types';
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToKennisItem(dbRecord: any): KennisItem {
+  // Parse tags safely
+  let tags: string[] = [];
+  if (dbRecord.tags) {
+    if (typeof dbRecord.tags === 'string') {
+      try {
+        tags = JSON.parse(dbRecord.tags);
+      } catch {
+        tags = [];
+      }
+    } else if (Array.isArray(dbRecord.tags)) {
+      tags = dbRecord.tags;
+    }
+  }
+
   return {
-    id: String(dbRecord.id),
+    id: dbRecord.id,
     titel: dbRecord.titel,
     type: dbRecord.type,
-    categorie: dbRecord.categorie,
-    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    categorie: dbRecord.categorie || dbRecord.type || 'Algemeen',
+    tags,
     gekoppeldProject: dbRecord.gekoppeld_project || undefined,
     eigenaar: dbRecord.eigenaar,
     auteur: dbRecord.eigenaar, // Alias voor frontend compatibility
@@ -70,6 +84,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
       .input('id', sql.Int, parseInt(id))
       .input('titel', sql.NVarChar, data.titel)
       .input('type', sql.NVarChar, data.type)
+      .input('categorie', sql.NVarChar, data.categorie || data.type || 'Algemeen')
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
       .input('gekoppeld_project', sql.NVarChar, data.gekoppeld_project || null)
       .input('eigenaar', sql.NVarChar, data.eigenaar)
@@ -84,6 +99,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
         SET 
           titel = @titel,
           type = @type,
+          categorie = @categorie,
           tags = @tags,
           gekoppeld_project = @gekoppeld_project,
           eigenaar = @eigenaar,
@@ -146,6 +162,8 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete kennisitem');
   }
 };
+
+
 
 
 

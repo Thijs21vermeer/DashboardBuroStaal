@@ -1,20 +1,27 @@
 
 
 
+
+
+
 // Types voor het project
 
 export interface KennisItem {
   id: number;
   titel: string;
   type: string;
-  tags: string;
-  gekoppeld_project?: string;
+  categorie: string;
+  tags: string[];
+  gekoppeldProject?: string;
   eigenaar: string;
+  auteur: string;
   samenvatting: string;
   inhoud: string;
-  datum_toegevoegd: string;
-  laatst_bijgewerkt: string;
-  video_link?: string;
+  datumToegevoegd: string;
+  laatstBijgewerkt: string;
+  views: number;
+  featured: boolean;
+  videoLink?: string;
   afbeelding?: string;
 }
 
@@ -34,6 +41,28 @@ export interface Case {
   project_duur?: string;
   team_leden?: string;
   referenties?: string;
+}
+
+export interface CaseStudy {
+  id: number;
+  titel: string;
+  klant: string;
+  industrie: string;
+  uitdaging: string;
+  oplossing: string;
+  resultaten: string[];
+  tags: string[];
+  eigenaar: string;
+  datum: string;
+  imageUrl?: string;
+  featured: boolean;
+  referenties: string[];
+  type?: string;
+  projectDuur?: string;
+  team?: string[];
+  status?: string;
+  budget?: string;
+  roi?: string;
 }
 
 export interface Trend {
@@ -118,6 +147,9 @@ export type PageType =
   | `kennisitem-${number}`
   | `trend-${number}`
   | `nieuws-${number}`;
+
+
+
 
 
 

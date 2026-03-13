@@ -20,15 +20,43 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
     }
   }
 
+  // Parse tags safely
+  let tags: string[] = [];
+  if (dbRecord.tags) {
+    if (typeof dbRecord.tags === 'string') {
+      try {
+        tags = JSON.parse(dbRecord.tags);
+      } catch {
+        tags = [];
+      }
+    } else if (Array.isArray(dbRecord.tags)) {
+      tags = dbRecord.tags;
+    }
+  }
+
+  // Parse referenties safely
+  let referenties: string[] = [];
+  if (dbRecord.referenties) {
+    if (typeof dbRecord.referenties === 'string') {
+      try {
+        referenties = JSON.parse(dbRecord.referenties);
+      } catch {
+        referenties = [];
+      }
+    } else if (Array.isArray(dbRecord.referenties)) {
+      referenties = dbRecord.referenties;
+    }
+  }
+
   return {
-    id: String(dbRecord.id),
+    id: dbRecord.id,
     titel: dbRecord.titel,
     klant: dbRecord.klant,
     industrie: dbRecord.industrie,
     uitdaging: dbRecord.challenge || dbRecord.uitdaging || '',
     oplossing: dbRecord.solution || dbRecord.oplossing || '',
     resultaten,
-    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    tags,
     eigenaar: dbRecord.eigenaar || 'Onbekend',
     datum: dbRecord.datum_toegevoegd,
     imageUrl: dbRecord.image_url || undefined,
@@ -40,7 +68,7 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
     status: dbRecord.status || 'afgerond',
     budget: dbRecord.budget || undefined,
     roi: dbRecord.roi || undefined,
-    referenties: dbRecord.referenties ? JSON.parse(dbRecord.referenties) : [],
+    referenties,
   };
 }
 
@@ -167,6 +195,8 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete case');
   }
 };
+
+
 
 
 
