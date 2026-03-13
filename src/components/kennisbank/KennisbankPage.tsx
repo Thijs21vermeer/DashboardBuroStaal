@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Calendar, User, Tag, ArrowRight, BookOpen, RefreshCw } from 'lucide-react';
@@ -62,11 +61,11 @@ export function KennisbankPage() {
       const matchesSearch = 
         item.titel.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.samenvatting.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        (item.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
       const matchesCategorie = selectedCategorie === 'alle' || item.categorie === selectedCategorie;
       const matchesType = selectedType === 'alle' || item.type === selectedType;
-      const matchesTag = selectedTag === 'alle' || item.tags.includes(selectedTag);
+      const matchesTag = selectedTag === 'alle' || (item.tags || []).includes(selectedTag);
 
       return matchesSearch && matchesCategorie && matchesType && matchesTag;
     })
@@ -357,6 +356,7 @@ export function KennisbankPage() {
     </div>
   );
 }
+
 
 
 

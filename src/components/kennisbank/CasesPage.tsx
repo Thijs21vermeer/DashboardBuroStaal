@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Briefcase, TrendingUp, Users, ArrowRight, Target, CheckCircle2, RefreshCw, Building2, Filter, Award } from 'lucide-react';
@@ -342,6 +341,7 @@ export function CasesPage() {
     </div>
   );
 }
+
 
 
 
