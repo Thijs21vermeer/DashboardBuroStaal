@@ -24,7 +24,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export default function Dashboard({ children }: Props) {
+export default function Dashboard({ children }: { children: React.ReactNode }) {
   const [currentPage, setCurrentPage] = useState<PageType>('overzicht');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -107,7 +107,7 @@ export default function Dashboard({ children }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
+    <div className="min-h-screen bg-white notranslate" translate="no">
       {/* Sidebar */}
       <Sidebar 
         currentPage={currentPage} 
@@ -129,6 +129,7 @@ export default function Dashboard({ children }: Props) {
     </div>
   );
 }
+
 
 
 

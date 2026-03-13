@@ -1,5 +1,6 @@
 
 
+
 ---
 import '../../generated/fonts.css';
 import '../site-components/global.css';
@@ -8,17 +9,82 @@ import '../styles/global.css';
 const { pageClass = '' } = Astro.props;
 ---
 
-<html lang="en" class={pageClass}>
+<html lang="nl" class={`notranslate ${pageClass}`} translate="no">
 <head>
 <meta charset="utf-8" />
 <link rel="icon" type="image/png" href="/favicon.ico" />
 <meta name="viewport" content="width=device-width" />
 <meta name="generator" content={Astro.generator} />
+<meta name="google" content="notranslate" />
+<meta http-equiv="Content-Language" content="nl" />
 <title>Buro Staal Dashboard</title>
+<script is:inline>
+  // Detect and handle Google Translate interference
+  (function() {
+    // Check if page is being translated
+    function isTranslated() {
+      return document.documentElement.classList.contains('translated-ltr') ||
+             document.documentElement.classList.contains('translated-rtl') ||
+             document.body.classList.contains('translated-ltr') ||
+             document.body.classList.contains('translated-rtl') ||
+             document.querySelector('font[face="arial"]') !== null ||
+             document.querySelector('.goog-te-banner-frame') !== null;
+    }
+
+    // Check periodically for translation
+    let checkCount = 0;
+    const checkInterval = setInterval(function() {
+      checkCount++;
+      
+      if (isTranslated()) {
+        clearInterval(checkInterval);
+        
+        // Show warning banner
+        const banner = document.createElement('div');
+        banner.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          background: #ff6b6b;
+          color: white;
+          padding: 12px;
+          text-align: center;
+          z-index: 999999;
+          font-family: system-ui, -apple-system, sans-serif;
+          font-size: 14px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        banner.innerHTML = `
+          ⚠️ Automatische vertaling gedetecteerd. Dit kan problemen veroorzaken met de app. 
+          <button onclick="location.reload()" style="
+            margin-left: 10px;
+            padding: 4px 12px;
+            background: white;
+            color: #ff6b6b;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+          ">Herladen zonder vertaling</button>
+        `;
+        document.body.appendChild(banner);
+        
+        console.warn('Google Translate detected - this may cause issues with React components');
+      }
+      
+      // Stop checking after 10 seconds
+      if (checkCount > 20) {
+        clearInterval(checkInterval);
+      }
+    }, 500);
+  })();
+</script>
 </head>
-<body>
+<body class="notranslate" translate="no">
 <slot />
 </body>
 </html>
+
 
 
