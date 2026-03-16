@@ -63,7 +63,7 @@ export function KennisbankPage() {
         item.samenvatting.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (item.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
-      const matchesCategorie = selectedCategorie === 'alle' || item.categorie === selectedCategorie;
+      const matchesCategorie = selectedCategorie === 'alle' || item.categorie.toLowerCase() === selectedCategorie.toLowerCase();
       const matchesType = selectedType === 'alle' || item.type === selectedType;
       const matchesTag = selectedTag === 'alle' || (item.tags || []).includes(selectedTag);
 
@@ -157,12 +157,14 @@ export function KennisbankPage() {
                 </label>
                 <Select value={selectedCategorie} onValueChange={setSelectedCategorie}>
                   <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
-                    <SelectValue />
+                    <SelectValue className="truncate" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" side="bottom" align="start" sideOffset={4} className="max-w-[200px] sm:max-w-[250px]">
                     <SelectItem value="alle">Alle categorieën</SelectItem>
                     {kennisCategorieen.map(cat => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      <SelectItem key={cat} value={cat} className="text-xs sm:text-sm">
+                        {cat}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -176,7 +178,7 @@ export function KennisbankPage() {
                   <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
                     <SelectItem value="alle">Alle types</SelectItem>
                     {typeMedia.map(type => (
                       <SelectItem key={type} value={type}>{type}</SelectItem>
@@ -193,7 +195,7 @@ export function KennisbankPage() {
                   <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
                     <SelectItem value="alle">Alle tags</SelectItem>
                     {allTags.map(tag => (
                       <SelectItem key={tag} value={tag}>{tag}</SelectItem>
@@ -210,7 +212,7 @@ export function KennisbankPage() {
                   <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
                     <SelectItem value="recent">Meest recent</SelectItem>
                     <SelectItem value="populair">Meest bekeken</SelectItem>
                     <SelectItem value="titel">Alfabetisch</SelectItem>
@@ -276,20 +278,22 @@ export function KennisbankPage() {
               className="hover:shadow-lg transition-all cursor-pointer group border-2 hover:border-[#280bc4] flex flex-col"
               onClick={() => setSelectedItemId(item.id)}
             >
-              <CardHeader className="flex-shrink-0 pb-3 sm:pb-4 p-3 sm:p-6 lg:p-8 pt-3 sm:pt-4 space-y-1.5 sm:space-y-2">
-                <div className="flex items-start justify-between gap-1">
-                  <Badge variant="outline" className="font-medium text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+              <CardHeader className="flex-shrink-0 pb-2 sm:pb-3 px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 space-y-1 sm:space-y-1.5">
+                <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
+                  <Badge className="bg-[#280bc4] text-white w-fit text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                     {item.type}
                   </Badge>
-                  {item.featured && (
-                    <Badge className="bg-[#7ef769] text-black text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
-                      Featured
+                  {item.categorie && (
+                    <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                      {item.categorie}
                     </Badge>
                   )}
                 </div>
-                <Badge className="bg-[#280bc4] text-white w-fit text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
-                  {item.categorie}
-                </Badge>
+                {item.featured && (
+                  <Badge className="bg-[#7ef769] text-black text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 w-fit">
+                    Featured
+                  </Badge>
+                )}
                 <CardTitle className="text-sm sm:text-base lg:text-lg group-hover:text-[#280bc4] transition-colors leading-snug line-clamp-2">
                   {item.titel}
                 </CardTitle>
@@ -297,9 +301,9 @@ export function KennisbankPage() {
                   {item.samenvatting}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2 sm:space-y-3 lg:space-y-4 mt-auto pt-0 p-3 sm:p-6 lg:p-8 pb-2">
+              <CardContent className="space-y-2 sm:space-y-2.5 lg:space-y-3 mt-auto pt-0 px-3 sm:px-6 lg:px-8 pb-3 sm:pb-4">
                 {/* Meta Info */}
-                <div className="space-y-1.5 sm:space-y-2.5 text-xs sm:text-sm text-gray-600 py-2 sm:py-4 border-t">
+                <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-gray-600 py-2 sm:py-3 border-t">
                   <div className="flex items-center gap-1.5 sm:gap-3">
                     <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="truncate text-xs sm:text-sm">{item.auteur}</span>
@@ -312,28 +316,30 @@ export function KennisbankPage() {
                     <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="text-xs sm:text-sm">{item.views} views</span>
                   </div>
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1 sm:gap-2">
-                  {item.tags.slice(0, 2).map((tag) => (
-                    <Badge 
-                      key={tag} 
-                      variant="secondary" 
-                      className="text-[10px] sm:text-xs cursor-pointer hover:bg-gray-300 px-1.5 sm:px-2.5 py-0.5 sm:py-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedTag(tag);
-                      }}
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                  {item.tags.length > 2 && (
-                    <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2.5 py-0.5 sm:py-1">
-                      +{item.tags.length - 2}
-                    </Badge>
-                  )}
+                  {/* Tags */}
+                  <div className="flex items-start gap-1.5 sm:gap-3 pt-1">
+                    <Tag className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 mt-0.5" />
+                    <div className="flex flex-wrap gap-1 sm:gap-1.5 flex-1">
+                      {item.tags.slice(0, 3).map((tag) => (
+                        <Badge 
+                          key={tag} 
+                          variant="secondary" 
+                          className="text-[10px] sm:text-xs cursor-pointer hover:bg-gray-300 px-1.5 sm:px-2 py-0.5"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTag(tag);
+                          }}
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                      {item.tags.length > 3 && (
+                        <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                          +{item.tags.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Read More Button */}
@@ -356,6 +362,20 @@ export function KennisbankPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

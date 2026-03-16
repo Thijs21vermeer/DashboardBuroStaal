@@ -5,7 +5,7 @@ const config: sql.config = {
   server: import.meta.env.AZURE_SQL_SERVER || process.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net',
   database: import.meta.env.AZURE_SQL_DATABASE || process.env.AZURE_SQL_DATABASE || 'dashboarddb',
   user: import.meta.env.AZURE_SQL_USER || process.env.AZURE_SQL_USER || 'databasedashboard',
-  password: import.meta.env.AZURE_SQL_PASSWORD || process.env.AZURE_SQL_PASSWORD || 'Knolpower05!',
+  password: import.meta.env.AZURE_SQL_PASSWORD || process.env.AZURE_SQL_PASSWORD || '',
   port: parseInt(import.meta.env.AZURE_SQL_PORT || process.env.AZURE_SQL_PORT || '1433'),
   options: {
     encrypt: true, // Verplicht voor Azure
@@ -223,6 +223,7 @@ export function parseJsonField(jsonString: string | null | undefined): any {
 export function stringifyJsonField(data: any): string {
   return JSON.stringify(data);
 }
+
 
 
 

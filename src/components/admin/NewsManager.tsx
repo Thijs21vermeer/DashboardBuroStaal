@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -17,7 +18,6 @@ import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useCo
 
 export default function NewsManager() {
   const [items, setItems] = useState<NewsItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('Alle');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
   const [formData, setFormData] = useState({
@@ -162,9 +162,7 @@ export default function NewsManager() {
     });
   };
 
-  const filteredItems = selectedCategory === 'Alle' 
-    ? items 
-    : items.filter(item => item.categorie === selectedCategory);
+  const filteredItems = items;
 
   const getCategoryColor = (categorie: string) => {
     switch (categorie) {
@@ -203,107 +201,92 @@ export default function NewsManager() {
             <RefreshCw className="w-4 h-4" />
           </Button>
         </div>
-        <div className="flex gap-3 items-center ml-4">
-          <div className="flex gap-2 flex-wrap">
-            {['Alle', 'Succes', 'Team', 'Project', 'Event', 'Milestone'].map((cat) => (
-              <Button
-                key={cat}
-                variant={selectedCategory === cat ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory(cat)}
-                className={selectedCategory === cat ? 'bg-[#280bc4] text-white hover:bg-[#280bc4]/90' : ''}
-              >
-                {cat}
-              </Button>
-            ))}
-          </div>
         
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90 ml-2">
-                <Plus className="w-4 h-4 mr-2" />
-                Nieuw Nieuwsitem
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingItem ? 'Nieuwsitem bewerken' : 'Nieuw nieuwsitem toevoegen'}
-                </DialogTitle>
-              </DialogHeader>
-              
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="titel">Titel</Label>
-                  <Input
-                    id="titel"
-                    value={formData.titel}
-                    onChange={(e) => setFormData({ ...formData, titel: e.target.value })}
-                    required
-                  />
-                </div>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) resetForm();
+        }}>
+          <DialogTrigger asChild>
+            <Button className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90 ml-2">
+              <Plus className="w-4 h-4 mr-2" />
+              Nieuw Nieuwsitem
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingItem ? 'Nieuwsitem bewerken' : 'Nieuw nieuwsitem toevoegen'}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="titel">Titel</Label>
+                <Input
+                  id="titel"
+                  value={formData.titel}
+                  onChange={(e) => setFormData({ ...formData, titel: e.target.value })}
+                  required
+                />
+              </div>
 
-                <div>
-                  <Label htmlFor="categorie">Categorie</Label>
-                  <Select value={formData.categorie} onValueChange={(value: any) => setFormData({ ...formData, categorie: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Bedrijfsnieuws">Bedrijfsnieuws</SelectItem>
-                      <SelectItem value="Team Update">Team Update</SelectItem>
-                      <SelectItem value="Project Lancering">Project Lancering</SelectItem>
-                      <SelectItem value="Prestatie">Prestatie</SelectItem>
-                      <SelectItem value="Algemeen">Algemeen</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label htmlFor="categorie">Categorie</Label>
+                <Select value={formData.categorie} onValueChange={(value: any) => setFormData({ ...formData, categorie: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Bedrijfsnieuws">Bedrijfsnieuws</SelectItem>
+                    <SelectItem value="Team Update">Team Update</SelectItem>
+                    <SelectItem value="Project Lancering">Project Lancering</SelectItem>
+                    <SelectItem value="Prestatie">Prestatie</SelectItem>
+                    <SelectItem value="Algemeen">Algemeen</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div>
-                  <Label htmlFor="auteur">Auteur</Label>
-                  <Input
-                    id="auteur"
-                    value={formData.auteur}
-                    onChange={(e) => setFormData({ ...formData, auteur: e.target.value })}
-                  />
-                </div>
+              <div>
+                <Label htmlFor="auteur">Auteur</Label>
+                <Input
+                  id="auteur"
+                  value={formData.auteur}
+                  onChange={(e) => setFormData({ ...formData, auteur: e.target.value })}
+                />
+              </div>
 
-                <div>
-                  <Label htmlFor="tags">Tags (gescheiden door komma's)</Label>
-                  <Input
-                    id="tags"
-                    value={formData.tags}
-                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                    placeholder="Launch, Client, Marketing"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="tags">Tags (gescheiden door komma's)</Label>
+                <Input
+                  id="tags"
+                  value={formData.tags}
+                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  placeholder="Launch, Client, Marketing"
+                />
+              </div>
 
-                <div>
-                  <Label htmlFor="inhoud">Inhoud</Label>
-                  <Textarea
-                    id="inhoud"
-                    value={formData.inhoud}
-                    onChange={(e) => setFormData({ ...formData, inhoud: e.target.value })}
-                    rows={6}
-                    required
-                  />
-                </div>
+              <div>
+                <Label htmlFor="inhoud">Inhoud</Label>
+                <Textarea
+                  id="inhoud"
+                  value={formData.inhoud}
+                  onChange={(e) => setFormData({ ...formData, inhoud: e.target.value })}
+                  rows={6}
+                  required
+                />
+              </div>
 
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Annuleren
-                  </Button>
-                  <Button type="submit" className="bg-[#280bc4] text-white hover:bg-[#280bc4]/90">
-                    {editingItem ? 'Opslaan' : 'Toevoegen'}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Annuleren
+                </Button>
+                <Button type="submit" className="bg-[#280bc4] text-white hover:bg-[#280bc4]/90">
+                  {editingItem ? 'Opslaan' : 'Toevoegen'}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="space-y-4">
@@ -359,6 +342,7 @@ export default function NewsManager() {
     </div>
   );
 }
+
 
 
 

@@ -101,14 +101,14 @@ export default function AdminPanel() {
           <Button
             onClick={() => window.location.href = `${baseUrl}/`}
             className="mb-4 sm:mb-6 bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold text-sm sm:text-base"
-            style={{ color: 'black' }}
+            style={{ color: 'white' }}
           >
             <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             Terug naar Dashboard
           </Button>
           
           <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-            <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#7ef769]" />
+            <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#280bc4]" />
             <h1 className="text-2xl sm:text-3xl font-bold">Admin Panel</h1>
           </div>
           <p className="text-white/90 text-sm sm:text-base md:text-lg">
@@ -187,6 +187,8 @@ export default function AdminPanel() {
     </ErrorBoundary>
   );
 }
+
+
 
 
 

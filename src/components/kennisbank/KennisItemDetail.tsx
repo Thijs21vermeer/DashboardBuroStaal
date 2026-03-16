@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Tag, BookOpen, ExternalLink, Video } from 'lucide-react';
@@ -116,12 +117,12 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
           </div>
           <div className="flex-1">
             <div className="flex flex-wrap gap-2 mb-2 sm:mb-3">
-              <Badge className="bg-[#7ef769] text-black text-xs sm:text-sm">{item.type}</Badge>
               {item.categorie && (
                 <Badge variant="outline" className="border-white/30 text-white text-xs sm:text-sm">
                   {item.categorie}
                 </Badge>
               )}
+              <Badge className="bg-[#7ef769] text-black text-xs sm:text-sm">{item.type}</Badge>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3">{item.titel}</h1>
             <p className="text-base sm:text-lg md:text-xl text-white/90">{item.samenvatting}</p>
@@ -291,6 +292,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
 
 
 

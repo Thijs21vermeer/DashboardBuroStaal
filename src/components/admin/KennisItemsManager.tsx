@@ -3,7 +3,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -27,6 +26,7 @@ export default function KennisItemsManager() {
   const [formData, setFormData] = useState({
     titel: '',
     type: 'Artikel',
+    categorie: '',
     tags: '',
     gekoppeld_project: '',
     eigenaar: '',
@@ -142,6 +142,7 @@ export default function KennisItemsManager() {
     setFormData({
       titel: item.titel,
       type: item.type,
+      categorie: item.categorie || '',
       tags: Array.isArray(item.tags) ? item.tags.join(', ') : item.tags,
       gekoppeld_project: item.gekoppeld_project || '',
       eigenaar: item.eigenaar,
@@ -171,6 +172,7 @@ export default function KennisItemsManager() {
     setFormData({
       titel: '',
       type: 'Artikel',
+      categorie: '',
       tags: '',
       gekoppeld_project: '',
       eigenaar: '',
@@ -250,9 +252,27 @@ export default function KennisItemsManager() {
                   <SelectContent>
                     <SelectItem value="Artikel">Artikel</SelectItem>
                     <SelectItem value="Video">Video</SelectItem>
+                    <SelectItem value="Presentatie">Presentatie</SelectItem>
                     <SelectItem value="Document">Document</SelectItem>
                     <SelectItem value="Checklist">Checklist</SelectItem>
                     <SelectItem value="Template">Template</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="categorie">Categorie</Label>
+                <Select value={formData.categorie} onValueChange={(value) => setFormData({ ...formData, categorie: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecteer een categorie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SEO & Online Marketing">SEO & Online Marketing</SelectItem>
+                    <SelectItem value="Webdesign & Development">Webdesign & Development</SelectItem>
+                    <SelectItem value="Branding & Communicatie">Branding & Communicatie</SelectItem>
+                    <SelectItem value="Social Media">Social Media</SelectItem>
+                    <SelectItem value="Analytics & Data">Analytics & Data</SelectItem>
+                    <SelectItem value="Algemeen">Algemeen</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -411,7 +431,7 @@ export default function KennisItemsManager() {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Annuleren
                 </Button>
-                <Button type="submit" className="bg-[#280bc4] text-white hover:bg-[#280bc4]/90">
+                <Button type="submit" className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90">
                   {editingItem ? 'Opslaan' : 'Toevoegen'}
                 </Button>
               </div>
@@ -462,6 +482,15 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 
 
 

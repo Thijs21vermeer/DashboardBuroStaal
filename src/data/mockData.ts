@@ -749,16 +749,17 @@ export const mockActions: ActionItem[] = [
 // Additional exports for components
 export const kennisCategorieen = [
   'SEO & Online Marketing',
-  'Website Development',
-  'Content Marketing',
+  'Webdesign & Development',
+  'Branding & Communicatie',
   'Social Media',
-  'Marketing Automation',
-  'Strategie'
+  'Analytics & Data',
+  'Algemeen'
 ];
 
 export const typeMedia = [
   'Artikel',
   'Video',
+  'Presentatie',
   'Template',
   'Checklist',
   'Document',
@@ -768,6 +769,7 @@ export const typeMedia = [
 export const mockInternNews = mockNews;
 
 export const mockExternePartners = mockTeamMembers.filter(member => member.isExternal);
+
 
 
 

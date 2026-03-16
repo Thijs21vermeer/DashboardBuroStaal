@@ -336,7 +336,7 @@ export default function TrendsManager() {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Annuleren
                 </Button>
-                <Button type="submit" className="bg-[#280bc4] text-white hover:bg-[#280bc4]/90">
+                <Button type="submit" className="bg-[#7ef769] text-black hover:bg-[#7ef769]/90">
                   {editingItem ? 'Opslaan' : 'Toevoegen'}
                 </Button>
               </div>
@@ -386,6 +386,8 @@ export default function TrendsManager() {
     </div>
   );
 }
+
+
 
 
 
