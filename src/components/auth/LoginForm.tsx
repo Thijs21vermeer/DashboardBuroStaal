@@ -4,6 +4,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Eye, EyeOff, Lock } from 'lucide-react';
+import { baseUrl } from '../../lib/base-url';
 
 interface LoginFormProps {
   onLogin: (password: string) => void;
@@ -19,11 +20,28 @@ export function LoginForm({ onLogin, error }: LoginFormProps) {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simuleer een korte vertraging voor authenticatie
-    setTimeout(() => {
-      onLogin(password);
+    try {
+      const response = await fetch(`${baseUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        onLogin(password);
+      } else {
+        onLogin(''); // Trigger error in parent component
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      onLogin(''); // Trigger error in parent component
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   return (
@@ -96,5 +114,6 @@ export function LoginForm({ onLogin, error }: LoginFormProps) {
     </div>
   );
 }
+
 
 

@@ -41,8 +41,8 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
   }, []);
 
   const handleLogin = (password: string) => {
-    // Simpele authenticatie - in productie zou dit via een API gaan
-    if (password === 'BurostaalDB') {
+    // Verificatie gebeurt nu in de backend API
+    if (password) {
       setIsAuthenticated(true);
       localStorage.setItem('burostaal_authenticated', 'true');
       setLoginError('');
@@ -129,6 +129,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
 
 
 
