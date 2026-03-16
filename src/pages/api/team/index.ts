@@ -44,7 +44,7 @@ export const GET: APIRoute = async () => {
 // POST - Voeg een nieuw teamlid toe
 export const POST: APIRoute = async ({ request, locals }) => {
   // Check authentication
-  const authError = requireAuth({ request, locals } as any);
+  const authError = await requireAuth({ request, locals } as any);
   if (authError) return authError;
   
   try {

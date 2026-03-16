@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Valideer token
-    const isValid = validateToken(token);
+    const isValid = await validateToken(token);
 
     if (isValid) {
       return new Response(
@@ -84,7 +84,7 @@ export const GET: APIRoute = async ({ request }) => {
         }
       },
       currentToken: token ? 'Token ontvangen' : 'Geen token',
-      isValid: token ? validateToken(token) : false,
+      isValid: token ? await validateToken(token) : false,
       activeSessions: getActiveSessionCount()
     }),
     {
@@ -93,3 +93,5 @@ export const GET: APIRoute = async ({ request }) => {
     }
   );
 };
+
+

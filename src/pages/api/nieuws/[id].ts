@@ -62,7 +62,7 @@ export const GET: APIRoute = async ({ params }) => {
 // PUT - Update een nieuwsitem
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = requireAuth({ request, locals } as any);
+  const authError = await requireAuth({ request, locals } as any);
   if (authError) return authError;
   
   try {
@@ -116,7 +116,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 // DELETE - Verwijder een nieuwsitem
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = requireAuth({ request, locals } as any);
+  const authError = await requireAuth({ request, locals } as any);
   if (authError) return authError;
   
   try {

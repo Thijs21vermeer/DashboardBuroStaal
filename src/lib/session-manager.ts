@@ -1,89 +1,107 @@
-// Simple in-memory session management
-// Voor productie zou je dit in een database willen opslaan
-
-interface Session {
-  token: string;
-  createdAt: number;
-  expiresAt: number;
-}
-
-// In-memory opslag van actieve sessies
-const activeSessions = new Map<string, Session>();
-
-// Sessie geldigheid: 24 uur
-const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 uur in milliseconden
-
 /**
- * Genereer een nieuwe sessie token
+ * JWT-style session management zonder database
+ * Tokens zijn zelf-validerend met signature
  */
-export function generateToken(): string {
-  return crypto.randomUUID();
+
+const SECRET_KEY = process.env.AUTH_SECRET || 'burostaal-secret-key-change-in-production';
+const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 uur
+
+interface TokenPayload {
+  created: number;
+  expires: number;
+  signature: string;
 }
 
 /**
- * Creëer een nieuwe sessie
+ * Simpele HMAC-achtige signature (voor lightweight auth)
  */
-export function createSession(): string {
-  const token = generateToken();
-  const now = Date.now();
+async function createSignature(data: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data + SECRET_KEY);
   
-  const session: Session = {
-    token,
-    createdAt: now,
-    expiresAt: now + SESSION_DURATION
+  // Use subtle crypto for signature
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Genereer een nieuwe token met embedded expiry
+ */
+export async function generateToken(): Promise<string> {
+  const now = Date.now();
+  const expires = now + SESSION_DURATION;
+  
+  const payload = {
+    created: now,
+    expires: expires,
   };
   
-  activeSessions.set(token, session);
+  const payloadString = JSON.stringify(payload);
+  const signature = await createSignature(payloadString);
   
-  // Cleanup oude sessies
-  cleanupExpiredSessions();
+  const fullPayload: TokenPayload = {
+    ...payload,
+    signature,
+  };
   
-  return token;
+  // Base64 encode the entire payload
+  return btoa(JSON.stringify(fullPayload));
+}
+
+/**
+ * Creëer een nieuwe sessie (alias voor generateToken)
+ */
+export async function createSession(): Promise<string> {
+  return await generateToken();
 }
 
 /**
  * Valideer of een token geldig is
  */
-export function validateToken(token: string): boolean {
+export async function validateToken(token: string): Promise<boolean> {
   if (!token) return false;
   
-  const session = activeSessions.get(token);
-  
-  if (!session) return false;
-  
-  // Check of sessie verlopen is
-  if (Date.now() > session.expiresAt) {
-    activeSessions.delete(token);
+  try {
+    // Decode token
+    const decoded = atob(token);
+    const payload: TokenPayload = JSON.parse(decoded);
+    
+    // Check expiry
+    if (Date.now() > payload.expires) {
+      return false;
+    }
+    
+    // Verify signature
+    const payloadWithoutSig = {
+      created: payload.created,
+      expires: payload.expires,
+    };
+    const expectedSignature = await createSignature(JSON.stringify(payloadWithoutSig));
+    
+    if (payload.signature !== expectedSignature) {
+      console.warn('Invalid token signature');
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Token validation error:', error);
     return false;
   }
-  
-  return true;
 }
 
 /**
- * Verwijder een sessie (logout)
+ * Verwijder een sessie (voor logout - client-side actie)
  */
 export function deleteSession(token: string): void {
-  activeSessions.delete(token);
+  // Met JWT-style tokens hoeven we niks te doen server-side
+  // Client verwijdert token uit localStorage
 }
 
 /**
- * Verwijder verlopen sessies
- */
-function cleanupExpiredSessions(): void {
-  const now = Date.now();
-  
-  for (const [token, session] of activeSessions.entries()) {
-    if (now > session.expiresAt) {
-      activeSessions.delete(token);
-    }
-  }
-}
-
-/**
- * Get actieve sessie count (voor debugging)
+ * Get actieve sessie count (altijd 0 bij stateless auth)
  */
 export function getActiveSessionCount(): number {
-  cleanupExpiredSessions();
-  return activeSessions.size;
+  return 0; // Stateless - we tracken geen sessies
 }

@@ -14,7 +14,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (password === correctPassword) {
       // Genereer een nieuwe sessie token
-      const token = createSession();
+      const token = await createSession();
       
       return new Response(
         JSON.stringify({ 
@@ -47,3 +47,4 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 };
+
