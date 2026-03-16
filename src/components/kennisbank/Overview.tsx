@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle, Search, X } from 'lucide-react';
@@ -259,7 +258,7 @@ export function Overview({ onNavigate }: OverviewProps) {
         <Card className="border-2 border-[#280bc4]/20 shadow-lg">
           <CardContent className="px-6 pt-2 pb-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Snel zoeken
+              Snel zoeken...
             </h3>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -577,6 +576,7 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
 
 
 
