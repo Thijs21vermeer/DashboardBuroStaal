@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle, Search, X } from 'lucide-react';
@@ -232,9 +233,6 @@ export function Overview({ onNavigate }: OverviewProps) {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
             Dashboard Buro Staal
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl mb-4 sm:mb-6 text-white/90">
-            Al onze kennis, cases en trends op één plek
-          </p>
           <p className="text-base sm:text-lg mb-6 sm:mb-8 text-white/80 leading-relaxed">
             Ons interne dashboard om kennis te delen, projecten te volgen en op de hoogte te blijven van ontwikkelingen in de maakindustrie.
           </p>
@@ -259,12 +257,10 @@ export function Overview({ onNavigate }: OverviewProps) {
       {/* Search Bar */}
       <div className="relative">
         <Card className="border-2 border-[#280bc4]/20 shadow-lg">
-          <CardContent className="px-6 py-4">
-            <div className="mb-3">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Doorzoek de kennisbank
-              </h3>
-            </div>
+          <CardContent className="px-6 pt-2 pb-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Snel zoeken
+            </h3>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                 <Search className="w-5 h-5" />
@@ -581,6 +577,15 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 
 
 

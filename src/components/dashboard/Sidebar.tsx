@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, BookOpen, TrendingUp, Users, Newspaper, Settings, Briefcase, LogOut, Code, Video, ChevronDown, ChevronRight, Building2, Lightbulb, GraduationCap } from 'lucide-react';
 import { baseUrl } from '../../lib/base-url';
 import { 
@@ -84,6 +84,17 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
       ]
     }
   ];
+
+  // Auto-open category based on current page
+  useEffect(() => {
+    for (const category of categories) {
+      const pageIds = category.items.map(item => item.id);
+      if (pageIds.includes(currentPage)) {
+        setOpenCategory(category.label);
+        break;
+      }
+    }
+  }, [currentPage]);
 
   const toggleCategory = (categoryLabel: string) => {
     setOpenCategory(openCategory === categoryLabel ? null : categoryLabel);
@@ -235,6 +246,7 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
     </>
   );
 }
+
 
 
 
