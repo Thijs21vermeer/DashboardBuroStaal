@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { Home, BookOpen, TrendingUp, Users, Newspaper, Settings, Briefcase, LogOut, Code, Video } from 'lucide-react';
+import { Home, BookOpen, TrendingUp, Users, Newspaper, Settings, Briefcase, LogOut, Code, Video, ChevronDown, ChevronRight, Building2, Lightbulb, GraduationCap } from 'lucide-react';
 import { baseUrl } from '../../lib/base-url';
 import { 
-  ChevronLeft,
-  ChevronRight,
-  Sparkles
+  ChevronLeft
 } from 'lucide-react';
 import type { PageType } from '../../types';
 
@@ -20,60 +18,76 @@ interface NavItem {
   id: PageType;
   label: string;
   icon: React.ReactNode;
-  description: string;
+}
+
+interface CategoryGroup {
+  label: string;
+  icon: React.ReactNode;
+  items: NavItem[];
 }
 
 export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogout }: SidebarProps) {
-  const navItems: NavItem[] = [
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+
+  const categories: CategoryGroup[] = [
     {
-      id: 'overzicht',
-      label: 'Home',
-      icon: <Home className="w-5 h-5" />,
-      description: 'Dashboard overzicht'
+      label: 'Kennis',
+      icon: <GraduationCap className="w-5 h-5" />,
+      items: [
+        {
+          id: 'kennisbank',
+          label: 'Kennisbank',
+          icon: <BookOpen className="w-4 h-4" />
+        },
+        {
+          id: 'tools',
+          label: 'Tools',
+          icon: <Code className="w-4 h-4" />
+        },
+        {
+          id: 'videos',
+          label: "Video's",
+          icon: <Video className="w-4 h-4" />
+        }
+      ]
     },
     {
-      id: 'kennisbank',
-      label: 'Kennisbank',
-      icon: <BookOpen className="w-5 h-5" />,
-      description: 'Artikelen, whitepapers & presentaties'
+      label: 'Bedrijf',
+      icon: <Building2 className="w-5 h-5" />,
+      items: [
+        {
+          id: 'team',
+          label: 'Team',
+          icon: <Users className="w-4 h-4" />
+        },
+        {
+          id: 'nieuws',
+          label: 'Nieuws',
+          icon: <Newspaper className="w-4 h-4" />
+        }
+      ]
     },
     {
-      id: 'cases',
-      label: 'Case Studies',
-      icon: <Briefcase className="w-5 h-5" />,
-      description: 'Succesvolle klantprojecten'
-    },
-    {
-      id: 'trends',
-      label: 'Trends & Inzichten',
-      icon: <TrendingUp className="w-5 h-5" />,
-      description: 'Maakindustrie ontwikkelingen'
-    },
-    {
-      id: 'team',
-      label: 'Team & Expertise',
-      icon: <Users className="w-5 h-5" />,
-      description: 'Wie doet wat?'
-    },
-    {
-      id: 'nieuws',
-      label: 'Intern Nieuws',
-      icon: <Newspaper className="w-5 h-5" />,
-      description: 'Bedrijfsupdates'
-    },
-    {
-      id: 'tools',
-      label: 'Developer Tools',
-      icon: <Code className="w-5 h-5" />,
-      description: 'Code snippets & commands'
-    },
-    {
-      id: 'videos',
-      label: 'Video Catalogus',
-      icon: <Video className="w-5 h-5" />,
-      description: 'Instructievideo\'s & tutorials'
+      label: 'Inzichten',
+      icon: <Lightbulb className="w-5 h-5" />,
+      items: [
+        {
+          id: 'trends',
+          label: 'Trends',
+          icon: <TrendingUp className="w-4 h-4" />
+        },
+        {
+          id: 'cases',
+          label: 'Cases',
+          icon: <Briefcase className="w-4 h-4" />
+        }
+      ]
     }
   ];
+
+  const toggleCategory = (categoryLabel: string) => {
+    setOpenCategory(openCategory === categoryLabel ? null : categoryLabel);
+  };
 
   return (
     <>
@@ -108,36 +122,77 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
             {/* Navigation */}
             <nav className="flex-1 overflow-y-auto p-3">
               <div className="space-y-1">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setCurrentPage(item.id);
-                      setIsOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
-                      currentPage === item.id
-                        ? 'bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 text-white shadow-md'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <span className={`${currentPage === item.id ? 'text-white' : 'text-gray-600'}`}>
-                      {item.icon}
-                    </span>
-                    <div className="flex-1 text-left">
-                      <div className={`font-medium text-sm ${
-                        currentPage === item.id ? 'text-white' : 'text-gray-900'
-                      }`}>
-                        {item.label}
-                      </div>
-                      <div className={`text-xs ${
-                        currentPage === item.id ? 'text-white/80' : 'text-gray-500'
-                      }`}>
-                        {item.description}
-                      </div>
+                {/* Overzicht - standalone */}
+                <button
+                  onClick={() => {
+                    setCurrentPage('overzicht');
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                    currentPage === 'overzicht'
+                      ? 'bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 shadow-md !text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                  style={currentPage === 'overzicht' ? { color: 'white' } : {}}
+                >
+                  <Home className="w-5 h-5" style={currentPage === 'overzicht' ? { color: 'white' } : {}} />
+                  <span className="font-medium text-sm" style={currentPage === 'overzicht' ? { color: 'white' } : {}}>Overzicht</span>
+                </button>
+
+                {/* Divider */}
+                <div className="h-px bg-gray-200 my-2" />
+
+                {/* Categories */}
+                {categories.map((category) => {
+                  const isOpen = openCategory === category.label;
+                  return (
+                    <div key={category.label}>
+                      {/* Category Header */}
+                      <button
+                        onClick={() => toggleCategory(category.label)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-gray-700 hover:bg-gray-100"
+                      >
+                        <span className="text-gray-600">{category.icon}</span>
+                        <span className="flex-1 text-left font-semibold text-sm text-gray-900">
+                          {category.label}
+                        </span>
+                        {isOpen ? (
+                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-gray-500" />
+                        )}
+                      </button>
+
+                      {/* Category Items */}
+                      {isOpen && (
+                        <div className="ml-4 mt-1 space-y-1">
+                          {category.items.map((item) => (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                setCurrentPage(item.id);
+                                setIsOpen(false);
+                              }}
+                              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                                currentPage === item.id
+                                  ? 'bg-gradient-to-r from-[#280bc4] to-[#280bc4]/80 shadow-md !text-white'
+                                  : 'text-gray-700 hover:bg-gray-100'
+                              }`}
+                              style={currentPage === item.id ? { color: 'white' } : {}}
+                            >
+                              <span className={currentPage === item.id ? '!text-white' : 'text-gray-600'} style={currentPage === item.id ? { color: 'white' } : {}}>
+                                {item.icon}
+                              </span>
+                              <span className={`text-sm font-medium ${currentPage === item.id ? '!text-white' : ''}`} style={currentPage === item.id ? { color: 'white' } : {}}>
+                                {item.label}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </button>
-                ))}
+                  );
+                })}
               </div>
             </nav>
 
@@ -150,7 +205,6 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
                 <Settings className="w-5 h-5" />
                 <div className="flex-1 text-left">
                   <div className="font-medium text-sm">Admin Panel</div>
-                  <div className="text-xs text-white/80">Content beheren</div>
                 </div>
               </a>
 
@@ -164,7 +218,6 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
                 <LogOut className="w-5 h-5" />
                 <div className="flex-1 text-left">
                   <div className="font-medium text-sm">Uitloggen</div>
-                  <div className="text-xs text-white/80">Veilig afsluiten</div>
                 </div>
               </button>
             </div>
@@ -182,6 +235,14 @@ export function Sidebar({ currentPage, setCurrentPage, isOpen, setIsOpen, onLogo
     </>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

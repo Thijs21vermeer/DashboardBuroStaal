@@ -6,7 +6,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
+import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle, Search, X } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -54,10 +54,44 @@ export function Overview({ onNavigate }: OverviewProps) {
   const [trends, setTrends] = useState<any[]>([]);
   const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [allContent, setAllContent] = useState<any[]>([]);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // Search effect
+  useEffect(() => {
+    if (searchQuery.trim().length > 0) {
+      performSearch(searchQuery);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchQuery]);
+
+  const performSearch = (query: string) => {
+    setIsSearching(true);
+    const lowerQuery = query.toLowerCase();
+    
+    const results = allContent.filter((item) => {
+      const searchText = [
+        item.titel || item.title || '',
+        item.samenvatting || item.beschrijving || item.inhoud || '',
+        item.auteur || item.eigenaar || '',
+        ...(item.tags || []),
+        item.categorie || '',
+        item.type || item.contentType || ''
+      ].join(' ').toLowerCase();
+      
+      return searchText.includes(lowerQuery);
+    });
+    
+    setSearchResults(results);
+    setIsSearching(false);
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -88,6 +122,15 @@ export function Overview({ onNavigate }: OverviewProps) {
         // Get tools data
         const toolsData = toolsRes.ok ? await toolsRes.json() as any[] : [];
         
+        // Combine all content for search
+        const combined = [
+          ...kennisData.map(item => ({ ...item, contentType: 'kennisitem' })),
+          ...casesData.map(item => ({ ...item, contentType: 'case' })),
+          ...trendsData.map(item => ({ ...item, contentType: 'trend' })),
+          ...toolsData.map(item => ({ ...item, contentType: 'tool' }))
+        ];
+        setAllContent(combined);
+        
         // Update stats
         setStats({
           aantalKennisitems: kennisData.length,
@@ -107,6 +150,40 @@ export function Overview({ onNavigate }: OverviewProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getContentTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      'kennisitem': 'Kennisitem',
+      'case': 'Case Study',
+      'trend': 'Trend',
+      'tool': 'Tool'
+    };
+    return labels[type] || type;
+  };
+
+  const getContentTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+      'kennisitem': 'bg-blue-100 text-blue-800',
+      'case': 'bg-purple-100 text-purple-800',
+      'trend': 'bg-green-100 text-green-800',
+      'tool': 'bg-orange-100 text-orange-800'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-800';
+  };
+
+  const handleResultClick = (item: any) => {
+    const type = item.contentType;
+    if (type === 'kennisitem') {
+      onNavigate(`kennisitem-${item.id}`);
+    } else if (type === 'case') {
+      onNavigate('cases');
+    } else if (type === 'trend') {
+      onNavigate(`trend-${item.id}`);
+    } else if (type === 'tool') {
+      onNavigate('tools');
+    }
+    setSearchQuery('');
   };
 
   const featuredKennis = featured.map((item) => ({
@@ -178,6 +255,89 @@ export function Overview({ onNavigate }: OverviewProps) {
             </Button>
           </div>
         </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative">
+        <Card className="border-2 border-[#280bc4]/20 shadow-lg">
+          <CardContent className="px-6 py-4">
+            <div className="mb-3">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Doorzoek de kennisbank
+              </h3>
+            </div>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <Search className="w-5 h-5" />
+              </div>
+              <input
+                type="text"
+                placeholder="Zoek in kennisbank, cases, trends en tools..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-12 py-4 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#280bc4] transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+            
+            {/* Search Results Dropdown */}
+            {searchQuery && (
+              <div className="mt-4 border-t pt-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-600">
+                    {searchResults.length} {searchResults.length === 1 ? 'resultaat' : 'resultaten'} gevonden
+                  </p>
+                  {isSearching && (
+                    <RefreshCw className="w-4 h-4 animate-spin text-[#280bc4]" />
+                  )}
+                </div>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {searchResults.length === 0 ? (
+                    <p className="text-sm text-gray-500 py-4 text-center">
+                      Geen resultaten gevonden voor "{searchQuery}"
+                    </p>
+                  ) : (
+                    searchResults.slice(0, 10).map((item) => (
+                      <div
+                        key={`${item.contentType}-${item.id}`}
+                        onClick={() => handleResultClick(item)}
+                        className="p-4 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors border border-gray-200"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h4 className="font-semibold text-gray-900 flex-1">
+                            {item.titel || item.title || 'Geen titel'}
+                          </h4>
+                          <Badge className={getContentTypeColor(item.contentType)}>
+                            {getContentTypeLabel(item.contentType)}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                          {item.samenvatting || item.beschrijving || item.inhoud || 'Geen beschrijving'}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span>{item.auteur || item.eigenaar || 'Onbekend'}</span>
+                          {item.categorie && (
+                            <>
+                              <span>•</span>
+                              <span>{item.categorie}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Stats */}
@@ -410,6 +570,15 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 
 
 

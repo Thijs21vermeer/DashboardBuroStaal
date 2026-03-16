@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo } from 'react';
 import { Users, Mail, Star, Award, Briefcase, ExternalLink, Phone, Globe, Sparkles, Building2 } from 'lucide-react';
@@ -115,7 +116,7 @@ export function TeamPage() {
           {eigenaresses.map((member) => (
             <Card 
               key={member.id} 
-              className="hover:shadow-xl transition-all border-2 border-[#7ef769] bg-gradient-to-br from-white to-[#7ef769]/5"
+              className="hover:shadow-xl transition-all bg-gradient-to-br from-white to-[#7ef769]/5"
             >
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-4">
@@ -367,6 +368,7 @@ export function TeamPage() {
     </div>
   );
 }
+
 
 
 
