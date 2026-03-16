@@ -3,7 +3,6 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle, Search, X } from 'lucide-react';
@@ -342,7 +341,10 @@ export function Overview({ onNavigate }: OverviewProps) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all hover:scale-105"
+          onClick={() => onNavigate('kennisbank')}
+        >
           <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -353,7 +355,10 @@ export function Overview({ onNavigate }: OverviewProps) {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all hover:scale-105"
+          onClick={() => onNavigate('cases')}
+        >
           <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -364,7 +369,10 @@ export function Overview({ onNavigate }: OverviewProps) {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all hover:scale-105"
+          onClick={() => onNavigate('trends')}
+        >
           <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -375,7 +383,10 @@ export function Overview({ onNavigate }: OverviewProps) {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all hover:scale-105"
+          onClick={() => onNavigate('tools')}
+        >
           <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
               <div>
@@ -570,6 +581,7 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
 
 
 
