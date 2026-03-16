@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -14,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
-import { authFetch } from '../../lib/auth-client';
 import { mockKennisItems } from '../../data/mockData';
 import type { KennisItem } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
@@ -47,7 +40,7 @@ export default function KennisItemsManager() {
       const baseUrl = getBaseUrl();
       console.log('[KennisItemsManager] Fetching from:', `${baseUrl}/api/kennisitems`);
       
-      const response = await authFetch(`${baseUrl}/api/kennisitems`);
+      const response = await fetch(`${baseUrl}/api/kennisitems`);
       console.log('[KennisItemsManager] Response status:', response.status, response.statusText);
       
       if (!response.ok) {
@@ -92,7 +85,7 @@ export default function KennisItemsManager() {
       
       if (editingItem) {
         // Update existing item
-        const response = await authFetch(`${baseUrl}/api/kennisitems/${editingItem.id}`, {
+        const response = await fetch(`${baseUrl}/api/kennisitems/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(itemData),
@@ -110,7 +103,7 @@ export default function KennisItemsManager() {
         alert('✅ Item succesvol bijgewerkt!');
       } else {
         // Create new item
-        const response = await authFetch(`${baseUrl}/api/kennisitems`, {
+        const response = await fetch(`${baseUrl}/api/kennisitems`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(itemData),
@@ -160,7 +153,7 @@ export default function KennisItemsManager() {
     if (!confirm('Weet je zeker dat je dit item wilt verwijderen?')) return;
     
     try {
-      await authFetch(`${getBaseUrl()}/api/kennisitems/${id}`, {
+      await fetch(`${getBaseUrl()}/api/kennisitems/${id}`, {
         method: 'DELETE',
       });
       setItems(items.filter(i => i.id !== id));
@@ -484,6 +477,7 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
 
 
 

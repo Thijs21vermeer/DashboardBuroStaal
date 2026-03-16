@@ -1,205 +1,218 @@
-# 🔒 Authentication System - Buro Staal Dashboard
+# 🔐 Buro Staal Auth System - Versie 2.0 (Vereenvoudigd)
 
-## Overview
-Token-based authentication systeem voor de Admin Panel. Beveiligt alle mutatie endpoints (POST, PUT, DELETE) terwijl lees-toegang (GET) publiek blijft.
+## 📋 Overzicht
 
-## 🎯 Features
+Het auth systeem is **radicaal vereenvoudigd** naar **één enkele login**:
 
-### ✅ Stateless JWT-style Tokens
-- **Geen database vereist** - tokens zijn zelf-validerend
-- **Persistent over page refreshes** - opgeslagen in localStorage
-- **24 uur geldig** - automatische expiry
-- **Signed tokens** - tamper-proof met SHA-256 signature
+- ✅ **Dashboard login** = toegang tot hele app (lezen + bewerken)
+- ❌ ~~Admin login~~ (verwijderd - was overbodig)
 
-### ✅ Automatische Token Verificatie
-- Bij page load wordt token gevalideerd
-- Verlopen tokens worden automatisch verwijderd
-- Seamless re-authentication flow
+## 🎯 Architectuur
 
-### ✅ Security
-- Tokens bevatten signature die gevalideerd wordt
-- Environment variable voor secret key (`AUTH_SECRET`)
-- Server-side verificatie op alle protected endpoints
+### **Single Token System**
+- 1 login bij `/` (dashboard)
+- Token geldt voor alle functionaliteit
+- Simpel, veilig, gebruiksvriendelijk
 
-## 📁 File Structure
+### **Stateless JWT-style tokens**
+- Tokens zelf-valideren met SHA-256 signature
+- Geen server state nodig
+- Werkt over dev server restarts
+- Schaalbaar naar multiple servers
 
+## 🔑 Wachtwoord
+
+```
+BurostaalDB
+```
+
+Wordt gecheckt in `src/middleware.ts`
+
+## 🗂️ Bestandsstructuur
+
+### **Core Auth Files**
 ```
 src/
+├── middleware.ts                    # Dashboard auth check
 ├── lib/
-│   ├── session-manager.ts      # JWT-style token generation & validation
-│   ├── api-auth.ts             # Auth middleware voor API endpoints
-│   └── auth-client.ts          # Client-side auth utilities
-├── components/admin/
-│   ├── AdminPanel.tsx          # Main admin met auth check
-│   └── LoginModal.tsx          # Login UI component
-└── pages/api/
-    ├── auth/
-    │   ├── login-v2.ts         # POST /api/auth/login-v2
-    │   └── verify.ts           # POST /api/auth/verify
-    └── [all endpoints]/
-        └── *.ts                # Protected met requireAuth()
+│   ├── api-auth.ts                 # API endpoint auth verificatie
+│   └── session-manager.ts          # Stateless token generatie/validatie
+└── pages/
+    └── api/
+        └── auth/
+            └── login.ts            # Hoofdlogin endpoint
 ```
 
-## 🔐 How It Works
+### **Verwijderde Files** ✂️
+- ~~`src/lib/auth-client.ts`~~ - Admin client auth (niet meer nodig)
+- ~~`src/components/admin/LoginModal.tsx`~~ - Admin login modal (verwijderd)
+- ~~`src/pages/api/auth/login-v2.ts`~~ - Admin login endpoint (verwijderd)
+- ~~`src/pages/api/auth/verify.ts`~~ - Admin token verificatie (verwijderd)
 
-### Token Structure
+## 🔐 Token Flow (Vereenvoudigd)
+
+### 1️⃣ **Login Flow**
+```
+Gebruiker → / (dashboard)
+  ↓
+Middleware checkt wachtwoord
+  ↓
+Genereert stateless token → localStorage
+  ↓
+Toegang tot hele app
+```
+
+### 2️⃣ **API Access**
+```
+Request → API Endpoint
+  ↓
+requireAuth() checkt token
+  ↓
+Valideert signature + expiry
+  ↓
+✅ Success of ❌ 401 Unauthorized
+```
+
+### 3️⃣ **Page Refresh**
+```
+localStorage token blijft bestaan
+  ↓
+Middleware/API valideert token
+  ↓
+✅ Blijft ingelogd!
+```
+
+## 📝 Token Details
+
+### **Token Structuur**
 ```typescript
 {
-  created: 1234567890,      // Timestamp van creatie
-  expires: 1234654290,      // Timestamp + 24h
-  signature: "abc123..."    // SHA-256 hash voor validatie
+  timestamp: number,      // Aanmaak tijdstip
+  expiresAt: number,     // Verloop tijdstip (24u)
+  signature: string      // SHA-256 hash voor validatie
 }
-// Base64 encoded voor transport
 ```
 
-### Authentication Flow
+### **Token Validatie**
+1. Parse token JSON
+2. Check expiry (24 uur)
+3. Recalculeer signature
+4. Vergelijk signatures
+5. ✅ of ❌
 
-1. **Login** → `/api/auth/login-v2`
-   ```typescript
-   POST { password: "BurostaalDB" }
-   → { success: true, token: "xyz...", expiresIn: 86400 }
-   ```
+## 🛠️ Configuratie
 
-2. **Token Storage** → `localStorage`
-   ```typescript
-   localStorage.setItem('buro_staal_auth_token', token);
-   ```
-
-3. **API Requests** → With Bearer Token
-   ```typescript
-   fetch('/api/kennisitems', {
-     method: 'POST',
-     headers: {
-       'Authorization': `Bearer ${token}`
-     }
-   })
-   ```
-
-4. **Server Validation** → Signature Check
-   ```typescript
-   // Decode token
-   // Check expiry
-   // Verify signature matches
-   → 200 OK of 401 Unauthorized
-   ```
-
-## 🛡️ Protected Endpoints
-
-Alle POST/PUT/DELETE endpoints zijn beveiligd:
-
-| Endpoint | GET (Public) | POST/PUT/DELETE (Auth) |
-|----------|--------------|------------------------|
-| `/api/kennisitems` | ✅ | 🔒 |
-| `/api/cases` | ✅ | 🔒 |
-| `/api/trends` | ✅ | 🔒 |
-| `/api/nieuws` | ✅ | 🔒 |
-| `/api/team` | ✅ | 🔒 |
-| `/api/tools` | ✅ | 🔒 |
-| `/api/videos` | ✅ | 🔒 |
-| `/api/partners` | ✅ | 🔒 |
-
-## 🚀 Usage
-
-### For Developers
-
-**Protected API Endpoint:**
-```typescript
-import { requireAuth } from '../../../lib/api-auth';
-
-export const POST: APIRoute = async ({ request, locals }) => {
-  // Check auth
-  const authError = await requireAuth({ request, locals } as any);
-  if (authError) return authError;
-  
-  // Proceed with protected logic...
-};
-```
-
-**Client-side Fetch:**
-```typescript
-import { authFetch } from '../../lib/auth-client';
-
-const response = await authFetch('/api/kennisitems', {
-  method: 'POST',
-  body: JSON.stringify(data)
-});
-```
-
-### For Admin Users
-
-1. **Navigate to** `/admin`
-2. **Login modal** appears automatically als je nog niet bent ingelogd
-3. **Enter password:** `BurostaalDB`
-4. **Token blijft geldig** voor 24 uur (ook na page refresh!)
-5. **Logout** via knop rechtsboven wanneer je klaar bent
-
-## 🔧 Configuration
-
-### Environment Variables
-
+### **Environment Variabelen**
 ```bash
-# .env
-DASHBOARD_PASSWORD=BurostaalDB
+# Optioneel - voor custom secret key
 AUTH_SECRET=burostaal-super-secret-key-2026-change-this-in-production
+
+# Default: "buro-staal-auth-secret-key-2026"
 ```
 
-**Voor Netlify/Productie:**
-Zet deze ook in Netlify environment variables!
-
-### Token Expiry Aanpassen
-
-In `src/lib/session-manager.ts`:
+### **Wachtwoord wijzigen**
+In `src/middleware.ts`:
 ```typescript
-const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 uur
-// Wijzig naar gewenste duur in milliseconden
+const password = 'BurostaalDB'; // ← Wijzig hier
 ```
+
+## 🚀 Deployment (Netlify)
+
+### **Environment Variables**
+```
+AUTH_SECRET=jouw-super-geheime-key-hier
+```
+
+### **Build Command**
+```bash
+npm run build:netlify
+```
+
+### **Publish Directory**
+```
+dist/
+```
+
+## ✅ Testen
+
+### **Test Login Flow**
+```bash
+# 1. Open dashboard
+curl http://localhost:3000/
+
+# 2. Voer wachtwoord in: BurostaalDB
+
+# 3. Check localStorage
+# In browser console:
+localStorage.getItem('dashboardToken')
+
+# 4. Refresh page (F5)
+# Blijft ingelogd!
+```
+
+### **Test API Access**
+```bash
+# Zonder token
+curl http://localhost:3000/api/kennisitems
+# → 401 Unauthorized
+
+# Met token (na login)
+# Token wordt automatisch meegestuurd door browser
+```
+
+## 🔒 Security Features
+
+1. **Stateless tokens** - Geen server state te hacken
+2. **SHA-256 signatures** - Tokens kunnen niet worden vervalst
+3. **24-hour expiry** - Automatisch uitloggen
+4. **Secret key** - Configureerbaar per environment
+5. **Single source** - Eén wachtwoord te beheren
+
+## 📊 Voordelen nieuwe systeem
+
+| Feature | Voor | Na |
+|---------|------|-----|
+| **Aantal logins** | 2x (Dashboard + Admin) | 1x |
+| **Token storage** | In-memory Map | Stateless JWT-style |
+| **Page refresh** | ❌ Logout | ✅ Blijft ingelogd |
+| **Server restart** | ❌ Alle tokens weg | ✅ Tokens blijven werken |
+| **Scalability** | ❌ Single server | ✅ Multi-server ready |
+| **Complexity** | 🔴 Hoog | 🟢 Laag |
 
 ## 🐛 Troubleshooting
 
-### "Moet opnieuw inloggen na refresh"
-✅ **FIXED!** Tokens zijn nu stateless en persistent.
-- Oude issue: In-memory Map werd gewist bij server restart
-- Nieuwe oplossing: JWT-style tokens met signature
-- Token blijft geldig in localStorage over restarts heen
+### **"401 Unauthorized" na page refresh**
+1. Check of token in localStorage zit:
+   ```js
+   localStorage.getItem('dashboardToken')
+   ```
+2. Check of AUTH_SECRET overeenstemt op server en client
+3. Hard refresh browser (Ctrl+Shift+R)
 
-### "401 Unauthorized" bij API calls
-1. Check of token in localStorage aanwezig is: `localStorage.getItem('buro_staal_auth_token')`
-2. Verify token met: `GET /api/auth/verify`
-3. Check of `Authorization` header correct is: `Bearer <token>`
+### **Token verloopt te snel**
+Token is 24 uur geldig. Voor langere sessies:
+```typescript
+// In session-manager.ts
+const EXPIRY_MS = 24 * 60 * 60 * 1000; // ← Verhoog hier
+```
 
-### Token is verlopen
-- Automatic cleanup: Client detecteert 401 en toont login modal
-- Manual: Klik op "Uitloggen" en log opnieuw in
+### **Wachtwoord werkt niet**
+Check `src/middleware.ts`:
+```typescript
+const password = 'BurostaalDB'; // Hoofdlettergevoelig!
+```
 
-## 📊 Benefits vs Old System
+## 🎉 Resultaat
 
-| Aspect | Old (In-Memory) | New (JWT-style) |
-|--------|----------------|-----------------|
-| Persistent | ❌ Lost bij restart | ✅ Altijd persistent |
-| Scalable | ❌ Single server | ✅ Multi-server ready |
-| Database | ❌ Zou nodig zijn | ✅ Geen DB nodig |
-| Performance | ⚠️ Memory lookup | ✅ Pure calculation |
-| Stateless | ❌ Server state | ✅ Fully stateless |
+**Één simpele login = toegang tot alles!**
 
-## 🎉 Success Criteria
-
-✅ Login werkt met wachtwoord
-✅ Token wordt opgeslagen in localStorage
-✅ Page refresh behoudt login state
-✅ Alle POST/PUT/DELETE endpoints beveiligd
-✅ GET endpoints blijven publiek
-✅ Logout werkt correct
-✅ 24h expiry wordt gerespecteerd
-✅ Werkt in zowel dev als production (Netlify/Cloudflare)
-
-## 📝 Notes
-
-- **No database required** - perfect voor Netlify/Cloudflare deployment
-- **Backwards compatible** - oude `/api/auth/login` blijft werken
-- **Client-first** - localStorage persistence = no server state issues
-- **Production ready** - just set `AUTH_SECRET` env var!
+✅ Dashboard bekijken  
+✅ Admin panel bewerken  
+✅ API calls maken  
+✅ Persistent over refreshes  
+✅ Geen dubbele login meer!
 
 ---
 
-Last updated: March 16, 2026
-Status: ✅ Production Ready & Tested
+**Last Updated:** Maart 2026  
+**Version:** 2.0 (Vereenvoudigd Single-Login)

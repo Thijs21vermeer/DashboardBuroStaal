@@ -7,11 +7,9 @@ import NewsManager from './NewsManager';
 import TeamManager from './TeamManager';
 import ToolsManager from './ToolsManager';
 import VideosManager from './VideosManager';
-import { LoginModal } from './LoginModal';
-import { Settings, Database, ArrowLeft, Users, Code, Video, LogOut } from 'lucide-react';
+import { Settings, Database, ArrowLeft, Users, Code, Video } from 'lucide-react';
 import React from 'react';
 import { baseUrl } from '../../lib/base-url';
-import { isAuthenticated, verifyToken, clearAuthToken } from '../../lib/auth-client';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -59,38 +57,6 @@ class ErrorBoundary extends React.Component<
 
 export default function AdminPanel() {
   const [error, setError] = React.useState<string | null>(null);
-  const [showLoginModal, setShowLoginModal] = React.useState(false);
-  const [isAuthenticating, setIsAuthenticating] = React.useState(true);
-
-  React.useEffect(() => {
-    // Check authentication on mount
-    const checkAuth = async () => {
-      if (!isAuthenticated()) {
-        setShowLoginModal(true);
-        setIsAuthenticating(false);
-        return;
-      }
-
-      // Verify token is still valid
-      const valid = await verifyToken(baseUrl);
-      if (!valid) {
-        setShowLoginModal(true);
-      }
-      setIsAuthenticating(false);
-    };
-
-    checkAuth();
-  }, []);
-
-  const handleLoginSuccess = () => {
-    setShowLoginModal(false);
-    setIsAuthenticating(false);
-  };
-
-  const handleLogout = () => {
-    clearAuthToken();
-    setShowLoginModal(true);
-  };
 
   React.useEffect(() => {
     // Test if we can access the API
@@ -126,21 +92,8 @@ export default function AdminPanel() {
     );
   }
 
-  if (isAuthenticating) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#280bc4] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Bezig met laden...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <ErrorBoundary>
-      <LoginModal isOpen={showLoginModal} onSuccess={handleLoginSuccess} />
-      
       <div className="min-h-screen bg-white">
         {/* Header */}
         <div className="bg-gradient-to-r from-black to-[#280bc4] text-white">
@@ -153,16 +106,6 @@ export default function AdminPanel() {
               >
                 <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                 Terug naar Dashboard
-              </Button>
-              
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                className="text-sm sm:text-base text-white border-white hover:bg-white/10"
-              >
-                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                <span className="hidden sm:inline">Uitloggen</span>
-                <span className="sm:hidden">Uit</span>
               </Button>
             </div>
             
@@ -246,6 +189,7 @@ export default function AdminPanel() {
     </ErrorBoundary>
   );
 }
+
 
 
 
