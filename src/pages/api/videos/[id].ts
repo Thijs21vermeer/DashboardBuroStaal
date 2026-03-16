@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/db-config';
-import type { Video } from '../../../types';
 import sql from 'mssql';
+import { getPool, handleDbError } from '../../../lib/db-config';
+import { requireAuth } from '../../../lib/api-auth';
+import type { Video } from '../../../types';
 
 // Helper: YouTube video ID extraheren
 function extractYouTubeId(url: string): string | null {
@@ -79,6 +80,10 @@ export const GET: APIRoute = async ({ params, locals }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const pool = await getPool();
     const { id } = params;
@@ -154,7 +159,11 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ params, locals }) => {
+export const DELETE: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const pool = await getPool();
     const { id } = params;
@@ -182,6 +191,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     });
   }
 };
+
 
 
 

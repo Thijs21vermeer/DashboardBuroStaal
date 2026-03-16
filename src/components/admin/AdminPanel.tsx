@@ -7,9 +7,11 @@ import NewsManager from './NewsManager';
 import TeamManager from './TeamManager';
 import ToolsManager from './ToolsManager';
 import VideosManager from './VideosManager';
-import { Settings, Database, ArrowLeft, Users, Code, Video } from 'lucide-react';
+import { LoginModal } from './LoginModal';
+import { Settings, Database, ArrowLeft, Users, Code, Video, LogOut } from 'lucide-react';
 import React from 'react';
 import { baseUrl } from '../../lib/base-url';
+import { isAuthenticated, verifyToken, clearAuthToken } from '../../lib/auth-client';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -57,6 +59,38 @@ class ErrorBoundary extends React.Component<
 
 export default function AdminPanel() {
   const [error, setError] = React.useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = React.useState(false);
+  const [isAuthenticating, setIsAuthenticating] = React.useState(true);
+
+  React.useEffect(() => {
+    // Check authentication on mount
+    const checkAuth = async () => {
+      if (!isAuthenticated()) {
+        setShowLoginModal(true);
+        setIsAuthenticating(false);
+        return;
+      }
+
+      // Verify token is still valid
+      const valid = await verifyToken(baseUrl);
+      if (!valid) {
+        setShowLoginModal(true);
+      }
+      setIsAuthenticating(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLoginSuccess = () => {
+    setShowLoginModal(false);
+    setIsAuthenticating(false);
+  };
+
+  const handleLogout = () => {
+    clearAuthToken();
+    setShowLoginModal(true);
+  };
 
   React.useEffect(() => {
     // Test if we can access the API
@@ -92,101 +126,127 @@ export default function AdminPanel() {
     );
   }
 
-  return (
-    <ErrorBoundary>
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-black to-[#280bc4] text-white">
-        <div className="w-full px-4 sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-8 sm:py-12 md:py-16">
-          <Button
-            onClick={() => window.location.href = `${baseUrl}/`}
-            className="mb-4 sm:mb-6 bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold text-sm sm:text-base"
-            style={{ color: 'white' }}
-          >
-            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-            Terug naar Dashboard
-          </Button>
-          
-          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-            <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#280bc4]" />
-            <h1 className="text-2xl sm:text-3xl font-bold">Admin Panel</h1>
-          </div>
-          <p className="text-white/90 text-sm sm:text-base md:text-lg">
-            Beheer de kennisbank, cases, trends en nieuws
-          </p>
+  if (isAuthenticating) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#280bc4] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Bezig met laden...</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Content */}
-      <div className="w-full px-4 sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-6 sm:py-8">
-        <Tabs defaultValue="kennisitems" className="w-full">
-          <div className="mb-6 sm:mb-8 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-            <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 mb-0 min-w-max sm:min-w-0">
-              <TabsTrigger value="kennisitems" className="text-xs sm:text-sm whitespace-nowrap">
-                <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Kennisitems</span>
-                <span className="sm:hidden">Kennis</span>
-              </TabsTrigger>
-              <TabsTrigger value="cases" className="text-xs sm:text-sm whitespace-nowrap">
-                <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Cases
-              </TabsTrigger>
-              <TabsTrigger value="trends" className="text-xs sm:text-sm whitespace-nowrap">
-                <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Trends
-              </TabsTrigger>
-              <TabsTrigger value="nieuws" className="text-xs sm:text-sm whitespace-nowrap">
-                <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Nieuws
-              </TabsTrigger>
-              <TabsTrigger value="team" className="text-xs sm:text-sm whitespace-nowrap">
-                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Team
-              </TabsTrigger>
-              <TabsTrigger value="tools" className="text-xs sm:text-sm whitespace-nowrap">
-                <Code className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Tools
-              </TabsTrigger>
-              <TabsTrigger value="videos" className="text-xs sm:text-sm whitespace-nowrap">
-                <Video className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Video's
-              </TabsTrigger>
-            </TabsList>
+  return (
+    <ErrorBoundary>
+      <LoginModal isOpen={showLoginModal} onSuccess={handleLoginSuccess} />
+      
+      <div className="min-h-screen bg-white">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-black to-[#280bc4] text-white">
+          <div className="w-full px-4 sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-8 sm:py-12 md:py-16">
+            <div className="flex justify-between items-start mb-4 sm:mb-6">
+              <Button
+                onClick={() => window.location.href = `${baseUrl}/`}
+                className="bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold text-sm sm:text-base"
+                style={{ color: 'white' }}
+              >
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                Terug naar Dashboard
+              </Button>
+              
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="text-sm sm:text-base text-white border-white hover:bg-white/10"
+              >
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                <span className="hidden sm:inline">Uitloggen</span>
+                <span className="sm:hidden">Uit</span>
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#280bc4]" />
+              <h1 className="text-2xl sm:text-3xl font-bold">Admin Panel</h1>
+            </div>
+            <p className="text-white/90 text-sm sm:text-base md:text-lg">
+              Beheer de kennisbank, cases, trends en nieuws
+            </p>
           </div>
+        </div>
 
-          <TabsContent value="kennisitems">
-            <KennisItemsManager />
-          </TabsContent>
+        {/* Content */}
+        <div className="w-full px-4 sm:px-[6%] lg:px-[8%] xl:px-[10%] 2xl:px-[12%] py-6 sm:py-8">
+          <Tabs defaultValue="kennisitems" className="w-full">
+            <div className="mb-6 sm:mb-8 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+              <TabsList className="inline-flex sm:grid sm:w-full sm:grid-cols-7 mb-0 min-w-max sm:min-w-0">
+                <TabsTrigger value="kennisitems" className="text-xs sm:text-sm whitespace-nowrap">
+                  <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Kennisitems</span>
+                  <span className="sm:hidden">Kennis</span>
+                </TabsTrigger>
+                <TabsTrigger value="cases" className="text-xs sm:text-sm whitespace-nowrap">
+                  <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Cases
+                </TabsTrigger>
+                <TabsTrigger value="trends" className="text-xs sm:text-sm whitespace-nowrap">
+                  <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Trends
+                </TabsTrigger>
+                <TabsTrigger value="nieuws" className="text-xs sm:text-sm whitespace-nowrap">
+                  <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Nieuws
+                </TabsTrigger>
+                <TabsTrigger value="team" className="text-xs sm:text-sm whitespace-nowrap">
+                  <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Team
+                </TabsTrigger>
+                <TabsTrigger value="tools" className="text-xs sm:text-sm whitespace-nowrap">
+                  <Code className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Tools
+                </TabsTrigger>
+                <TabsTrigger value="videos" className="text-xs sm:text-sm whitespace-nowrap">
+                  <Video className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  Video's
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-          <TabsContent value="cases">
-            <CasesManager />
-          </TabsContent>
+            <TabsContent value="kennisitems">
+              <KennisItemsManager />
+            </TabsContent>
 
-          <TabsContent value="trends">
-            <TrendsManager />
-          </TabsContent>
+            <TabsContent value="cases">
+              <CasesManager />
+            </TabsContent>
 
-          <TabsContent value="nieuws">
-            <NewsManager />
-          </TabsContent>
+            <TabsContent value="trends">
+              <TrendsManager />
+            </TabsContent>
 
-          <TabsContent value="team">
-            <TeamManager />
-          </TabsContent>
+            <TabsContent value="nieuws">
+              <NewsManager />
+            </TabsContent>
 
-          <TabsContent value="tools">
-            <ToolsManager />
-          </TabsContent>
+            <TabsContent value="team">
+              <TeamManager />
+            </TabsContent>
 
-          <TabsContent value="videos">
-            <VideosManager />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="tools">
+              <ToolsManager />
+            </TabsContent>
+
+            <TabsContent value="videos">
+              <VideosManager />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
-    </div>
     </ErrorBoundary>
   );
 }
+
 
 
 

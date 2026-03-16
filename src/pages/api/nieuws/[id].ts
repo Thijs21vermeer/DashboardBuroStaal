@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import { requireAuth } from '../../../lib/api-auth';
 import type { NewsItem } from '../../../types';
 
 // Helper functie om database records te mappen naar TypeScript types
@@ -59,7 +60,11 @@ export const GET: APIRoute = async ({ params }) => {
 };
 
 // PUT - Update een nieuwsitem
-export const PUT: APIRoute = async ({ params, request }) => {
+export const PUT: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const { id } = params;
     if (!id) {
@@ -109,7 +114,11 @@ export const PUT: APIRoute = async ({ params, request }) => {
 };
 
 // DELETE - Verwijder een nieuwsitem
-export const DELETE: APIRoute = async ({ params }) => {
+export const DELETE: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const { id } = params;
     if (!id) {
@@ -139,6 +148,7 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete nieuws');
   }
 };
+
 
 
 

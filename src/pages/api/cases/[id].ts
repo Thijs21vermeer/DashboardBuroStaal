@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
 import type { CaseStudy } from '../../../types';
+import { requireAuth } from '../../../lib/api-auth';
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToCaseStudy(dbRecord: any): CaseStudy {
@@ -100,7 +101,11 @@ export const GET: APIRoute = async ({ params }) => {
 };
 
 // PUT - Update een case
-export const PUT: APIRoute = async ({ params, request }) => {
+export const PUT: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const { id } = params;
     if (!id) {
@@ -165,7 +170,11 @@ export const PUT: APIRoute = async ({ params, request }) => {
 };
 
 // DELETE - Verwijder een case
-export const DELETE: APIRoute = async ({ params }) => {
+export const DELETE: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const { id } = params;
     if (!id) {
@@ -195,6 +204,7 @@ export const DELETE: APIRoute = async ({ params }) => {
     return handleDbError(error, 'delete case');
   }
 };
+
 
 
 

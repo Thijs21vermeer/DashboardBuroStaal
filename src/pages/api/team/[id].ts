@@ -1,4 +1,7 @@
 import type { APIRoute } from 'astro';
+import sql from 'mssql';
+import { getPool, handleDbError } from '../../../lib/db-config';
+import { requireAuth } from '../../../lib/api-auth';
 import { query } from '../../../lib/azure-db';
 
 export const GET: APIRoute = async ({ params }) => {
@@ -47,7 +50,11 @@ export const GET: APIRoute = async ({ params }) => {
   }
 };
 
-export const PUT: APIRoute = async ({ params, request }) => {
+export const PUT: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const { id } = params;
     const body = await request.json();
@@ -119,7 +126,11 @@ export const PUT: APIRoute = async ({ params, request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ params }) => {
+export const DELETE: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const { id } = params;
 
@@ -139,4 +150,5 @@ export const DELETE: APIRoute = async ({ params }) => {
     });
   }
 };
+
 

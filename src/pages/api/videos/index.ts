@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/db-config';
-import type { Video } from '../../../types';
 import sql from 'mssql';
+import { getPool, handleDbError } from '../../../lib/db-config';
+import { requireAuth } from '../../../lib/api-auth';
+import type { Video } from '../../../types';
 
 // Helper: YouTube video ID extraheren
 function extractYouTubeId(url: string): string | null {
@@ -85,7 +86,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
   }
 };
 
+// POST - Voeg een nieuwe video toe
 export const POST: APIRoute = async ({ request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const pool = await getPool();
     const body = await request.json();
@@ -130,6 +136,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
 
 
 

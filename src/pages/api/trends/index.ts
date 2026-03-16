@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import { requireAuth } from '../../../lib/api-auth';
 import type { Trend } from '../../../types';
 
 // Helper functie om database records te mappen naar TypeScript types
@@ -41,7 +42,11 @@ export const GET: APIRoute = async () => {
 };
 
 // POST - Voeg een nieuwe trend toe
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const data = await request.json();
     const dbPool = await getPool();
@@ -72,6 +77,7 @@ export const POST: APIRoute = async ({ request }) => {
     return handleDbError(error, 'create trend');
   }
 };
+
 
 
 

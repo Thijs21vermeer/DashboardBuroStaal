@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { query, queryOne } from '../../../lib/azure-db';
 import sql from 'mssql';
+import { getPool, handleDbError } from '../../../lib/db-config';
+import { requireAuth } from '../../../lib/api-auth';
 
 export const GET: APIRoute = async ({ params }) => {
   try {
@@ -35,7 +37,12 @@ export const GET: APIRoute = async ({ params }) => {
   }
 };
 
-export const PUT: APIRoute = async ({ params, request }) => {
+// PUT - Update een tool
+export const PUT: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const { id } = params;
     const body = await request.json();
@@ -86,7 +93,12 @@ export const PUT: APIRoute = async ({ params, request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ params }) => {
+// DELETE - Verwijder een tool
+export const DELETE: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = requireAuth({ request, locals } as any);
+  if (authError) return authError;
+  
   try {
     const { id } = params;
     await query('DELETE FROM tools WHERE id = @id', { id: parseInt(id || '0') });
@@ -125,3 +137,4 @@ export const PATCH: APIRoute = async ({ params }) => {
     });
   }
 };
+
