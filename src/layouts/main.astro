@@ -2,6 +2,7 @@
 
 
 
+
 ---
 import '../../generated/fonts.css';
 import '../site-components/global.css';
@@ -13,7 +14,7 @@ const { pageClass = '' } = Astro.props;
 <html lang="nl" class={`notranslate ${pageClass}`} translate="no">
 <head>
 <meta charset="utf-8" />
-<link rel="icon" type="image/svg+xml" href="https://burostaal.nl/wp-content/uploads/2026/01/Arrow-Top-Right.svg" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta name="viewport" content="width=device-width" />
 <meta name="generator" content={Astro.generator} />
 <meta name="google" content="notranslate" />
@@ -86,6 +87,7 @@ const { pageClass = '' } = Astro.props;
 <slot />
 </body>
 </html>
+
 
 
 
