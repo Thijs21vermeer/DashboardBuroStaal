@@ -1,10 +1,10 @@
 import sql from 'mssql';
 
-const config = {
+const config: sql.config = {
   server: process.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net',
   database: process.env.AZURE_SQL_DATABASE || 'dashboarddb',
   user: process.env.AZURE_SQL_USER || 'databasedashboard',
-  password: process.env.AZURE_SQL_PASSWORD || 'Knolpower05!',
+  password: process.env.AZURE_SQL_PASSWORD!,
   port: parseInt(process.env.AZURE_SQL_PORT || '1433'),
   options: {
     encrypt: true,
@@ -128,4 +128,5 @@ async function runMigration() {
 }
 
 runMigration().catch(console.error);
+
 

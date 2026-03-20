@@ -7,7 +7,7 @@ import { Eye, EyeOff, Lock } from 'lucide-react';
 import { baseUrl } from '../../lib/base-url';
 
 interface LoginFormProps {
-  onLogin: (password: string) => void;
+  onLogin: (token: string) => void;
   error?: string;
 }
 
@@ -31,10 +31,10 @@ export function LoginForm({ onLogin, error }: LoginFormProps) {
 
       const data = await response.json();
 
-      if (data.success) {
-        onLogin(password);
+      if (data.success && data.token) {
+        onLogin(data.token); // Pass the token to parent
       } else {
-        onLogin(''); // Trigger error in parent component
+        onLogin(''); // Empty string triggers error in parent
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -114,6 +114,7 @@ export function LoginForm({ onLogin, error }: LoginFormProps) {
     </div>
   );
 }
+
 
 
 

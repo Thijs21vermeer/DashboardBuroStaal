@@ -1,17 +1,28 @@
 import sql from 'mssql';
 
-export const getDbConfig = (): sql.config => ({
-  server: import.meta.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net',
-  database: import.meta.env.AZURE_SQL_DATABASE || 'dashboarddb',
-  user: import.meta.env.AZURE_SQL_USER || 'databasedashboard',
-  password: import.meta.env.AZURE_SQL_PASSWORD || 'Knolpower05!',
-  options: {
-    encrypt: true,
-    trustServerCertificate: false,
-    connectTimeout: 30000,
-    requestTimeout: 30000,
+export const getDbConfig = (): sql.config => {
+  const password = import.meta.env.AZURE_SQL_PASSWORD;
+  
+  if (!password) {
+    throw new Error(
+      '❌ AZURE_SQL_PASSWORD environment variable is required. ' +
+      'Please set it in your Netlify environment variables or .env file.'
+    );
   }
-});
+
+  return {
+    server: import.meta.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net',
+    database: import.meta.env.AZURE_SQL_DATABASE || 'dashboarddb',
+    user: import.meta.env.AZURE_SQL_USER || 'databasedashboard',
+    password: password,
+    options: {
+      encrypt: true,
+      trustServerCertificate: false,
+      connectTimeout: 30000,
+      requestTimeout: 30000,
+    }
+  };
+};
 
 let pool: sql.ConnectionPool | null = null;
 
@@ -41,3 +52,4 @@ export function handleDbError(error: unknown, context: string) {
     headers: { 'Content-Type': 'application/json' }
   });
 }
+

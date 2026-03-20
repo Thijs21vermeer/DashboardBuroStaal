@@ -12,7 +12,7 @@ async function addCategorieColumn() {
       server: process.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net',
       database: process.env.AZURE_SQL_DATABASE || 'dashboarddb',
       user: process.env.AZURE_SQL_USER || 'databasedashboard',
-      password: process.env.AZURE_SQL_PASSWORD || 'Knolpower05!',
+      password: process.env.AZURE_SQL_PASSWORD!,
       options: {
         encrypt: true,
         trustServerCertificate: false,
@@ -77,3 +77,4 @@ addCategorieColumn()
     console.error('❌ Migration failed:', error);
     process.exit(1);
   });
+

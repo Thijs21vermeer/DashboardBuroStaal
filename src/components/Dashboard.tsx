@@ -19,6 +19,7 @@ import { KnowledgeHub } from './dashboard/KnowledgeHub';
 import type { PageType } from '../types';
 import { LoginForm } from './auth/LoginForm';
 import KennisKoenWidget from './KennisKoenWidget';
+import { baseUrl } from '../lib/base-url';
 
 interface Props {
   children: React.ReactNode;
@@ -31,20 +32,48 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check localStorage bij mount
+  // Valideer token bij mount
   useEffect(() => {
-    const loggedIn = localStorage.getItem('burostaal_authenticated');
-    if (loggedIn === 'true') {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+    const validateSession = async () => {
+      const token = localStorage.getItem('auth_token');
+      
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/auth/validate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
+
+        const data = await response.json();
+
+        if (data.valid) {
+          setIsAuthenticated(true);
+        } else {
+          // Token is verlopen of ongeldig
+          localStorage.removeItem('auth_token');
+        }
+      } catch (error) {
+        console.error('Token validation error:', error);
+        localStorage.removeItem('auth_token');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    validateSession();
   }, []);
 
-  const handleLogin = (password: string) => {
-    // Verificatie gebeurt nu in de backend API
-    if (password) {
+  const handleLogin = (token: string) => {
+    if (token) {
       setIsAuthenticated(true);
-      localStorage.setItem('burostaal_authenticated', 'true');
+      localStorage.setItem('auth_token', token);
       setLoginError('');
     } else {
       setLoginError('Ongeldig wachtwoord');
@@ -53,7 +82,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('burostaal_authenticated');
+    localStorage.removeItem('auth_token');
     setCurrentPage('overzicht');
   };
 
@@ -129,6 +158,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
 
 
 
