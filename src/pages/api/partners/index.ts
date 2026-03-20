@@ -4,7 +4,11 @@ import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
 import { query } from '../../../lib/azure-db';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth(request, locals);
+  if (authError) return authError;
+
   try {
     const result = await query(`
       SELECT 
@@ -44,7 +48,7 @@ export const GET: APIRoute = async () => {
 
 export const POST: APIRoute = async ({ request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {

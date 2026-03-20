@@ -1,41 +1,139 @@
-import type { APIContext } from 'astro';
-import { validateToken } from './session-manager';
-
 /**
- * Helper functie om te checken of een request geauthenticeerd is
- * Returns token als geldig, anders null
+ * API Authentication Middleware
+ * Validates JWT tokens for protected API routes
  */
-export async function getAuthToken(request: Request): Promise<string | null> {
-  const authHeader = request.headers.get('Authorization');
-  if (!authHeader) return null;
-  
-  const token = authHeader.replace('Bearer ', '');
-  if (!token) return null;
-  
-  const isValid = await validateToken(token);
-  return isValid ? token : null;
+
+interface TokenPayload {
+  authenticated: boolean;
+  iat: number;
+  exp: number;
 }
 
 /**
- * Middleware om endpoints te beveiligen
- * Returns error response als niet geauthenticeerd, anders null
+ * Validates a JWT token using the same logic as the auth/validate endpoint
+ * @param token - The JWT token to validate
+ * @param secret - The AUTH_SECRET used to sign the token
+ * @returns The decoded payload if valid, null otherwise
  */
-export async function requireAuth(context: APIContext): Promise<Response | null> {
-  const token = await getAuthToken(context.request);
+async function validateToken(token: string, secret: string): Promise<TokenPayload | null> {
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const [headerB64, payloadB64, signatureB64] = parts;
+
+  try {
+    // Verify signature
+    const data = `${headerB64}.${payloadB64}`;
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    );
+
+    const signatureBuffer = Uint8Array.from(atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+    const isValid = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      signatureBuffer,
+      encoder.encode(data)
+    );
+
+    if (!isValid) {
+      return null;
+    }
+
+    // Decode payload
+    const payload = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'))) as TokenPayload;
+
+    // Check expiration
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < now) {
+      return null;
+    }
+
+    return payload;
+  } catch (error) {
+    console.error('Token validation error:', error);
+    return null;
+  }
+}
+
+/**
+ * Middleware function to protect API routes
+ * Returns a 401 Unauthorized response if the token is invalid
+ * 
+ * @param request - The Astro API request
+ * @param locals - The Astro locals object (for Cloudflare env)
+ * @returns Response object if unauthorized, null if authorized
+ * 
+ * @example
+ * export const GET: APIRoute = async ({ request, locals }) => {
+ *   const authError = await requireAuth(request, locals);
+ *   if (authError) return authError;
+ *   
+ *   // Your protected API logic here
+ * };
+ */
+export async function requireAuth(
+  request: Request,
+  locals: any
+): Promise<Response | null> {
+  // Get token from Authorization header
+  const authHeader = request.headers.get('Authorization');
   
-  if (!token) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return new Response(
       JSON.stringify({ 
-        success: false, 
-        message: 'Unauthorized - geldig token vereist',
-        hint: 'Login via /api/auth/login-v2 om een token te krijgen'
+        error: 'Unauthorized',
+        message: 'Missing or invalid authorization header' 
       }),
-      {
+      { 
         status: 401,
         headers: { 'Content-Type': 'application/json' }
       }
     );
   }
+
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+  // Get AUTH_SECRET from environment
+  const secret = locals?.runtime?.env?.AUTH_SECRET || import.meta.env.AUTH_SECRET;
   
-  return null; // Auth OK
+  if (!secret) {
+    console.error('AUTH_SECRET not configured');
+    return new Response(
+      JSON.stringify({ 
+        error: 'Server configuration error',
+        message: 'Authentication not properly configured' 
+      }),
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  // Validate token
+  const payload = await validateToken(token, secret);
+  
+  if (!payload || !payload.authenticated) {
+    return new Response(
+      JSON.stringify({ 
+        error: 'Unauthorized',
+        message: 'Invalid or expired token' 
+      }),
+      { 
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  // Token is valid, allow request to proceed
+  return null;
 }

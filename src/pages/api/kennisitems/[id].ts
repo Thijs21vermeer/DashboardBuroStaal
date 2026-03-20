@@ -41,7 +41,11 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
 }
 
 // GET - Haal een specifiek kennisitem op
-export const GET: APIRoute = async ({ params }) => {
+export const GET: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth(request, locals);
+  if (authError) return authError;
+  
   const { id } = params;
   
   try {
@@ -70,7 +74,7 @@ export const GET: APIRoute = async ({ params }) => {
 // PUT - Update een kennisitem
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
@@ -139,7 +143,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 // DELETE - Verwijder een kennisitem
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
@@ -171,6 +175,8 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     return handleDbError(error, 'delete kennisitem');
   }
 };
+
+
 
 
 

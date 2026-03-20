@@ -4,7 +4,11 @@ import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
 import { query } from '../../../lib/azure-db';
 
-export const GET: APIRoute = async ({ params }) => {
+export const GET: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth(request, locals);
+  if (authError) return authError;
+
   try {
     const { id } = params;
 
@@ -52,7 +56,7 @@ export const GET: APIRoute = async ({ params }) => {
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
@@ -128,7 +132,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {

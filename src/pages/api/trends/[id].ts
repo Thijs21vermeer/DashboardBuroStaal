@@ -21,7 +21,11 @@ function mapDbToTrend(dbRecord: any): Trend {
 }
 
 // GET - Haal een specifieke trend op
-export const GET: APIRoute = async ({ params }) => {
+export const GET: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth(request, locals);
+  if (authError) return authError;
+
   const { id } = params;
   
   try {
@@ -50,7 +54,7 @@ export const GET: APIRoute = async ({ params }) => {
 // PUT - Update een trend
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
@@ -111,7 +115,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 // DELETE - Verwijder een trend
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {

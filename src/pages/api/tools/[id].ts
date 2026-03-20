@@ -4,7 +4,11 @@ import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
 
-export const GET: APIRoute = async ({ params }) => {
+export const GET: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth(request, locals);
+  if (authError) return authError;
+
   try {
     const { id } = params;
     const result = await queryOne(
@@ -40,7 +44,7 @@ export const GET: APIRoute = async ({ params }) => {
 // PUT - Update een tool
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
@@ -96,7 +100,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 // DELETE - Verwijder een tool
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {

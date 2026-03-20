@@ -1,3 +1,4 @@
+
 /**
  * API Client - Automatisch switchen tussen directe database toegang en Azure Functions
  * 
@@ -6,6 +7,7 @@
  */
 
 import { baseUrl } from './base-url';
+import { getSession } from './session-manager';
 
 const AZURE_FUNCTIONS_URL = import.meta.env.AZURE_FUNCTIONS_URL;
 const USE_AZURE_FUNCTIONS = !!AZURE_FUNCTIONS_URL;
@@ -22,21 +24,33 @@ function getApiBaseUrl(): string {
 }
 
 /**
- * Generic fetch wrapper met error handling
+ * Generic fetch wrapper met error handling en authenticatie
  */
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${getApiBaseUrl()}${endpoint}`;
+  
+  // Get JWT token from session
+  const session = getSession();
+  const token = session?.token;
   
   try {
     const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options?.headers,
       },
     });
 
     if (!response.ok) {
+      // Handle 401 Unauthorized - redirect to login
+      if (response.status === 401) {
+        console.error('Unauthorized - redirecting to login');
+        if (typeof window !== 'undefined') {
+          window.location.href = `${baseUrl}/`;
+        }
+      }
       throw new Error(`API error: ${response.status} ${response.statusText}`);
     }
 
@@ -130,3 +144,4 @@ if (typeof window !== 'undefined') {
   console.log(`🔌 API Client: ${USE_AZURE_FUNCTIONS ? 'Azure Functions' : 'Local Astro API'}`);
   console.log(`📍 Base URL: ${getApiBaseUrl()}`);
 }
+

@@ -33,7 +33,11 @@ function mapDbToNewsItem(dbRecord: any): NewsItem {
 }
 
 // GET - Haal alle nieuwsitems op
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth(request, locals);
+  if (authError) return authError;
+
   try {
     const dbPool = await getPool();
     const result = await dbPool.request().query('SELECT * FROM Nieuws ORDER BY datum DESC');
@@ -56,7 +60,7 @@ export const GET: APIRoute = async () => {
 // POST - Voeg een nieuw nieuwsitem toe
 export const POST: APIRoute = async ({ request, locals }) => {
   // Check authentication
-  const authError = await requireAuth({ request, locals } as any);
+  const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
