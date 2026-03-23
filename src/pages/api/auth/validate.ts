@@ -1,12 +1,40 @@
 import type { APIRoute } from 'astro';
 import { validateToken } from '../../../lib/session-manager';
 
-// GET: Check if user has valid session via Authorization header
+/**
+ * Helper function to get token from request
+ * Priority: Cookie > Authorization header > Request body
+ */
+function getTokenFromRequest(request: Request, bodyToken?: string): string | null {
+  // 1. Check HttpOnly cookie (most secure)
+  const cookies = request.headers.get('Cookie');
+  if (cookies) {
+    const match = cookies.match(/auth_token=([^;]+)/);
+    if (match) {
+      return match[1];
+    }
+  }
+  
+  // 2. Check Authorization header (backward compatibility)
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+  
+  // 3. Check request body (backward compatibility)
+  if (bodyToken) {
+    return bodyToken;
+  }
+  
+  return null;
+}
+
+// GET: Check if user has valid session
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
-    const authHeader = request.headers.get('Authorization');
+    const token = getTokenFromRequest(request);
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return new Response(
         JSON.stringify({ valid: false, message: 'No token provided' }),
         {
@@ -16,7 +44,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     const isValid = await validateToken(token, locals);
 
     return new Response(
@@ -40,7 +67,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
 // POST: Validate token from request body
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    const { token } = await request.json();
+    const { token: bodyToken } = await request.json();
+    const token = getTokenFromRequest(request, bodyToken);
 
     if (!token) {
       return new Response(
@@ -71,5 +99,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   }
 };
+
 
 

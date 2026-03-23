@@ -6,7 +6,7 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Users, UserPlus, Building2, Mail, Phone, Globe, Trash2, Edit, Save, X, Plus, Image as ImageIcon } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 
@@ -684,6 +684,7 @@ export default function TeamManager() {
     </div>
   );
 }
+
 
 
 

@@ -47,11 +47,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
       // Genereer een echte JWT token (met locals voor Netlify)
       const token = await generateToken(locals);
       
+      // Set HttpOnly cookie (veilig tegen XSS)
+      const cookieOptions = [
+        `auth_token=${token}`,
+        'HttpOnly',
+        'Secure', // Only over HTTPS
+        'SameSite=Strict',
+        'Path=/',
+        'Max-Age=86400' // 24 hours
+      ];
+      
       return new Response(
-        JSON.stringify({ success: true, token }),
+        JSON.stringify({ success: true, token }), // Keep token for backward compatibility (temporary)
         {
           status: 200,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Set-Cookie': cookieOptions.join('; ')
+          }
         }
       );
     } else {
@@ -85,6 +98,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   }
 };
+
 
 
 

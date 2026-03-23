@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Card, CardContent } from '../ui/card';
 import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Label } from '../ui/label';
 import type { Tool } from '../../types';
 import { apiClient } from '../../lib/api-client';
@@ -333,6 +333,7 @@ export default function ToolsManager() {
     </div>
   );
 }
+
 
 
 

@@ -4,7 +4,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, Search, RefreshCw, TrendingUp, Save, X, Calendar, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
@@ -331,6 +331,7 @@ export default function TrendsManager() {
     </div>
   );
 }
+
 
 
 

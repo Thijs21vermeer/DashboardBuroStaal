@@ -88,10 +88,26 @@ export async function requireAuth(
 ): Promise<Response | null> {
   const { request, locals } = context;
   
-  // Get token from Authorization header
-  const authHeader = request.headers.get('Authorization');
+  let token: string | null = null;
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // 1. Check HttpOnly cookie (most secure)
+  const cookies = request.headers.get('Cookie');
+  if (cookies) {
+    const match = cookies.match(/auth_token=([^;]+)/);
+    if (match) {
+      token = match[1];
+    }
+  }
+  
+  // 2. Fallback to Authorization header (backward compatibility)
+  if (!token) {
+    const authHeader = request.headers.get('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
+  
+  if (!token) {
     return new Response(
       JSON.stringify({ 
         error: 'Unauthorized',
@@ -103,8 +119,6 @@ export async function requireAuth(
       }
     );
   }
-
-  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
   // Get AUTH_SECRET from runtime (critical for Netlify)
   const secret = getAuthSecret(locals);
@@ -142,3 +156,4 @@ export async function requireAuth(
   // Token is valid, allow request to proceed
   return null;
 }
+
