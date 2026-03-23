@@ -1,72 +1,36 @@
-
-
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { TrendingUp, Search, Calendar, AlertCircle, ArrowRight, BarChart3, Target, RefreshCw, Lightbulb, Filter, CheckCircle, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
-import { baseUrl } from '../../lib/base-url';
+import { Search, TrendingUp, Calendar, Tag, ArrowRight, AlertCircle } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { truncateText, formatDateShort, getRelevantieLevel } from '../../lib/config';
 import { TrendDetail } from './TrendDetail';
 
 export function TrendsPage() {
-  const [trends, setTrends] = useState<any[]>([]);
+  const [trends, setTrends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategorie, setSelectedCategorie] = useState<string>('alle');
-  const [selectedRelevantie, setSelectedRelevantie] = useState<string>('alle');
+  const [selectedCategorie, setSelectedCategorie] = useState('alle');
+  const [selectedRelevantie, setSelectedRelevantie] = useState('alle');
   const [sortBy, setSortBy] = useState<'recent' | 'relevantie' | 'titel'>('recent');
   const [selectedTrendId, setSelectedTrendId] = useState<number | null>(null);
 
-  const loadTrends = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseUrl}/api/trends`);
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Convert relevantie values to consistent labels
-        const processedTrends = data.map((trend: any) => {
-          let relevantieLabel = 'Laag';
-          if (typeof trend.relevantie === 'string') {
-            const rel = trend.relevantie.toLowerCase();
-            if (rel.includes('zeer') || rel === 'hoog') {
-              relevantieLabel = 'Hoog';
-            } else if (rel === 'relevant' || rel === 'gemiddeld' || rel === 'middel') {
-              relevantieLabel = 'Gemiddeld';
-            }
-          } else if (typeof trend.relevantie === 'number') {
-            relevantieLabel = trend.relevantie >= 80 ? 'Hoog' : trend.relevantie >= 50 ? 'Gemiddeld' : 'Laag';
-          }
-          
-          return {
-            ...trend,
-            relevantie: relevantieLabel
-          };
-        });
-        
-        setTrends(processedTrends);
-      }
-    } catch (error) {
-      console.error('Fout bij laden trends:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadTrends();
+    const loadData = async () => {
+      try {
+        const data = await apiClient.trends.getAll();
+        setTrends(data);
+        setFilteredTrends(data);
+      } catch (error) {
+        console.error('Error loading trends:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   // Verzamel alle unieke categorieën
@@ -313,37 +277,28 @@ export function TrendsPage() {
                   <Badge className="bg-[#280bc4] text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                     {trend.categorie}
                   </Badge>
-                  <Badge 
-                    variant="outline" 
-                    className={`text-[10px] sm:text-xs font-medium border px-1.5 sm:px-2 py-0.5 ${getRelevantieColor(trend.relevantie)}`}
-                  >
-                    <span className="flex items-center gap-0.5 sm:gap-1">
-                      <span className="hidden sm:inline">{getRelevantieIcon(trend.relevantie)}</span>
-                      {trend.relevantie}
-                    </span>
-                  </Badge>
+                  {trend.relevantie && (
+                    <Badge className={getRelevantieLevel(trend.relevantie).color}>
+                      <AlertCircle className={`h-3 w-3 mr-1 ${getRelevantieLevel(trend.relevantie).iconColor}`} />
+                      {getRelevantieLevel(trend.relevantie).label}
+                    </Badge>
+                  )}
                 </div>
                 <CardTitle className="text-sm sm:text-base lg:text-lg group-hover:text-[#280bc4] transition-colors line-clamp-2 flex items-start gap-1.5 sm:gap-2">
                   <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-[#280bc4] flex-shrink-0 mt-0.5" />
                   <span className="line-clamp-2">{trend.titel}</span>
                 </CardTitle>
-                <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-gray-600 pt-0.5 sm:pt-1">
-                  <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  <span>
-                    {new Date(trend.datumToegevoegd || trend.datum).toLocaleDateString('nl-NL', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric'
-                    })}
-                  </span>
+                <div className="text-xs text-muted-foreground">
+                  <Calendar className="inline h-3 w-3 mr-1" />
+                  {formatDateShort(trend.createdAt)}
                 </div>
               </CardHeader>
               
               <CardContent className="space-y-2 sm:space-y-3 flex-1 flex flex-col p-3 sm:p-6 pt-0">
                 {/* Brief Description */}
                 <div className="bg-gray-50 rounded-lg p-2 sm:p-3 border-l-2 sm:border-l-4 border-[#280bc4] flex-1">
-                  <p className="text-xs sm:text-sm text-gray-700 line-clamp-2 sm:line-clamp-3 leading-relaxed">
-                    {trend.beschrijving}
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                    {truncateText(trend.beschrijving, 150)}
                   </p>
                 </div>
 
@@ -399,6 +354,7 @@ export function TrendsPage() {
     </div>
   );
 }
+
 
 
 

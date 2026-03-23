@@ -1,17 +1,11 @@
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { Newspaper, Calendar, User, TrendingUp, Award, Rocket, PartyPopper, Briefcase, Users, RefreshCw } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
-import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
 import { Button } from '../ui/button';
-import { baseUrl } from '../../lib/base-url';
-import { NewsDetail } from './NewsDetail';
+import { Search, Newspaper, Calendar, Tag, ArrowRight } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { truncateText, formatDateShort } from '../../lib/config';
 
 export function NewsPage() {
   const [newsItems, setNewsItems] = useState<any[]>([]);
@@ -19,23 +13,19 @@ export function NewsPage() {
   const [selectedCategorie, setSelectedCategorie] = useState<string>('alle');
   const [selectedNewsId, setSelectedNewsId] = useState<number | null>(null);
 
-  const loadNews = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseUrl}/api/nieuws`);
-      if (response.ok) {
-        const data = await response.json();
-        setNewsItems(data);
-      }
-    } catch (error) {
-      console.error('Fout bij laden nieuws:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadNews();
+    const loadData = async () => {
+      try {
+        const data = await apiClient.nieuws.getAll();
+        setNewsItems(data);
+      } catch (error) {
+        console.error('Error loading nieuws:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   // Filter nieuws op categorie
@@ -240,8 +230,8 @@ export function NewsPage() {
               <CardContent className="space-y-3">
                 {/* Inhoud */}
                 <div className="bg-gray-50 rounded-lg p-4 border-l-2 border-[#280bc4]/30">
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                    {item.inhoud}
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                    {truncateText(item.inhoud, 150)}
                   </p>
                 </div>
 
@@ -291,6 +281,7 @@ export function NewsPage() {
     </div>
   );
 }
+
 
 
 

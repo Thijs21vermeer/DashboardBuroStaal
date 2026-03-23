@@ -25,7 +25,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export default function Dashboard({ children }: { children: React.ReactNode }) {
+export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState<PageType>('overzicht');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,19 +44,21 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
 
       try {
         const response = await fetch(`${baseUrl}/api/auth/validate`, {
-          method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({ token }),
         });
 
-        const data = await response.json();
-
-        if (data.valid) {
-          setIsAuthenticated(true);
+        if (response.ok) {
+          const data = (await response.json()) as { valid: boolean };
+          if (data.valid) {
+            setIsAuthenticated(true);
+          } else {
+            // Token is verlopen of ongeldig
+            localStorage.removeItem('auth_token');
+          }
         } else {
-          // Token is verlopen of ongeldig
+          console.error('Token validation error:', response.statusText);
           localStorage.removeItem('auth_token');
         }
       } catch (error) {
@@ -158,6 +160,7 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
 
 
 

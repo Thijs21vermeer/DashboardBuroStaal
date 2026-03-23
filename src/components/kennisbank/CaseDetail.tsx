@@ -1,14 +1,10 @@
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, Building2, Award, Target, TrendingUp, Users, Clock, DollarSign, CheckCircle2, Briefcase, Quote, Tag } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { baseUrl } from '../../lib/base-url';
+import { ArrowLeft, Calendar, Tag, ExternalLink, Briefcase, Image as ImageIcon } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { formatDate } from '../../lib/config';
 
 interface CaseDetailProps {
   caseId: number;
@@ -21,15 +17,13 @@ export function CaseDetail({ caseId, onBack }: CaseDetailProps) {
 
   useEffect(() => {
     const loadCase = async () => {
-      setLoading(true);
+      if (!caseId) return;
+
       try {
-        const response = await fetch(`${baseUrl}/api/cases/${caseId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setCaseItem(data);
-        }
+        const data = await apiClient.cases.getById(parseInt(caseId));
+        setCaseItem(data);
       } catch (error) {
-        console.error('Fout bij laden case:', error);
+        console.error('Error loading case:', error);
       } finally {
         setLoading(false);
       }
@@ -332,6 +326,7 @@ export function CaseDetail({ caseId, onBack }: CaseDetailProps) {
     </div>
   );
 }
+
 
 
 

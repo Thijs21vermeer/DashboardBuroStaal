@@ -1,17 +1,14 @@
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Plus, Edit, Trash2, Search, RefreshCw, Calendar } from 'lucide-react';
-import { getBaseUrl } from '../../lib/base-url';
+import { Plus, Edit, Trash2, Search, RefreshCw, Calendar, Newspaper, Save, X, Image as ImageIcon } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { formatDateShort, truncateText } from '../../lib/config';
 import { mockNews } from '../../data/mockData';
 import type { NewsItem } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
@@ -342,6 +339,8 @@ export default function NewsManager() {
     </div>
   );
 }
+
+
 
 
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '../ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
@@ -13,9 +13,13 @@ import {
   Database,
   Copy,
   Check,
-  RefreshCw
+  RefreshCw,
+  Wrench,
+  ExternalLink,
+  Tag
 } from 'lucide-react';
-import { baseUrl } from '../../lib/base-url';
+import { apiClient } from '../../lib/api-client';
+import { truncateText } from '../../lib/config';
 
 interface Tool {
   id: number;
@@ -55,24 +59,20 @@ export default function ToolsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Alle');
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
-  const fetchTools = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${baseUrl}/api/tools`);
-      if (response.ok) {
-        const data = await response.json();
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await apiClient.tools.getAll();
         setTools(data);
         setFilteredTools(data);
+      } catch (error) {
+        console.error('Error loading tools:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching tools:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  useEffect(() => {
-    fetchTools();
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -259,7 +259,9 @@ export default function ToolsPage() {
                     <h3 className="text-lg sm:text-xl font-bold text-black mb-2">
                       {tool.titel}
                     </h3>
-                    <p className="text-sm sm:text-base text-gray-600 mb-3">{tool.beschrijving}</p>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {truncateText(tool.omschrijving, 150)}
+                    </p>
                     
                     <div className="flex items-center gap-2 flex-wrap mb-4">
                       <Badge variant="outline" className="bg-[#280bc4] text-white border-[#280bc4] text-xs">
@@ -322,6 +324,7 @@ export default function ToolsPage() {
     </div>
   );
 }
+
 
 
 

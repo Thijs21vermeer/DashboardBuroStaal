@@ -1,5 +1,12 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Button } from '../ui/button';
+import { 
+  BookOpen, Briefcase, TrendingUp, Newspaper, 
+  Users, Wrench, Video, Home, LogOut, 
+  BarChart3, Lightbulb, Code
+} from 'lucide-react';
 import KennisItemsManager from './KennisItemsManager';
 import CasesManager from './CasesManager';
 import TrendsManager from './TrendsManager';
@@ -7,8 +14,7 @@ import NewsManager from './NewsManager';
 import TeamManager from './TeamManager';
 import ToolsManager from './ToolsManager';
 import VideosManager from './VideosManager';
-import { Settings, Database, ArrowLeft, Users, Code, Video } from 'lucide-react';
-import React from 'react';
+import { apiClient } from '../../lib/api-client';
 import { baseUrl } from '../../lib/base-url';
 
 class ErrorBoundary extends React.Component<
@@ -57,8 +63,9 @@ class ErrorBoundary extends React.Component<
 
 export default function AdminPanel() {
   const [error, setError] = React.useState<string | null>(null);
+  const [totalItems, setTotalItems] = React.useState<number | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Test if we can access the API
     const testAPI = async () => {
       try {
@@ -71,6 +78,19 @@ export default function AdminPanel() {
       }
     };
     testAPI();
+  }, []);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const data = await apiClient.kennisitems.getAll();
+        setTotalItems(data.length);
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    };
+
+    loadStats();
   }, []);
 
   if (error) {
@@ -189,6 +209,8 @@ export default function AdminPanel() {
     </ErrorBoundary>
   );
 }
+
+
 
 
 

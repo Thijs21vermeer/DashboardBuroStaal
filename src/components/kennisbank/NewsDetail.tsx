@@ -1,14 +1,10 @@
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Eye, Newspaper, Tag } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { baseUrl } from '../../lib/base-url';
+import { ArrowLeft, Calendar, Tag, Newspaper, ExternalLink, Image as ImageIcon } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { formatDate } from '../../lib/config';
 
 interface NewsDetailProps {
   newsId: number;
@@ -16,26 +12,24 @@ interface NewsDetailProps {
 }
 
 export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
-  const [news, setNews] = useState<any>(null);
+  const [newsItem, setNewsItem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadNews = async () => {
-      setLoading(true);
+    const loadNieuws = async () => {
+      if (!newsId) return;
+
       try {
-        const response = await fetch(`${baseUrl}/api/nieuws/${newsId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setNews(data);
-        }
+        const data = await apiClient.nieuws.getById(parseInt(newsId));
+        setNewsItem(data);
       } catch (error) {
-        console.error('Fout bij laden nieuws:', error);
+        console.error('Error loading nieuws:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadNews();
+    loadNieuws();
   }, [newsId]);
 
   if (loading) {
@@ -59,7 +53,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
     );
   }
 
-  if (!news) {
+  if (!newsItem) {
     return (
       <div className="space-y-6">
         <Button 
@@ -129,12 +123,12 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
       <div className="bg-gradient-to-r from-black to-[#280bc4] rounded-xl shadow-lg p-6 sm:p-8 text-white">
         <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <Newspaper className="w-6 h-6 sm:w-8 sm:h-8 text-[#7ef769]" />
-          <Badge className={`${getCategoryColor(news.categorie)} text-white text-xs sm:text-sm`}>
-            {news.categorie}
+          <Badge className={`${getCategoryColor(newsItem.categorie)} text-white text-xs sm:text-sm`}>
+            {newsItem.categorie}
           </Badge>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3">{news.titel}</h1>
-        <p className="text-white/90 text-base sm:text-lg">{news.samenvatting}</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-3">{newsItem.titel}</h1>
+        <p className="text-white/90 text-base sm:text-lg">{newsItem.samenvatting}</p>
       </div>
 
       {/* Meta Information */}
@@ -145,25 +139,16 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
               <User className="w-4 h-4 sm:w-5 sm:h-5" />
               <div>
                 <p className="text-xs text-gray-500">Auteur</p>
-                <p className="font-medium text-gray-900 text-sm sm:text-base">{news.auteur}</p>
+                <p className="font-medium text-gray-900 text-sm sm:text-base">{newsItem.auteur}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 sm:pt-6">
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
-              <div>
-                <p className="text-xs text-gray-500">Datum</p>
-                <p className="font-medium text-gray-900 text-sm sm:text-base">
-                  {new Date(news.datum).toLocaleDateString('nl-NL', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </p>
-              </div>
+            <div className="text-sm text-muted-foreground mb-6">
+              <Calendar className="inline h-4 w-4 mr-2" />
+              {formatDate(newsItem.publicatieDatum)}
             </div>
           </CardContent>
         </Card>
@@ -173,7 +158,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
               <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
               <div>
                 <p className="text-xs text-gray-500">Views</p>
-                <p className="font-medium text-gray-900 text-sm sm:text-base">{news.views || 0}</p>
+                <p className="font-medium text-gray-900 text-sm sm:text-base">{newsItem.views || 0}</p>
               </div>
             </div>
           </CardContent>
@@ -181,19 +166,19 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
       </div>
 
       {/* Main Content */}
-      <Card className={`border-l-4 ${getCategoryBorderColor(news.categorie)}`}>
+      <Card className={`border-l-4 ${getCategoryBorderColor(newsItem.categorie)}`}>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">Volledig Artikel</CardTitle>
         </CardHeader>
         <CardContent className="prose prose-sm sm:prose-lg max-w-none">
           <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
-            {news.inhoud}
+            {newsItem.inhoud}
           </div>
         </CardContent>
       </Card>
 
       {/* Tags */}
-      {news.tags && news.tags.length > 0 && (
+      {newsItem.tags && newsItem.tags.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base sm:text-lg flex items-center gap-2">
@@ -203,7 +188,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {(Array.isArray(news.tags) ? news.tags : []).map((tag: string) => (
+              {(Array.isArray(newsItem.tags) ? newsItem.tags : []).map((tag: string) => (
                 <Badge 
                   key={tag} 
                   variant="secondary"
@@ -232,6 +217,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
     </div>
   );
 }
+
 
 
 

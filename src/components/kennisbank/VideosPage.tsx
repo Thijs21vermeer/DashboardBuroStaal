@@ -1,8 +1,3 @@
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Video, PlayCircle, Filter, RefreshCw, Eye, Calendar, Link2, Check, Sparkles, Search } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -11,7 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import type { Video as VideoType } from '../../types';
-import { baseUrl } from '../../lib/base-url';
+import { apiClient } from '../../lib/api-client';
+import { truncateText } from '../../lib/config';
 
 const CATEGORIES = [
   'Alle Categorieën',
@@ -34,9 +30,7 @@ export default function VideosPage() {
   const loadVideos = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/api/videos`);
-      if (!response.ok) throw new Error('Failed to fetch videos');
-      const data = await response.json();
+      const data = await apiClient.videos.getAll();
       setVideos(data);
       setFilteredVideos(data);
     } catch (error) {
@@ -512,6 +506,7 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
 
 
 

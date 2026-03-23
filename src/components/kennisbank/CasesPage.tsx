@@ -1,11 +1,5 @@
-
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
-import { Search, Briefcase, TrendingUp, Users, ArrowRight, Target, CheckCircle2, RefreshCw, Building2, Filter, Award } from 'lucide-react';
+import { Search, Briefcase, TrendingUp, Users, ArrowRight, Target, CheckCircle2, RefreshCw, Building2, Filter, Award, Calendar, Tag, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -17,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { baseUrl } from '../../lib/base-url';
+import { apiClient } from '../../lib/api-client';
+import { truncateText, formatDateShort } from '../../lib/config';
 import { CaseDetail } from './CaseDetail';
 
 export function CasesPage() {
@@ -32,13 +27,10 @@ export function CasesPage() {
   const loadCases = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/api/cases`);
-      if (response.ok) {
-        const data = await response.json();
-        setCases(data);
-      }
+      const data = await apiClient.cases.getAll();
+      setCases(data);
     } catch (error) {
-      console.error('Fout bij laden cases:', error);
+      console.error('Error loading cases:', error);
     } finally {
       setLoading(false);
     }
@@ -341,6 +333,7 @@ export function CasesPage() {
     </div>
   );
 }
+
 
 
 

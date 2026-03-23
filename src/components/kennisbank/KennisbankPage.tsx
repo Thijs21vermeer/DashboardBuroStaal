@@ -3,6 +3,7 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Calendar, User, Tag, ArrowRight, BookOpen, RefreshCw } from 'lucide-react';
@@ -20,6 +21,8 @@ import {
 } from '../ui/select';
 import { baseUrl } from '../../lib/base-url';
 import { KennisItemDetail } from './KennisItemDetail';
+import { apiClient } from '../../lib/api-client';
+import { KENNISITEM_TYPES, truncateText, formatDateShort } from '../../lib/config';
 
 export function KennisbankPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -34,13 +37,10 @@ export function KennisbankPage() {
   const loadItems = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/api/kennisitems`);
-      if (response.ok) {
-        const data = await response.json();
-        setItems(data);
-      }
+      const data = await apiClient.kennisitems.getAll();
+      setItems(data);
     } catch (error) {
-      console.error('Fout bij laden kennisitems:', error);
+      console.error('Error loading kennisitems:', error);
     } finally {
       setLoading(false);
     }
@@ -308,13 +308,9 @@ export function KennisbankPage() {
                     <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                     <span className="truncate text-xs sm:text-sm">{item.auteur}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 sm:gap-3">
-                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="text-xs sm:text-sm">{new Date(item.datumToegevoegd || item.datumToegevoegd).toLocaleDateString('nl-NL')}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-3">
-                    <Eye className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="text-xs sm:text-sm">{item.views} views</span>
+                  <div className="text-xs text-muted-foreground">
+                    <Calendar className="inline h-3 w-3 mr-1" />
+                    {formatDateShort(item.createdAt)}
                   </div>
                   {/* Tags */}
                   <div className="flex items-start gap-1.5 sm:gap-3 pt-1">
@@ -362,6 +358,7 @@ export function KennisbankPage() {
     </div>
   );
 }
+
 
 
 

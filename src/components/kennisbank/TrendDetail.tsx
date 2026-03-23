@@ -1,15 +1,10 @@
-
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Eye, TrendingUp, AlertCircle, Lightbulb, Target } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { baseUrl } from '../../lib/base-url';
+import { ArrowLeft, Calendar, Tag, TrendingUp, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { formatDate, getRelevantieLevel } from '../../lib/config';
 
 interface TrendDetailProps {
   trendId: number;
@@ -22,15 +17,13 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
 
   useEffect(() => {
     const loadTrend = async () => {
-      setLoading(true);
+      if (!trendId) return;
+
       try {
-        const response = await fetch(`${baseUrl}/api/trends/${trendId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setTrend(data);
-        }
+        const data = await apiClient.trends.getById(parseInt(trendId));
+        setTrend(data);
       } catch (error) {
-        console.error('Fout bij laden trend:', error);
+        console.error('Error loading trend:', error);
       } finally {
         setLoading(false);
       }
@@ -80,24 +73,6 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     );
   }
 
-  const getRelevanceColor = (relevantie: string) => {
-    switch (relevantie) {
-      case 'hoog': return 'bg-red-500';
-      case 'gemiddeld': return 'bg-orange-500';
-      case 'laag': return 'bg-yellow-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const getRelevanceBgColor = (relevantie: string) => {
-    switch (relevantie) {
-      case 'hoog': return 'from-red-500/10 to-red-500/5';
-      case 'gemiddeld': return 'from-orange-500/10 to-orange-500/5';
-      case 'laag': return 'from-yellow-500/10 to-yellow-500/5';
-      default: return 'from-gray-500/10 to-gray-500/5';
-    }
-  };
-
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Back Button */}
@@ -117,8 +92,8 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
           <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm">
             {trend.categorie}
           </Badge>
-          <Badge className={`${getRelevanceColor(trend.relevantie)} text-white text-xs sm:text-sm`}>
-            {trend.relevantie.charAt(0).toUpperCase() + trend.relevantie.slice(1)} Relevantie
+          <Badge className={`${getRelevantieLevel(trend.relevantie).color} text-white text-xs sm:text-sm`}>
+            {getRelevantieLevel(trend.relevantie).label} Relevantie
           </Badge>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3">{trend.titel}</h1>
@@ -128,6 +103,18 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
       {/* Meta Information */}
       <Card>
         <CardContent className="pt-4 sm:pt-6">
+          <div className="flex items-center gap-4 mb-6">
+            {trend.relevantie && (
+              <Badge className={getRelevantieLevel(trend.relevantie).color}>
+                <AlertCircle className={`h-3 w-3 mr-1 ${getRelevantieLevel(trend.relevantie).iconColor}`} />
+                {getRelevantieLevel(trend.relevantie).label}
+              </Badge>
+            )}
+            <div className="text-sm text-muted-foreground">
+              <Calendar className="inline h-4 w-4 mr-2" />
+              {formatDate(trend.createdAt)}
+            </div>
+          </div>
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2 text-gray-600">
               <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#280bc4]" />
@@ -258,6 +245,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+
 
 
 

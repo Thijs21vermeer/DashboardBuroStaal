@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { KENNISITEM_TYPES } from '../../lib/config';
 import { getBaseUrl } from '../../lib/base-url';
 import { mockKennisItems } from '../../data/mockData';
 import type { KennisItem } from '../../types';
@@ -238,19 +240,21 @@ export default function KennisItemsManager() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+              <div className="space-y-2">
+                <Label htmlFor="type">Type *</Label>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) => setFormData({ ...formData, type: value })}
+                >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Selecteer type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Artikel">Artikel</SelectItem>
-                    <SelectItem value="Video">Video</SelectItem>
-                    <SelectItem value="Presentatie">Presentatie</SelectItem>
-                    <SelectItem value="Document">Document</SelectItem>
-                    <SelectItem value="Checklist">Checklist</SelectItem>
-                    <SelectItem value="Template">Template</SelectItem>
+                    {KENNISITEM_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -477,6 +481,7 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
 
 
 

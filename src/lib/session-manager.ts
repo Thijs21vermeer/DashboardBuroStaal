@@ -1,90 +1,120 @@
 /**
- * JWT-style session management zonder database
- * Tokens zijn zelf-validerend met signature
+ * JWT-based session management
+ * Compatible with api-auth.ts validation
  */
 
-const SECRET_KEY = process.env.AUTH_SECRET || 'burostaal-secret-key-change-in-production';
-const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 uur
+import { AUTH_SECRET, SESSION_DURATION_SECONDS } from './config';
 
-interface TokenPayload {
-  created: number;
-  expires: number;
-  signature: string;
+/**
+ * Base64URL encode (JWT-compatible)
+ */
+function base64UrlEncode(str: string): string {
+  return btoa(str)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
 }
 
 /**
- * Simpele HMAC-achtige signature (voor lightweight auth)
+ * Generate HMAC signature for JWT
  */
-async function createSignature(data: string): Promise<string> {
+async function generateSignature(data: string, secret: string): Promise<string> {
   const encoder = new TextEncoder();
-  const dataBuffer = encoder.encode(data + SECRET_KEY);
-  
-  // Use subtle crypto for signature
-  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(data)
+  );
+
+  // Convert to base64url
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 /**
- * Genereer een nieuwe token met embedded expiry
+ * Generate a JWT token
  */
 export async function generateToken(): Promise<string> {
-  const now = Date.now();
-  const expires = now + SESSION_DURATION;
+  const secret = AUTH_SECRET;
   
+  // JWT header
+  const header = {
+    alg: 'HS256',
+    typ: 'JWT'
+  };
+
+  // JWT payload
+  const now = Math.floor(Date.now() / 1000);
   const payload = {
-    created: now,
-    expires: expires,
+    authenticated: true,
+    iat: now,
+    exp: now + SESSION_DURATION_SECONDS
   };
-  
-  const payloadString = JSON.stringify(payload);
-  const signature = await createSignature(payloadString);
-  
-  const fullPayload: TokenPayload = {
-    ...payload,
-    signature,
-  };
-  
-  // Base64 encode the entire payload
-  return btoa(JSON.stringify(fullPayload));
+
+  // Encode header and payload
+  const encodedHeader = base64UrlEncode(JSON.stringify(header));
+  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+
+  // Create signature
+  const dataToSign = `${encodedHeader}.${encodedPayload}`;
+  const signature = await generateSignature(dataToSign, secret);
+
+  // Return complete JWT
+  return `${encodedHeader}.${encodedPayload}.${signature}`;
 }
 
 /**
- * Creëer een nieuwe sessie (alias voor generateToken)
+ * Create a new session (alias for generateToken)
  */
 export async function createSession(): Promise<string> {
   return await generateToken();
 }
 
 /**
- * Valideer of een token geldig is
+ * Validate a JWT token
  */
 export async function validateToken(token: string): Promise<boolean> {
   if (!token) return false;
+
+  const secret = AUTH_SECRET;
+  const parts = token.split('.');
   
+  if (parts.length !== 3) {
+    return false;
+  }
+
+  const [headerB64, payloadB64, signatureB64] = parts;
+
   try {
-    // Decode token
-    const decoded = atob(token);
-    const payload: TokenPayload = JSON.parse(decoded);
-    
-    // Check expiry
-    if (Date.now() > payload.expires) {
-      return false;
-    }
-    
     // Verify signature
-    const payloadWithoutSig = {
-      created: payload.created,
-      expires: payload.expires,
-    };
-    const expectedSignature = await createSignature(JSON.stringify(payloadWithoutSig));
-    
-    if (payload.signature !== expectedSignature) {
+    const data = `${headerB64}.${payloadB64}`;
+    const expectedSignature = await generateSignature(data, secret);
+
+    if (signatureB64 !== expectedSignature) {
       console.warn('Invalid token signature');
       return false;
     }
-    
-    return true;
+
+    // Decode and check expiration
+    const payload = JSON.parse(
+      atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'))
+    );
+
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < now) {
+      console.warn('Token expired');
+      return false;
+    }
+
+    return payload.authenticated === true;
   } catch (error) {
     console.error('Token validation error:', error);
     return false;
@@ -92,16 +122,34 @@ export async function validateToken(token: string): Promise<boolean> {
 }
 
 /**
- * Verwijder een sessie (voor logout - client-side actie)
+ * Get session from localStorage (client-side only)
  */
-export function deleteSession(token: string): void {
-  // Met JWT-style tokens hoeven we niks te doen server-side
-  // Client verwijdert token uit localStorage
+export function getSession(): { token: string } | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    return null;
+  }
+
+  return { token };
 }
 
 /**
- * Get actieve sessie count (altijd 0 bij stateless auth)
+ * Remove session (for logout - client-side action)
+ */
+export function deleteSession(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('auth_token');
+  }
+}
+
+/**
+ * Get active session count (always 0 for stateless auth)
  */
 export function getActiveSessionCount(): number {
-  return 0; // Stateless - we tracken geen sessies
+  return 0; // Stateless - we don't track sessions
 }
+

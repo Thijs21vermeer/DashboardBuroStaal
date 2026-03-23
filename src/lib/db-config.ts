@@ -1,20 +1,23 @@
 import sql from 'mssql';
+import { DB_CONFIG, getEnvVar } from './config';
 
-export const getDbConfig = (): sql.config => {
-  const password = import.meta.env.AZURE_SQL_PASSWORD;
+/**
+ * Get database configuration
+ * Works for both server-side and Cloudflare Workers contexts
+ */
+export function getDbConfig(locals?: any): sql.config {
+  const password = getEnvVar('AZURE_SQL_PASSWORD', locals);
   
   if (!password) {
-    throw new Error(
-      '❌ AZURE_SQL_PASSWORD environment variable is required. ' +
-      'Please set it in your Netlify environment variables or .env file.'
-    );
+    throw new Error('AZURE_SQL_PASSWORD is not configured');
   }
 
   return {
-    server: import.meta.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net',
-    database: import.meta.env.AZURE_SQL_DATABASE || 'dashboarddb',
-    user: import.meta.env.AZURE_SQL_USER || 'databasedashboard',
-    password: password,
+    server: getEnvVar('AZURE_SQL_SERVER', locals) || DB_CONFIG.server,
+    database: getEnvVar('AZURE_SQL_DATABASE', locals) || DB_CONFIG.database,
+    user: getEnvVar('AZURE_SQL_USER', locals) || DB_CONFIG.user,
+    password,
+    port: parseInt(getEnvVar('AZURE_SQL_PORT', locals) || String(DB_CONFIG.port), 10),
     options: {
       encrypt: true,
       trustServerCertificate: false,
@@ -52,4 +55,5 @@ export function handleDbError(error: unknown, context: string) {
     headers: { 'Content-Type': 'application/json' }
   });
 }
+
 

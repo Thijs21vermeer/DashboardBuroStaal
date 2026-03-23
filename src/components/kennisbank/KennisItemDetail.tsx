@@ -1,34 +1,14 @@
-
-
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, User, Eye, Tag, BookOpen, ExternalLink, Video } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { baseUrl } from '../../lib/base-url';
+import { ArrowLeft, Calendar, Tag, ExternalLink, FileText, Image as ImageIcon } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { formatDate } from '../../lib/config';
 
 interface KennisItemDetailProps {
   itemId: number;
   onBack: () => void;
-}
-
-// Helper functie om YouTube video ID te extraheren
-function extractYouTubeId(url: string): string | null {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /^([a-zA-Z0-9_-]{11})$/
-  ];
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) return match[1];
-  }
-  return null;
 }
 
 export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
@@ -37,15 +17,13 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
 
   useEffect(() => {
     const loadItem = async () => {
-      setLoading(true);
+      if (!itemId) return;
+
       try {
-        const response = await fetch(`${baseUrl}/api/kennisitems/${itemId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setItem(data);
-        }
+        const data = await apiClient.kennisitems.getById(parseInt(itemId));
+        setItem(data);
       } catch (error) {
-        console.error('Fout bij laden kennisitem:', error);
+        console.error('Error loading kennisitem:', error);
       } finally {
         setLoading(false);
       }
@@ -94,9 +72,6 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
       </div>
     );
   }
-
-  // Extract YouTube video ID if it's a video item
-  const youtubeId = item.type === 'Video' && item.videoLink ? extractYouTubeId(item.videoLink) : null;
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -177,7 +152,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
       </Card>
 
       {/* Video Player (if type is Video and link exists) */}
-      {item.type === 'Video' && item.videoLink && youtubeId && (
+      {item.type === 'Video' && item.videoLink && (
         <Card className="border-2 border-[#280bc4]/20">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -292,6 +267,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
 
 
 

@@ -1,15 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
-import { Video, Plus, Edit, Trash2, Save, X, PlayCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
+import { Plus, Edit, Trash2, Save, X, Video, ExternalLink } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { truncateText } from '../../lib/config';
 import type { Video as VideoType } from '../../types';
-import { baseUrl } from '../../lib/base-url';
 
 const CATEGORIES = [
   'CMS Instructies',
@@ -34,14 +33,10 @@ export default function VideosManager() {
     eigenaar: '',
     featured: false
   });
-  const formRef = useRef<HTMLDivElement>(null);
 
   const loadVideos = async () => {
-    setLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/api/videos`);
-      if (!response.ok) throw new Error('Failed to fetch videos');
-      const data = await response.json();
+      const data = await apiClient.videos.getAll();
       setVideos(data);
     } catch (error) {
       console.error('Error loading videos:', error);
@@ -78,74 +73,33 @@ export default function VideosManager() {
       featured: video.featured
     });
     setEditingId(video.id);
-    
-    // Scroll naar formulier
-    setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Submitting video:', { editingId, formData });
-    
     try {
-      const url = editingId 
-        ? `${baseUrl}/api/videos/${editingId}`
-        : `${baseUrl}/api/videos`;
-      
-      const method = editingId ? 'PUT' : 'POST';
-      
-      console.log(`Making ${method} request to:`, url);
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        let errorMessage = `Status ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.details || errorData.error || errorMessage;
-        } catch {
-          errorMessage = await response.text();
-        }
-        console.error('Server error:', errorMessage);
-        throw new Error(errorMessage);
+      if (editingId) {
+        await apiClient.videos.update(editingId, formData);
+      } else {
+        await apiClient.videos.create(formData);
       }
-      
-      const result = await response.json();
-      console.log('Video saved successfully:', result);
       
       await loadVideos();
       resetForm();
-      alert(editingId ? 'Video succesvol bijgewerkt!' : 'Video succesvol toegevoegd!');
     } catch (error) {
       console.error('Error saving video:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Onbekende fout';
-      alert(`Er ging iets mis bij het opslaan van de video:\n${errorMessage}`);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Weet je zeker dat je deze video wilt verwijderen?')) return;
-    
-    try {
-      const response = await fetch(`${baseUrl}/api/videos/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) throw new Error('Failed to delete video');
-      
-      await loadVideos();
-    } catch (error) {
-      console.error('Error deleting video:', error);
-      alert('Er ging iets mis bij het verwijderen van de video');
+    if (confirm('Weet je zeker dat je deze video wilt verwijderen?')) {
+      try {
+        await apiClient.videos.delete(id);
+        await loadVideos();
+      } catch (error) {
+        console.error('Error deleting video:', error);
+      }
     }
   };
 
@@ -197,7 +151,7 @@ export default function VideosManager() {
       </div>
 
       {/* Form */}
-      <Card ref={formRef} className={editingId ? 'border-2 border-[#280bc4] bg-blue-50/50' : ''}>
+      <Card className={editingId ? 'border-2 border-[#280bc4] bg-blue-50/50' : ''}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {editingId ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
@@ -359,8 +313,8 @@ export default function VideosManager() {
                               <Badge className="bg-[#7ef769] text-black">Featured</Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                            {video.beschrijving || 'Geen beschrijving'}
+                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                            {truncateText(video.beschrijving, 100)}
                           </p>
                           <div className="flex flex-wrap gap-2 text-sm text-gray-500">
                             <Badge variant="outline">{video.categorie}</Badge>
@@ -417,6 +371,8 @@ export default function VideosManager() {
     </div>
   );
 }
+
+
 
 
 

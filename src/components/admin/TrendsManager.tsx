@@ -4,9 +4,11 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, RefreshCw, TrendingUp, Save, X, Calendar, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
+import { formatDateShort, truncateText, getRelevantieLevel } from '../../lib/config';
 import { getBaseUrl } from '../../lib/base-url';
 import { mockTrends } from '../../data/mockData';
 import type { Trend } from '../../types';
@@ -60,87 +62,33 @@ export default function TrendsManager() {
     }
   };
 
+  useEffect(() => {
+    loadTrends();
+  }, []);
+
   const loadTrends = async () => {
     try {
-      const baseUrl = getBaseUrl();
-      const response = await fetch(`${baseUrl}/api/trends`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API request failed:', response.status, errorText);
-        setItems(mockTrends);
-        setConnectionStatus('error');
-        return;
-      }
-      
-      const data = await response.json() as Trend[];
+      const data = await apiClient.trends.getAll();
       setItems(data);
-      setConnectionStatus('connected');
-      
-      if (data.length === 0) {
-        console.log('Database is empty - ready to add trends');
-      }
     } catch (error) {
       console.error('Error loading trends:', error);
-      setItems(mockTrends);
-      setConnectionStatus('error');
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const trendData = {
-      ...formData,
-      bronnen: formData.bronnen.split('\n').filter(Boolean),
-      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
-    };
-
     try {
-      const baseUrl = getBaseUrl();
-      
       if (editingItem) {
-        const response = await fetch(`${baseUrl}/api/trends/${editingItem.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(trendData),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to update trend:', response.status, errorText);
-          alert('Fout bij opslaan: ' + errorText);
-          return;
-        }
-        
-        const updated = await response.json() as Trend;
-        setItems(items.map(t => t.id === editingItem.id ? updated : t));
-        alert('✅ Trend succesvol bijgewerkt!');
+        await apiClient.trends.update(editingItem.id, formData);
       } else {
-        const response = await fetch(`${baseUrl}/api/trends`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(trendData),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to create trend:', response.status, errorText);
-          alert('Fout bij toevoegen: ' + errorText);
-          return;
-        }
-        
-        const newTrend = await response.json() as Trend;
-        setItems([newTrend, ...items]);
-        alert('✅ Trend succesvol toegevoegd!');
+        await apiClient.trends.create(formData);
       }
       
+      await loadTrends();
       resetForm();
-      setIsDialogOpen(false);
-      setConnectionStatus('connected');
     } catch (error) {
       console.error('Error saving trend:', error);
-      alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
     }
   };
 
@@ -190,19 +138,6 @@ export default function TrendsManager() {
     item.titel.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.beschrijving.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getRelevantieColor = (relevantie: string) => {
-    switch (relevantie) {
-      case 'Hoog':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'Middel':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Laag':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
   return (
     <div>
@@ -356,9 +291,19 @@ export default function TrendsManager() {
                     <span className="text-xs px-2 py-1 bg-[#280bc4]/10 text-[#280bc4] rounded">
                       {item.categorie}
                     </span>
-                    <span className={`text-xs px-2 py-1 rounded ${getRelevantieColor(item.relevantie)}`}>
-                      Relevantie: {item.relevantie}
-                    </span>
+                    {item.relevantie && (
+                      <Badge className={getRelevantieLevel(item.relevantie).color}>
+                        <AlertCircle className={`h-3 w-3 mr-1 ${getRelevantieLevel(item.relevantie).iconColor}`} />
+                        {getRelevantieLevel(item.relevantie).label}
+                      </Badge>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      <Calendar className="inline h-3 w-3 mr-1" />
+                      {formatDateShort(item.createdAt)}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                      {truncateText(item.beschrijving, 100)}
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -386,6 +331,8 @@ export default function TrendsManager() {
     </div>
   );
 }
+
+
 
 
 

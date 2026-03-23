@@ -7,6 +7,7 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle, Search, X } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
+import { kennisitemsApi, casesApi, trendsApi, nieuwsApi, toolsApi } from '../../lib/api-client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -95,55 +96,35 @@ export function Overview({ onNavigate }: OverviewProps) {
   const loadData = async () => {
     setLoading(true);
     try {
-      const baseUrl = getBaseUrl();
-      
-      // Fetch all data in parallel
-      const [kennisRes, casesRes, trendsRes, newsRes, toolsRes] = await Promise.all([
-        fetch(`${baseUrl}/api/kennisitems`),
-        fetch(`${baseUrl}/api/cases`),
-        fetch(`${baseUrl}/api/trends`),
-        fetch(`${baseUrl}/api/nieuws`),
-        fetch(`${baseUrl}/api/tools`),
+      // Fetch all data in parallel using api-client
+      const [kennisData, casesData, trendsData, newsData, toolsData] = await Promise.all([
+        kennisitemsApi.getAll(),
+        casesApi.getAll(),
+        trendsApi.getAll(),
+        nieuwsApi.getAll(),
+        toolsApi.getAll(),
       ]);
 
-      // Process kennisitems
-      if (kennisRes.ok) {
-        const kennisData = await kennisRes.json() as any[];
-        setFeatured(kennisData.slice(0, 3));
-        
-        // Get cases data
-        const casesData = casesRes.ok ? await casesRes.json() as any[] : [];
-        
-        // Get trends data
-        const trendsData = trendsRes.ok ? await trendsRes.json() as any[] : [];
-        setTrends(trendsData.slice(0, 3));
-        
-        // Get tools data
-        const toolsData = toolsRes.ok ? await toolsRes.json() as any[] : [];
-        
-        // Combine all content for search
-        const combined = [
-          ...kennisData.map(item => ({ ...item, contentType: 'kennisitem' })),
-          ...casesData.map(item => ({ ...item, contentType: 'case' })),
-          ...trendsData.map(item => ({ ...item, contentType: 'trend' })),
-          ...toolsData.map(item => ({ ...item, contentType: 'tool' }))
-        ];
-        setAllContent(combined);
-        
-        // Update stats
-        setStats({
-          aantalKennisitems: kennisData.length,
-          aantalCases: casesData.length,
-          aantalTrends: trendsData.length,
-          aantalTools: toolsData.length,
-        });
-      }
+      setFeatured(kennisData.slice(0, 3));
+      setTrends(trendsData.slice(0, 3));
+      setNews(newsData.slice(0, 5));
       
-      // Process news
-      if (newsRes.ok) {
-        const newsData = await newsRes.json() as any[];
-        setNews(newsData.slice(0, 5));
-      }
+      // Combine all content for search
+      const combined = [
+        ...kennisData.map(item => ({ ...item, contentType: 'kennisitem' })),
+        ...casesData.map(item => ({ ...item, contentType: 'case' })),
+        ...trendsData.map(item => ({ ...item, contentType: 'trend' })),
+        ...toolsData.map((item: any) => ({ ...item, contentType: 'tool' }))
+      ];
+      setAllContent(combined);
+      
+      // Update stats
+      setStats({
+        aantalKennisitems: kennisData.length,
+        aantalCases: casesData.length,
+        aantalTrends: trendsData.length,
+        aantalTools: toolsData.length,
+      });
     } catch (error) {
       console.error('Error loading overview data:', error);
     } finally {
@@ -576,6 +557,8 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
 
 
 

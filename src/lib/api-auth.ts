@@ -1,3 +1,6 @@
+import type { APIContext } from 'astro';
+import { getEnvVar } from './config';
+
 /**
  * API Authentication Middleware
  * Validates JWT tokens for protected API routes
@@ -80,9 +83,9 @@ async function validateToken(token: string, secret: string): Promise<TokenPayloa
  * };
  */
 export async function requireAuth(
-  request: Request,
-  locals: any
+  context: APIContext
 ): Promise<Response | null> {
+  const { request, locals } = context;
   // Get token from Authorization header
   const authHeader = request.headers.get('Authorization');
   
@@ -102,7 +105,7 @@ export async function requireAuth(
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
   // Get AUTH_SECRET from environment
-  const secret = locals?.runtime?.env?.AUTH_SECRET || import.meta.env.AUTH_SECRET;
+  const secret = getEnvVar('AUTH_SECRET', locals);
   
   if (!secret) {
     console.error('AUTH_SECRET not configured');
@@ -137,3 +140,4 @@ export async function requireAuth(
   // Token is valid, allow request to proceed
   return null;
 }
+

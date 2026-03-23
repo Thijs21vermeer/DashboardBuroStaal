@@ -1,19 +1,14 @@
-
-
-
-
+import React from 'react';
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Badge } from '../ui/badge';
-import { Switch } from '../ui/switch';
+import { Label } from '../ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Users, UserPlus, Building2, Mail, Phone, Globe, Trash2, Edit, Save, X, Plus } from 'lucide-react';
-import { baseUrl } from '../../lib/base-url';
+import { Users, UserPlus, Building2, Mail, Phone, Globe, Trash2, Edit, Save, X, Plus, Image as ImageIcon } from 'lucide-react';
+import { apiClient } from '../../lib/api-client';
 
 interface TeamMember {
   id: number;
@@ -54,22 +49,13 @@ export default function TeamManager() {
   }, []);
 
   const loadData = async () => {
-    setLoading(true);
     try {
-      const [membersRes, partnersRes] = await Promise.all([
-        fetch(`${baseUrl}/api/team`),
-        fetch(`${baseUrl}/api/partners`)
+      const [teamData, partnersData] = await Promise.all([
+        apiClient.team.getAll(),
+        apiClient.partners.getAll()
       ]);
-
-      if (membersRes.ok) {
-        const membersData = await membersRes.json();
-        setTeamMembers(membersData);
-      }
-
-      if (partnersRes.ok) {
-        const partnersData = await partnersRes.json();
-        setPartners(partnersData);
-      }
+      setTeamMembers(teamData);
+      setPartners(partnersData);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -101,23 +87,15 @@ export default function TeamManager() {
     if (!editingMember) return;
 
     try {
-      const url = editingMember.id === 0
-        ? `${baseUrl}/api/team`
-        : `${baseUrl}/api/team/${editingMember.id}`;
-      
-      const method = editingMember.id === 0 ? 'POST' : 'PUT';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingMember)
-      });
-
-      if (response.ok) {
-        setShowMemberDialog(false);
-        setEditingMember(null);
-        loadData();
+      if (editingMember.id === 0) {
+        await apiClient.team.create(editingMember);
+      } else {
+        await apiClient.team.update(editingMember.id, editingMember);
       }
+
+      setShowMemberDialog(false);
+      setEditingMember(null);
+      loadData();
     } catch (error) {
       console.error('Error saving team member:', error);
     }
@@ -127,13 +105,8 @@ export default function TeamManager() {
     if (!confirm('Weet je zeker dat je dit teamlid wilt verwijderen?')) return;
 
     try {
-      const response = await fetch(`${baseUrl}/api/team/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        loadData();
-      }
+      await apiClient.team.delete(id);
+      loadData();
     } catch (error) {
       console.error('Error deleting team member:', error);
     }
@@ -184,23 +157,15 @@ export default function TeamManager() {
     if (!editingPartner) return;
 
     try {
-      const url = editingPartner.id === 0
-        ? `${baseUrl}/api/partners`
-        : `${baseUrl}/api/partners/${editingPartner.id}`;
-      
-      const method = editingPartner.id === 0 ? 'POST' : 'PUT';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingPartner)
-      });
-
-      if (response.ok) {
-        setShowPartnerDialog(false);
-        setEditingPartner(null);
-        loadData();
+      if (editingPartner.id === 0) {
+        await apiClient.partners.create(editingPartner);
+      } else {
+        await apiClient.partners.update(editingPartner.id, editingPartner);
       }
+
+      setShowPartnerDialog(false);
+      setEditingPartner(null);
+      loadData();
     } catch (error) {
       console.error('Error saving partner:', error);
     }
@@ -210,13 +175,8 @@ export default function TeamManager() {
     if (!confirm('Weet je zeker dat je deze partner wilt verwijderen?')) return;
 
     try {
-      const response = await fetch(`${baseUrl}/api/partners/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        loadData();
-      }
+      await apiClient.partners.delete(id);
+      loadData();
     } catch (error) {
       console.error('Error deleting partner:', error);
     }
@@ -239,6 +199,62 @@ export default function TeamManager() {
       ...editingPartner,
       expertiseGebieden: editingPartner.expertiseGebieden.filter(e => e !== expertise)
     });
+  };
+
+  const handleTeamSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      if (editingTeamId) {
+        await apiClient.team.update(editingTeamId, teamFormData);
+      } else {
+        await apiClient.team.create(teamFormData);
+      }
+      
+      await loadData();
+      resetTeamForm();
+    } catch (error) {
+      console.error('Error saving team member:', error);
+    }
+  };
+
+  const handleTeamDelete = async (id: number) => {
+    if (confirm('Weet je zeker dat je dit teamlid wilt verwijderen?')) {
+      try {
+        await apiClient.team.delete(id);
+        await loadData();
+      } catch (error) {
+        console.error('Error deleting team member:', error);
+      }
+    }
+  };
+
+  const handlePartnerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      if (editingPartnerId) {
+        await apiClient.partners.update(editingPartnerId, partnerFormData);
+      } else {
+        await apiClient.partners.create(partnerFormData);
+      }
+      
+      await loadData();
+      resetPartnerForm();
+    } catch (error) {
+      console.error('Error saving partner:', error);
+    }
+  };
+
+  const handlePartnerDelete = async (id: number) => {
+    if (confirm('Weet je zeker dat je deze partner wilt verwijderen?')) {
+      try {
+        await apiClient.partners.delete(id);
+        await loadData();
+      } catch (error) {
+        console.error('Error deleting partner:', error);
+      }
+    }
   };
 
   if (loading) {
@@ -668,6 +684,8 @@ export default function TeamManager() {
     </div>
   );
 }
+
+
 
 
 

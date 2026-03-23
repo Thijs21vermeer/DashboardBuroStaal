@@ -1,16 +1,8 @@
-
-
-
-
-
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo } from 'react';
-import { Users, Mail, Star, Award, Briefcase, ExternalLink, Phone, Globe, Sparkles, Building2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { baseUrl } from '../../lib/base-url';
+import { apiClient } from '../../lib/api-client';
 import type { TeamMember, ExternePartner } from '../../types';
 
 export function TeamPage() {
@@ -20,22 +12,14 @@ export function TeamPage() {
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
       try {
-        const [teamRes, partnersRes] = await Promise.all([
-          fetch(`${baseUrl}/api/team`),
-          fetch(`${baseUrl}/api/partners`)
+        const [teamData, partnersData] = await Promise.all([
+          apiClient.team.getAll(),
+          apiClient.partners.getAll()
         ]);
 
-        if (teamRes.ok) {
-          const teamData = await teamRes.json();
-          setTeamMembers(teamData);
-        }
-
-        if (partnersRes.ok) {
-          const partnersData = await partnersRes.json();
-          setPartners(partnersData);
-        }
+        setTeamMembers(teamData);
+        setPartners(partnersData);
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -368,11 +352,6 @@ export function TeamPage() {
     </div>
   );
 }
-
-
-
-
-
 
 
 

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Code, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Code, Search, Save, X, Wrench } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Card } from '../ui/card';
+import { Card, CardContent } from '../ui/card';
 import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Label } from '../ui/label';
 import type { Tool } from '../../types';
-import { baseUrl } from '../../lib/base-url';
+import { apiClient } from '../../lib/api-client';
 
 export default function ToolsManager() {
   const [tools, setTools] = useState<Tool[]>([]);
@@ -15,23 +17,20 @@ export default function ToolsManager() {
   const [editingTool, setEditingTool] = useState<Partial<Tool>>({});
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchTools = async () => {
+  const loadTools = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/api/tools`);
-      if (response.ok) {
-        const data = await response.json();
-        setTools(data);
-      }
+      const data = await apiClient.tools.getAll();
+      setTools(data);
     } catch (error) {
-      console.error('Error fetching tools:', error);
+      console.error('Error loading tools:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTools();
+    loadTools();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,10 +50,27 @@ export default function ToolsManager() {
       });
 
       if (response.ok) {
-        fetchTools();
+        loadTools();
         setIsEditing(false);
         setEditingTool({});
       }
+    } catch (error) {
+      console.error('Error saving tool:', error);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!editingTool) return;
+
+    try {
+      if (editingTool.id === 0) {
+        await apiClient.tools.create(editingTool);
+      } else {
+        await apiClient.tools.update(editingTool.id, editingTool);
+      }
+
+      setIsEditing(false);
+      setEditingTool({});
     } catch (error) {
       console.error('Error saving tool:', error);
     }
@@ -64,13 +80,8 @@ export default function ToolsManager() {
     if (!confirm('Weet je zeker dat je deze tool wilt verwijderen?')) return;
 
     try {
-      const response = await fetch(`${baseUrl}/api/tools/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        fetchTools();
-      }
+      await apiClient.tools.delete(id);
+      loadTools();
     } catch (error) {
       console.error('Error deleting tool:', error);
     }
@@ -322,6 +333,7 @@ export default function ToolsManager() {
     </div>
   );
 }
+
 
 
 
