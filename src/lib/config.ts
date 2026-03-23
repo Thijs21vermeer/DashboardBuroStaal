@@ -3,6 +3,7 @@
 
 
 
+
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -56,11 +57,11 @@ export const SESSION_DURATION_SECONDS = SESSION_DURATION_HOURS * 60 * 60;
 // ============================================================================
 
 export const DB_CONFIG = {
-  server: getEnvVar('AZURE_SQL_SERVER', 'dashboardbs.database.windows.net'),
-  database: getEnvVar('AZURE_SQL_DATABASE', 'dashboarddb'),
-  user: getEnvVar('AZURE_SQL_USER', 'databasedashboard'),
-  password: getEnvVar('AZURE_SQL_PASSWORD', ''),
-  port: parseInt(getEnvVar('AZURE_SQL_PORT', '1433'), 10),
+  server: getEnv('AZURE_SQL_SERVER') || 'dashboardbs.database.windows.net',
+  database: getEnv('AZURE_SQL_DATABASE') || 'dashboarddb',
+  user: getEnv('AZURE_SQL_USER') || 'databasedashboard',
+  password: getEnv('AZURE_SQL_PASSWORD') || '',
+  port: parseInt(getEnv('AZURE_SQL_PORT') || '1433', 10),
 } as const;
 
 // Log database config (zonder wachtwoord) voor debugging
@@ -232,8 +233,8 @@ export const RELEVANTIE_LEVELS = {
 /**
  * Get environment variable with runtime fallback (for Cloudflare Workers)
  */
-export function getEnvVar(key: string, locals?: any): string | undefined {
-  return locals?.runtime?.env?.[key] || getEnv(key);
+export function getEnvVar(key: string): string | undefined {
+  return getEnv(key);
 }
 
 /**
@@ -297,6 +298,7 @@ export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
 
 
 
