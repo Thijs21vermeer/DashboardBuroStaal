@@ -1,15 +1,15 @@
-
-
-
 /**
- * API Client - Automatisch switchen tussen directe database toegang en Azure Functions
+ * API Client - Centralized API calls with authentication
  * 
- * Als AZURE_FUNCTIONS_URL is ingesteld, wordt de Azure Functions API gebruikt.
- * Anders wordt de lokale Astro API gebruikt die direct met de database praat.
+ * Provides a consistent interface for all API calls with:
+ * - Automatic JWT token handling
+ * - Error handling and retries
+ * - Timeout management
+ * - Type safety
  */
 
 import { baseUrl } from './base-url';
-import { getToken } from './session-manager';
+import { getSession } from './session-manager';
 import { API_CONFIG } from './config';
 
 /**
@@ -19,21 +19,10 @@ const DEFAULT_TIMEOUT = API_CONFIG.timeout;
 const MAX_RETRY_ATTEMPTS = API_CONFIG.retryAttempts;
 
 /**
- * Bepaal de base URL voor API calls
- */
-function getApiBaseUrl(): string {
-  if (USE_AZURE_FUNCTIONS) {
-    return AZURE_FUNCTIONS_URL;
-  }
-  // Gebruik lokale Astro API routes
-  return `${baseUrl}/api`;
-}
-
-/**
  * Generic fetch wrapper met error handling en authenticatie
  */
-async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${getApiBaseUrl()}${endpoint}`;
+async function apiFetch<T>(endpoint: string, options?: RequestInit, retryCount = 0): Promise<T> {
+  const url = `${baseUrl}/api${endpoint}`;
   
   // Get JWT token from session
   const session = getSession();
@@ -71,7 +60,7 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
     if (retryCount < MAX_RETRY_ATTEMPTS && error instanceof Error) {
       console.warn(`Request failed, retrying... (${retryCount + 1}/${MAX_RETRY_ATTEMPTS})`);
       await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
-      return authenticatedFetch(endpoint, options, retryCount + 1);
+      return apiFetch(endpoint, options, retryCount + 1);
     }
     throw error;
   }
@@ -194,29 +183,40 @@ export const videosApi = {
 /**
  * Team/Partners API
  */
-export const partnersApi = {
-  getAll: () => apiFetch<any[]>('/partners'),
-  getById: (id: number) => apiFetch<any>(`/partners/${id}`),
-  create: (data: any) => apiFetch<any>('/partners', {
+export const teamApi = {
+  getAll: () => apiFetch<any[]>('/team'),
+  getById: (id: number) => apiFetch<any>(`/team/${id}`),
+  create: (data: any) => apiFetch<any>('/team', {
     method: 'POST',
     body: JSON.stringify(data),
   }),
-  update: (id: number, data: any) => apiFetch<any>(`/partners/${id}`, {
+  update: (id: number, data: any) => apiFetch<any>(`/team/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   }),
-  delete: (id: number) => apiFetch<void>(`/partners/${id}`, {
+  delete: (id: number) => apiFetch<void>(`/team/${id}`, {
     method: 'DELETE',
   }),
 };
 
 /**
- * Log welke API wordt gebruikt
+ * Unified API Client export
+ */
+export const apiClient = {
+  kennisitems: kennisitemsApi,
+  cases: casesApi,
+  trends: trendsApi,
+  nieuws: nieuwsApi,
+  tools: toolsApi,
+  videos: videosApi,
+  team: teamApi,
+};
+
+/**
+ * Log welke API wordt gebruikt (client-side only)
  */
 if (typeof window !== 'undefined') {
-  console.log(`🔌 API Client: ${USE_AZURE_FUNCTIONS ? 'Azure Functions' : 'Local Astro API'}`);
-  console.log(`📍 Base URL: ${getApiBaseUrl()}`);
+  console.log(`🔌 API Client initialized`);
+  console.log(`📍 Base URL: ${baseUrl}/api`);
 }
-
-
 
