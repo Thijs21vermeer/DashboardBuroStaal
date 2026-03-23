@@ -1,0 +1,19 @@
+---
+import MainLayout from '../layouts/main.astro';
+---
+
+<MainLayout>
+  <div style="padding: 2rem; background: white;">
+    <h1 style="color: black; font-size: 2rem;">Test Page</h1>
+    <p style="color: black;">If you can see this, Astro is working!</p>
+    <div id="react-test"></div>
+  </div>
+  
+  <script>
+    console.log('Script loaded!');
+    const div = document.getElementById('react-test');
+    if (div) {
+      div.innerHTML = '<p style="color: green;">JavaScript is working!</p>';
+    }
+  </script>
+</MainLayout>

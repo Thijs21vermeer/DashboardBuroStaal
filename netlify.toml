@@ -1,10 +1,16 @@
 
+
+
 [build]
   command = "BUILD_TARGET=netlify npm run build"
   publish = "dist"
+  functions = ".netlify/v1/functions"
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Astro's Netlify adapter handles all routing automatically via SSR
+# No manual redirects needed
 
 # Environment variables die nodig zijn (stel deze in via Netlify dashboard)
 # AZURE_SQL_SERVER
@@ -13,4 +19,7 @@
 # AZURE_SQL_PASSWORD
 # AZURE_SQL_PORT (optioneel, default 1433)
 # SLACK_WEBHOOK (optioneel, voor notificaties bij nieuwe kennisitems)
+# JWT_SECRET (verplicht voor authenticatie)
+
+
 

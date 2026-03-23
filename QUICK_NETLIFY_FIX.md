@@ -1,85 +1,126 @@
-# ⚡ Quick Fix: Admin Panel in Netlify
+# 🚀 Quick Fix voor Netlify 404 Errors
 
-## TL;DR
-
-Admin panel werkt nu in sandbox, maar niet in Netlify? **3 stappen om het te fixen:**
-
----
-
-## ✅ Stap 1: Environment Variables (2 min)
-
-### In Netlify Dashboard:
-1. Ga naar: **Site settings** → **Environment variables**
-2. Klik: **Add a variable** (5x)
-3. Voeg toe:
-
+## Het Probleem
+API routes geven 404 of 500 errors:
 ```
-AZURE_SQL_SERVER → dashboardbs.database.windows.net
-AZURE_SQL_DATABASE → dashboarddb
-AZURE_SQL_USER → databasedashboard
-AZURE_SQL_PASSWORD → Knolpower05!
-AZURE_SQL_PORT → 1433
+GET /api/auth/validate 404 (Not Found)
+GET /api/kennisitems 500 (Internal Server Error)
 ```
 
-4. Klik **Save**
+## De Oplossing (2 stappen)
 
----
+### ✅ Stap 1: Environment Variables Instellen
 
-## ✅ Stap 2: Azure Firewall (1 min)
+**KRITIEK:** Ga naar Netlify Dashboard en stel ALLE variables in:
 
-### In Azure Portal:
-1. Ga naar: **SQL Database** → **dashboarddb**
-2. Klik: **Set server firewall** (toolbar)
-3. Enable: **"Allow Azure services"** → `ON`
-4. Klik: **Save**
+1. Open: **Site settings** → **Environment variables**
+2. Klik op **Add a variable** en voeg deze toe:
 
----
+| Variable Name | Value | Scopes |
+|--------------|-------|---------|
+| `JWT_SECRET` | Een random string van minimaal 32 tekens | ✅ Builds, Functions, Post processing |
+| `AZURE_SQL_SERVER` | `dashboardbs.database.windows.net` | ✅ Builds, Functions, Post processing |
+| `AZURE_SQL_DATABASE` | `dashboarddb` | ✅ Builds, Functions, Post processing |
+| `AZURE_SQL_USER` | `databasedashboard` | ✅ Builds, Functions, Post processing |
+| `AZURE_SQL_PASSWORD` | Je database wachtwoord | ✅ Builds, Functions, Post processing |
+| `AZURE_SQL_PORT` | `1433` | ✅ Builds, Functions, Post processing |
 
-## ✅ Stap 3: Test (1 min)
+**Belangrijk:**
+- Voor `JWT_SECRET` kun je een random string genereren:
+  ```bash
+  openssl rand -base64 32
+  ```
+  Of gebruik een online generator: https://www.random.org/strings/
 
-### Deploy & Verify:
+### ✅ Stap 2: Redeploy de Site
+
+Na het instellen van de variables:
+
+**Optie A: Via Netlify Dashboard**
+1. Ga naar: **Deploys** → **Trigger deploy**
+2. Klik op: **Clear cache and deploy site**
+
+**Optie B: Via Git Push**
 ```bash
+# Commit de nieuwe code
 git add .
-git commit -m "Fix admin panel"
-git push
+git commit -m "Fix API routes en add diagnostics"
+git push origin main
 ```
 
-Wacht 2 minuten, dan test:
+## 🧪 Verificatie
+
+Na de deploy, test de endpoints:
+
 ```bash
-curl https://jouw-site.netlify.app/api/health
+# Test database connection (moet "connected" teruggeven)
+curl https://burostaaldashboard.netlify.app/api/test-db | jq -r '.connection.status'
+
+# Test diagnostics (moet alle env vars als "true" tonen)
+curl https://burostaaldashboard.netlify.app/api/diagnostics | jq '.environment'
+
+# Test health check
+curl https://burostaaldashboard.netlify.app/api/health
+
+# Test auth validate (moet 401 geven zonder token, 404 = niet gevonden)
+curl https://burostaaldashboard.netlify.app/api/auth/validate
 ```
 
-**Verwacht**: Alle `has*` velden zijn `true` ✅
-
-Open admin panel:
-```
-https://jouw-site.netlify.app/admin
-```
-
-**Verwacht**: Groene banner "Verbonden met database" ✅
-
----
+**Verwachte resultaten:**
+- `/api/test-db` → status: "connected" ✅
+- `/api/diagnostics` → alle env vars zijn true ✅
+- `/api/health` → 200 OK ✅
+- `/api/auth/validate` → 401 (zonder token) ✅
 
 ## 🐛 Troubleshooting
 
-| Symptom | Fix |
-|---------|-----|
-| ❌ Rode banner | Check env vars in Netlify |
-| ⚠️ Gele banner | Database leeg, run seed |
-| 🔒 Connection timeout | Check Azure firewall |
-| 404 Not Found | Clear build cache, redeploy |
+### "Environment variable JWT_SECRET is missing"
+→ Zorg dat `JWT_SECRET` is ingesteld in Netlify en redeploy
+
+### "Database connection failed"
+→ Check of alle `AZURE_SQL_*` variables correct zijn ingesteld
+
+### "Still getting 404"
+→ Check Netlify Function logs:
+- Ga naar: **Functions** → **ssr** → **View logs**
+- Zoek naar errors
+
+### "500 Internal Server Error"
+→ Check de diagnostics:
+```bash
+curl https://burostaaldashboard.netlify.app/api/diagnostics
+```
+
+## 📝 Files Aangepast
+
+Deze files zijn aangepast om het probleem op te lossen:
+
+1. ✅ `src/pages/api/auth/validate.ts` - Ondersteunt nu GET requests
+2. ✅ `src/pages/api/diagnostics.ts` - Nieuw diagnostics endpoint
+3. ✅ `netlify.toml` - Correcte Netlify configuratie
+4. ✅ `check-netlify-deployment.sh` - Automated deployment check script
+
+## 🎯 Volgende Stappen
+
+1. ✅ Stel environment variables in
+2. ✅ Redeploy de site
+3. ✅ Test met diagnostics endpoint
+4. ✅ Login op de site
+5. ✅ Verifieer dat data wordt geladen
+
+**Zodra alles werkt:**
+- Gebruikers kunnen inloggen
+- Data wordt correct geladen uit Azure SQL
+- Alle API endpoints zijn bereikbaar
+- Dashboard toont de juiste informatie
 
 ---
 
-## 📚 Meer Info
+💡 **Pro Tip:** Gebruik het `check-netlify-deployment.sh` script om automatisch alle endpoints te testen:
 
-- [ADMIN_PANEL_FIX_SUMMARY.md](./ADMIN_PANEL_FIX_SUMMARY.md) - Complete overzicht
-- [NETLIFY_ENV_SETUP.md](./NETLIFY_ENV_SETUP.md) - Gedetailleerde setup
-- [NETLIFY_ADMIN_FIX.md](./NETLIFY_ADMIN_FIX.md) - Technische details
+```bash
+chmod +x check-netlify-deployment.sh
+./check-netlify-deployment.sh
+```
 
----
-
-**Totale tijd**: ~5 minuten  
-**Status**: ✅ Production ready
-
-🚀 **Deploy en test!**
+Dit script test alle endpoints en geeft een duidelijk overzicht van wat werkt en wat niet.
