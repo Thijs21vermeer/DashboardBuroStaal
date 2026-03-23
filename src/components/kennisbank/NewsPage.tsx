@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Search, Newspaper, Calendar, Tag, ArrowRight } from 'lucide-react';
+import { Input } from '../ui/input';
+import { Search, Newspaper, Calendar, Tag, ArrowRight, Award, Briefcase, User, Users, TrendingUp, Rocket, PartyPopper, RefreshCw } from 'lucide-react';
+import { NewsDetail } from './NewsDetail';
 import { apiClient } from '../../lib/api-client';
-import { truncateText, formatDateShort } from '../../lib/config';
+import { formatDate } from '../../lib/config';
 
 export function NewsPage() {
   const [newsItems, setNewsItems] = useState<any[]>([]);
@@ -281,6 +282,7 @@ export function NewsPage() {
     </div>
   );
 }
+
 
 
 

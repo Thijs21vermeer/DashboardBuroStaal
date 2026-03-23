@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ArrowLeft, Calendar, Tag, ExternalLink, FileText, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Calendar, Tag, ExternalLink, FileText, Image as ImageIcon, BookOpen, Eye, User, Video } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { formatDate } from '../../lib/config';
 
@@ -267,6 +267,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
 
 
 

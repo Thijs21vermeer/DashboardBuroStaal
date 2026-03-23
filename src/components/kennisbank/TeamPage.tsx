@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
+import { Users, Star, Briefcase, Award, Mail, Phone, ExternalLink, Globe } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import type { TeamMember, ExternePartner } from '../../types';
 
@@ -352,6 +353,7 @@ export function TeamPage() {
     </div>
   );
 }
+
 
 
 

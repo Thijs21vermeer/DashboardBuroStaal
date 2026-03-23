@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { ArrowLeft, Calendar, Tag, TrendingUp, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Calendar, Tag, TrendingUp, AlertCircle, Image as ImageIcon, Eye, Lightbulb, Target, User } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import { formatDate, getRelevantieLevel } from '../../lib/config';
+import { formatDate } from '../../lib/config';
 
 interface TrendDetailProps {
   trendId: number;
@@ -245,6 +245,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+
 
 
 

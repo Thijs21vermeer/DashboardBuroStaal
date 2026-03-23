@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Search, TrendingUp, Calendar, Tag, ArrowRight, AlertCircle } from 'lucide-react';
+import { Input } from '../ui/input';
+import { Search, TrendingUp, Calendar, Tag, ArrowRight, AlertCircle, CheckCircle, Filter, Lightbulb, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import { truncateText, formatDateShort, getRelevantieLevel } from '../../lib/config';
+import { formatDate } from '../../lib/config';
 import { TrendDetail } from './TrendDetail';
 
 export function TrendsPage() {
@@ -354,6 +354,7 @@ export function TrendsPage() {
     </div>
   );
 }
+
 
 
 
