@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { getPool } from '../../lib/db-config';
 
 export const GET: APIRoute = async ({ locals }) => {
   try {
@@ -22,18 +23,27 @@ export const GET: APIRoute = async ({ locals }) => {
     };
 
     // Test database connection
+    let dbStatus = 'not_tested';
+    let dbError = null;
     try {
       const dbPool = await getPool(locals);
       const result = await dbPool.request().query('SELECT 1 as test');
+      dbStatus = 'connected';
     } catch (error) {
       const err = error as Error;
       console.error('Database connection test failed:', err);
+      dbStatus = 'failed';
+      dbError = err.message;
     }
 
     return new Response(
       JSON.stringify({
         timestamp: new Date().toISOString(),
         environment: envCheck,
+        database: {
+          status: dbStatus,
+          error: dbError
+        },
         nodeEnv: process.env.NODE_ENV,
       }, null, 2),
       {
@@ -56,5 +66,6 @@ export const GET: APIRoute = async ({ locals }) => {
     );
   }
 };
+
 
 

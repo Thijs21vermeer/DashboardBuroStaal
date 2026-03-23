@@ -1,32 +1,12 @@
 import sql from 'mssql';
-import { DB_CONFIG } from './config';
+import { getDatabaseConfig, validateDatabaseConfig } from './config';
 
 // Connection pool (singleton)
 let pool: sql.ConnectionPool | null = null;
 
 /**
- * Get database configuration at runtime
- * This ensures environment variables are available from locals in Netlify
- */
-function getDbConfig(locals?: any) {
-  // Try to get from locals.runtime.env (Netlify/Cloudflare)
-  const server = locals?.runtime?.env?.AZURE_SQL_SERVER || import.meta.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net';
-  const database = locals?.runtime?.env?.AZURE_SQL_DATABASE || import.meta.env.AZURE_SQL_DATABASE || 'dashboarddb';
-  const user = locals?.runtime?.env?.AZURE_SQL_USER || import.meta.env.AZURE_SQL_USER || 'databasedashboard';
-  const password = locals?.runtime?.env?.AZURE_SQL_PASSWORD || import.meta.env.AZURE_SQL_PASSWORD || '';
-  const port = parseInt(locals?.runtime?.env?.AZURE_SQL_PORT || import.meta.env.AZURE_SQL_PORT || '1433', 10);
-
-  return {
-    server,
-    database,
-    user,
-    password,
-    port
-  };
-}
-
-/**
  * Get or create database connection pool
+ * IMPORTANT: Always pass locals from API context for Netlify compatibility
  */
 export async function getPool(locals?: any): Promise<sql.ConnectionPool> {
   if (pool && pool.connected) {
@@ -34,17 +14,12 @@ export async function getPool(locals?: any): Promise<sql.ConnectionPool> {
   }
 
   try {
-    const config = getDbConfig(locals);
+    const config = getDatabaseConfig(locals);
     
     // Validate config
-    if (!config.server || !config.database || !config.user || !config.password) {
-      const missing = [];
-      if (!config.server) missing.push('AZURE_SQL_SERVER');
-      if (!config.database) missing.push('AZURE_SQL_DATABASE');
-      if (!config.user) missing.push('AZURE_SQL_USER');
-      if (!config.password) missing.push('AZURE_SQL_PASSWORD');
-      
-      throw new Error(`Missing database configuration: ${missing.join(', ')}`);
+    const validation = validateDatabaseConfig(locals);
+    if (!validation.valid) {
+      throw new Error(`Missing database configuration: ${validation.missing.join(', ')}`);
     }
 
     pool = await sql.connect({
@@ -79,6 +54,3 @@ export function handleDbError(error: unknown, context: string) {
     headers: { 'Content-Type': 'application/json' }
   });
 }
-
-
-

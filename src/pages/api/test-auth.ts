@@ -1,14 +1,16 @@
 import type { APIRoute } from 'astro';
-import { AUTH_SECRET } from '../../lib/config';
+import { getAuthSecret } from '../../lib/config';
 
 export const GET: APIRoute = async ({ locals }) => {
+  const authSecret = getAuthSecret(locals);
+  
   const diagnostics = {
     timestamp: new Date().toISOString(),
     authSecret: {
-      exists: !!AUTH_SECRET,
-      length: AUTH_SECRET ? AUTH_SECRET.length : 0,
-      isDefault: AUTH_SECRET === 'burostaal-secret-key-change-in-production',
-      source: 'from config.ts AUTH_SECRET constant'
+      exists: !!authSecret,
+      length: authSecret ? authSecret.length : 0,
+      isDefault: authSecret === 'burostaal-secret-key-change-in-production',
+      source: 'from getAuthSecret(locals)'
     },
     envVars: {
       JWT_SECRET: {
@@ -30,3 +32,4 @@ export const GET: APIRoute = async ({ locals }) => {
     headers: { 'Content-Type': 'application/json' }
   });
 };
+

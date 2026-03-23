@@ -3,6 +3,7 @@ import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
 import type { KennisItem } from '../../../types';
 import { requireAuth } from '../../../lib/api-auth';
+import { getSlackWebhook } from '../../../lib/config';
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToKennisItem(dbRecord: any): KennisItem {
@@ -103,7 +104,7 @@ async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
 // GET - Haal alle kennisitems op
 export const GET: APIRoute = async ({ request, locals }) => {
   // Check authentication
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
@@ -128,7 +129,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 // POST - Voeg een nieuw kennisitem toe
 export const POST: APIRoute = async ({ request, locals }) => {
   // Check authentication
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
@@ -159,7 +160,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const newItem = mapDbToKennisItem(result.recordset[0]);
     
     // Stuur Slack notificatie
-    const slackWebhook = locals?.runtime?.env?.SLACK_WEBHOOK || import.meta.env.SLACK_WEBHOOK;
+    const slackWebhook = getSlackWebhook(locals);
     if (slackWebhook) {
       // Don't await - send in background
       sendSlackNotification(newItem, slackWebhook);
@@ -175,6 +176,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
 
 
 

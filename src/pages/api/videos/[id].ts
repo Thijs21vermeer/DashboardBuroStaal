@@ -44,7 +44,7 @@ function mapVideo(row: any): Video {
 }
 
 export const GET: APIRoute = async ({ params, request, locals }) => {
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
@@ -83,7 +83,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
@@ -160,7 +160,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {

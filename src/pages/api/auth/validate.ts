@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { validateToken } from '../../../lib/session-manager';
 
 // GET: Check if user has valid session via Authorization header
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, locals }) => {
   try {
     const authHeader = request.headers.get('Authorization');
     
@@ -17,7 +17,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    const isValid = await validateToken(token);
+    const isValid = await validateToken(token, locals);
 
     return new Response(
       JSON.stringify({ valid: isValid }),
@@ -38,7 +38,7 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 // POST: Validate token from request body
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const { token } = await request.json();
 
@@ -52,7 +52,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const isValid = await validateToken(token);
+    const isValid = await validateToken(token, locals);
 
     return new Response(
       JSON.stringify({ valid: isValid }),
@@ -71,4 +71,5 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 };
+
 

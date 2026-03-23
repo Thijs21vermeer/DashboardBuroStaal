@@ -6,11 +6,10 @@ import { query } from '../../../lib/azure-db';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   // Check authentication
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
 
   try {
-    const dbPool = await getPool(locals);
     const result = await query(`
       SELECT 
         id,
@@ -25,7 +24,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
         updated_at as updatedAt
       FROM team_members
       ORDER BY volgorde ASC, id ASC
-    `);
+    `, undefined, locals);
 
     const members = result.map((row: any) => ({
       ...row,
@@ -49,12 +48,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
 // POST - Voeg een nieuw teamlid toe
 export const POST: APIRoute = async ({ request, locals }) => {
   // Check authentication
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
     const body = await request.json();
-    const dbPool = await getPool(locals);
     const { naam, rol, email, bio, expertiseGebieden, isEigenaar, volgorde } = body;
 
     if (!naam || !rol || !email) {
@@ -78,7 +76,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       expertiseGebieden: expertiseJson,
       isEigenaar: isEigenaar ? 1 : 0,
       volgorde: volgorde || 0
-    });
+    }, locals);
 
     const newMember = result[0];
 
@@ -98,6 +96,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
 
 
 

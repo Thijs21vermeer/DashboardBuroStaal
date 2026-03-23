@@ -1,4 +1,6 @@
 import type { APIRoute } from 'astro';
+import { getPool } from '../../lib/db-config';
+import { getEnvVar } from '../../lib/config';
 
 export const GET: APIRoute = async ({ locals }) => {
   try {
@@ -6,22 +8,18 @@ export const GET: APIRoute = async ({ locals }) => {
   } catch (error) {
     console.error('Error connecting to database:', error);
   }
-
-  // Check multiple sources for environment variables
-  const getEnvValue = (key: string) => {
-    return locals?.runtime?.env?.[key] || import.meta.env[key] || process.env[key];
-  };
   
   return new Response(
     JSON.stringify({
       status: 'ok',
       timestamp: new Date().toISOString(),
       environment: {
-        hasAzureServer: !!getEnvValue('AZURE_SQL_SERVER'),
-        hasAzureDatabase: !!getEnvValue('AZURE_SQL_DATABASE'),
-        hasAzureUser: !!getEnvValue('AZURE_SQL_USER'),
-        hasAzurePassword: !!getEnvValue('AZURE_SQL_PASSWORD'),
-        hasSlackWebhook: !!getEnvValue('SLACK_WEBHOOK'),
+        hasAzureServer: !!getEnvVar('AZURE_SQL_SERVER', locals),
+        hasAzureDatabase: !!getEnvVar('AZURE_SQL_DATABASE', locals),
+        hasAzureUser: !!getEnvVar('AZURE_SQL_USER', locals),
+        hasAzurePassword: !!getEnvVar('AZURE_SQL_PASSWORD', locals),
+        hasSlackWebhook: !!getEnvVar('SLACK_WEBHOOK', locals),
+        hasJwtSecret: !!getEnvVar('JWT_SECRET', locals) || !!getEnvVar('AUTH_SECRET', locals),
       },
       runtime: {
         node: process.version,
@@ -37,6 +35,7 @@ export const GET: APIRoute = async ({ locals }) => {
     }
   );
 };
+
 
 
 

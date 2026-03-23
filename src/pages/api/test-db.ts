@@ -1,18 +1,21 @@
 import type { APIRoute } from 'astro';
-import { getPool, query } from '../../lib/azure-db';
-import { validateDatabaseConfig, DB_CONFIG } from '../../lib/config';
+import { getPool } from '../../lib/db-config';
+import { validateDatabaseConfig, getDatabaseConfig } from '../../lib/config';
 
 export const GET: APIRoute = async ({ locals }) => {
+  const dbConfig = getDatabaseConfig(locals);
+  const validation = validateDatabaseConfig(locals);
+  
   const results: any = {
     timestamp: new Date().toISOString(),
-    configValidation: validateDatabaseConfig(),
+    configValidation: validation,
     configValues: {
-      server: DB_CONFIG.server,
-      database: DB_CONFIG.database,
-      user: DB_CONFIG.user,
-      hasPassword: !!DB_CONFIG.password,
-      passwordLength: DB_CONFIG.password?.length || 0,
-      port: DB_CONFIG.port,
+      server: dbConfig.server,
+      database: dbConfig.database,
+      user: dbConfig.user,
+      hasPassword: !!dbConfig.password,
+      passwordLength: dbConfig.password?.length || 0,
+      port: dbConfig.port,
     },
     connection: {
       status: 'unknown',
@@ -29,6 +32,14 @@ export const GET: APIRoute = async ({ locals }) => {
   try {
     const pool = await getPool(locals);
     results.connection.status = pool.connected ? 'connected' : 'disconnected';
+    
+    // Test query
+    const result = await pool.request().query('SELECT TOP 1 * FROM kennisitems ORDER BY id DESC');
+    results.query.status = 'success';
+    results.query.data = {
+      rowCount: result.recordset.length,
+      sample: result.recordset[0] || null,
+    };
   } catch (error) {
     results.connection.status = 'failed';
     results.connection.error = error instanceof Error ? error.message : String(error);
@@ -39,23 +50,8 @@ export const GET: APIRoute = async ({ locals }) => {
     });
   }
 
-  // Test query
-  try {
-    const testQuery = 'SELECT TOP 1 * FROM kennisitems ORDER BY id DESC';
-    const data = await query(testQuery);
-    results.query.status = 'success';
-    results.query.data = {
-      rowCount: data.length,
-      sample: data[0] || null,
-    };
-  } catch (error) {
-    results.query.status = 'failed';
-    results.query.error = error instanceof Error ? error.message : String(error);
-  }
-
   return new Response(JSON.stringify(results, null, 2), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
 };
-

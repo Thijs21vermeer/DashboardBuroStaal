@@ -44,7 +44,7 @@ function mapVideo(row: any): Video {
 }
 
 export const GET: APIRoute = async ({ request, locals }) => {
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
@@ -91,7 +91,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
 // POST - Voeg een nieuwe video toe
 export const POST: APIRoute = async ({ request, locals }) => {
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {

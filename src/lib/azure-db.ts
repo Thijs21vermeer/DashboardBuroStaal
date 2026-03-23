@@ -1,167 +1,50 @@
-import sql from 'mssql';
-import { DB_CONFIG, getEnvVar, validateDatabaseConfig } from './config';
+/**
+ * Legacy compatibility layer for azure-db
+ * This file provides backwards compatibility while using the new getPool approach
+ */
+
+import { getPool } from './db-config';
 
 /**
- * Database configuration
+ * Execute a query (legacy function - use getPool directly in new code)
+ * @deprecated Use getPool(locals) directly in API routes for better Netlify compatibility
  */
-const config: sql.config = {
-  server: DB_CONFIG.server,
-  database: DB_CONFIG.database,
-  user: DB_CONFIG.user,
-  password: DB_CONFIG.password,
-  port: DB_CONFIG.port,
-  options: {
-    encrypt: true, // Verplicht voor Azure
-    trustServerCertificate: false,
-    enableArithAbort: true,
-    connectTimeout: 30000,
-    requestTimeout: 30000,
-  },
-  pool: {
-    max: 50,
-    min: 5,
-    idleTimeoutMillis: 30000,
-  },
-};
+export async function query<T = any>(
+  queryString: string, 
+  params?: Record<string, any>,
+  locals?: any
+): Promise<T[]> {
+  const pool = await getPool(locals);
+  const request = pool.request();
 
-let pool: sql.ConnectionPool | null = null;
-let connecting: Promise<sql.ConnectionPool> | null = null;
-
-/**
- * Krijg de database connection pool (met singleton pattern)
- */
-export async function getPool(): Promise<sql.ConnectionPool> {
-  // Validate config first
-  const validation = validateDatabaseConfig();
-  if (!validation.valid) {
-    const error = new Error(`Missing required database environment variables: ${validation.missing.join(', ')}`);
-    console.error('Database configuration error:', error.message);
-    throw error;
-  }
-
-  // Als er al een actieve pool is, gebruik die
-  if (pool && pool.connected) {
-    return pool;
-  }
-
-  // Als er al een connectie bezig is, wacht daarop
-  if (connecting) {
-    return connecting;
-  }
-
-  // Log connection attempt (zonder wachtwoord)
-  console.log('Attempting database connection to:', {
-    server: config.server,
-    database: config.database,
-    user: config.user,
-    port: config.port,
-  });
-
-  // Start een nieuwe connectie
-  connecting = sql.connect(config);
-  
-  try {
-    pool = await connecting;
-    connecting = null;
-    
-    console.log('Database connection successful');
-    
-    // Error handlers
-    pool.on('error', (err) => {
-      console.error('Database pool error:', err);
-      pool = null;
+  // Add parameters if provided
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      request.input(key, value);
     });
-
-    return pool;
-  } catch (error) {
-    connecting = null;
-    console.error('Failed to connect to database:', error);
-    
-    // Provide helpful error message
-    if (error instanceof Error) {
-      if (error.message.includes('Login failed')) {
-        console.error('❌ Login failed - check AZURE_SQL_USER and AZURE_SQL_PASSWORD');
-      } else if (error.message.includes('Cannot open server')) {
-        console.error('❌ Cannot reach server - check firewall rules and AZURE_SQL_SERVER');
-      }
-    }
-    
-    throw error;
   }
+
+  const result = await request.query(queryString);
+  return result.recordset as T[];
 }
 
 /**
- * Voer een query uit
+ * Execute a query that returns a single row
+ * @deprecated Use getPool(locals) directly in API routes for better Netlify compatibility
  */
-export async function query<T = any>(queryString: string, params?: Record<string, any>): Promise<T[]> {
-  let request;
-  try {
-    const dbPool = await getPool();
-    request = dbPool.request();
-
-    // Parameters toevoegen als ze er zijn
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        request.input(key, value);
-      });
-    }
-
-    const result = await request.query(queryString);
-    return result.recordset as T[];
-  } catch (error: any) {
-    console.error('Database query error:', error);
-    
-    // Reset pool alleen bij connection errors
-    if (error?.code === 'ECONNRESET' || error?.code === 'ESOCKET' || error?.code === 'ETIMEOUT') {
-      console.log('Connection error detected, resetting pool');
-      if (pool) {
-        try {
-          await pool.close();
-        } catch (e) {
-          // Ignore close errors
-        }
-        pool = null;
-        connecting = null;
-      }
-    }
-    
-    throw error;
-  } finally {
-    // Cleanup request
-    if (request) {
-      try {
-        request.cancel();
-      } catch (e) {
-        // Ignore cancel errors
-      }
-    }
-  }
-}
-
-/**
- * Voer een query uit die één rij teruggeeft
- */
-export async function queryOne<T = any>(queryString: string, params?: Record<string, any>): Promise<T | null> {
-  const results = await query<T>(queryString, params);
+export async function queryOne<T = any>(
+  queryString: string, 
+  params?: Record<string, any>,
+  locals?: any
+): Promise<T | null> {
+  const results = await query<T>(queryString, params, locals);
   return results.length > 0 ? results[0] : null;
 }
 
-/**
- * Sluit de database connectie (gebruik bij shutdown)
- */
-export async function closePool(): Promise<void> {
-  if (pool) {
-    try {
-      await pool.close();
-    } catch (error) {
-      console.error('Error closing pool:', error);
-    }
-    pool = null;
-  }
-  connecting = null;
-}
+// Re-export getPool for convenience
+export { getPool } from './db-config';
 
-// Types voor de database tabellen
+// Types for database tables
 export interface KennisItem {
   id: number;
   titel: string;
@@ -240,7 +123,7 @@ export interface TeamMember {
   specialisatie?: string;
 }
 
-// Helper functie om JSON strings te parsen
+// Helper functions for JSON fields
 export function parseJsonField(jsonString: string | null | undefined): any {
   if (!jsonString) return null;
   try {
@@ -250,13 +133,6 @@ export function parseJsonField(jsonString: string | null | undefined): any {
   }
 }
 
-// Helper functie om JSON te stringifyen
 export function stringifyJsonField(data: any): string {
   return JSON.stringify(data);
 }
-
-
-
-
-
-

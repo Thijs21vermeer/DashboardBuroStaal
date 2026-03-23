@@ -76,7 +76,7 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
 // GET - Haal een specifieke case op
 export const GET: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   const { id } = params;
@@ -107,7 +107,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 // PUT - Update een case
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
@@ -176,7 +176,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 // DELETE - Verwijder een case
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
-  const authError = await requireAuth(request, locals);
+  const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {

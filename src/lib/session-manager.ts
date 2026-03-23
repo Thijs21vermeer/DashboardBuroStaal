@@ -3,7 +3,7 @@
  * Compatible with api-auth.ts validation
  */
 
-import { AUTH_SECRET, SESSION_DURATION_SECONDS } from './config';
+import { getAuthSecret, SESSION_DURATION_SECONDS } from './config';
 
 /**
  * Base64URL encode (JWT-compatible)
@@ -41,9 +41,10 @@ async function generateSignature(data: string, secret: string): Promise<string> 
 
 /**
  * Generate a JWT token
+ * IMPORTANT: Pass locals from API context for Netlify compatibility
  */
-export async function generateToken(): Promise<string> {
-  const secret = AUTH_SECRET;
+export async function generateToken(locals?: any): Promise<string> {
+  const secret = getAuthSecret(locals);
   
   // JWT header
   const header = {
@@ -73,18 +74,20 @@ export async function generateToken(): Promise<string> {
 
 /**
  * Create a new session (alias for generateToken)
+ * IMPORTANT: Pass locals from API context for Netlify compatibility
  */
-export async function createSession(): Promise<string> {
-  return await generateToken();
+export async function createSession(locals?: any): Promise<string> {
+  return await generateToken(locals);
 }
 
 /**
  * Validate a JWT token
+ * IMPORTANT: Pass locals from API context for Netlify compatibility
  */
-export async function validateToken(token: string): Promise<boolean> {
+export async function validateToken(token: string, locals?: any): Promise<boolean> {
   if (!token) return false;
 
-  const secret = AUTH_SECRET;
+  const secret = getAuthSecret(locals);
   const parts = token.split('.');
   
   if (parts.length !== 3) {
@@ -152,4 +155,3 @@ export function deleteSession(): void {
 export function getActiveSessionCount(): number {
   return 0; // Stateless - we don't track sessions
 }
-

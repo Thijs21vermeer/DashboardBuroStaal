@@ -44,45 +44,57 @@ export const isProduction =
   process.env.NODE_ENV === 'production';
 
 // ============================================================================
-// Authentication & Security
+// Authentication & Security (RUNTIME)
 // ============================================================================
 
-export const AUTH_SECRET = getEnv('JWT_SECRET') || getEnv('AUTH_SECRET') || 'burostaal-secret-key-change-in-production';
+/**
+ * Get AUTH_SECRET at runtime from locals or environment
+ * This is CRITICAL for Netlify where env vars come from locals.runtime.env
+ */
+export function getAuthSecret(locals?: any): string {
+  // Try locals.runtime.env first (Netlify/Cloudflare runtime)
+  const secret = 
+    locals?.runtime?.env?.JWT_SECRET || 
+    locals?.runtime?.env?.AUTH_SECRET ||
+    getEnv('JWT_SECRET') || 
+    getEnv('AUTH_SECRET') || 
+    'burostaal-secret-key-change-in-production';
+  
+  return secret;
+}
+
+// Session configuration
 export const SESSION_DURATION_HOURS = 24;
 export const SESSION_DURATION_MS = SESSION_DURATION_HOURS * 60 * 60 * 1000;
 export const SESSION_DURATION_SECONDS = SESSION_DURATION_HOURS * 60 * 60;
 
 // ============================================================================
-// Database Configuration
+// Database Configuration (RUNTIME)
 // ============================================================================
 
-export const DB_CONFIG = {
-  server: getEnv('AZURE_SQL_SERVER') || 'dashboardbs.database.windows.net',
-  database: getEnv('AZURE_SQL_DATABASE') || 'dashboarddb',
-  user: getEnv('AZURE_SQL_USER') || 'databasedashboard',
-  password: getEnv('AZURE_SQL_PASSWORD') || '',
-  port: parseInt(getEnv('AZURE_SQL_PORT') || '1433', 10),
-} as const;
-
-// Log database config (zonder wachtwoord) voor debugging
-if (isDevelopment) {
-  console.log('Database Config:', {
-    server: DB_CONFIG.server,
-    database: DB_CONFIG.database,
-    user: DB_CONFIG.user,
-    hasPassword: !!DB_CONFIG.password,
-    port: DB_CONFIG.port,
-  });
+/**
+ * Get database configuration at runtime
+ * This ensures environment variables are available from locals in Netlify
+ */
+export function getDatabaseConfig(locals?: any) {
+  return {
+    server: locals?.runtime?.env?.AZURE_SQL_SERVER || getEnv('AZURE_SQL_SERVER') || 'dashboardbs.database.windows.net',
+    database: locals?.runtime?.env?.AZURE_SQL_DATABASE || getEnv('AZURE_SQL_DATABASE') || 'dashboarddb',
+    user: locals?.runtime?.env?.AZURE_SQL_USER || getEnv('AZURE_SQL_USER') || 'databasedashboard',
+    password: locals?.runtime?.env?.AZURE_SQL_PASSWORD || getEnv('AZURE_SQL_PASSWORD') || '',
+    port: parseInt(locals?.runtime?.env?.AZURE_SQL_PORT || getEnv('AZURE_SQL_PORT') || '1433', 10),
+  };
 }
 
 // Validate database config
-export function validateDatabaseConfig(): { valid: boolean; missing: string[] } {
+export function validateDatabaseConfig(locals?: any): { valid: boolean; missing: string[] } {
+  const config = getDatabaseConfig(locals);
   const missing: string[] = [];
   
-  if (!DB_CONFIG.server) missing.push('AZURE_SQL_SERVER');
-  if (!DB_CONFIG.database) missing.push('AZURE_SQL_DATABASE');
-  if (!DB_CONFIG.user) missing.push('AZURE_SQL_USER');
-  if (!DB_CONFIG.password) missing.push('AZURE_SQL_PASSWORD');
+  if (!config.server) missing.push('AZURE_SQL_SERVER');
+  if (!config.database) missing.push('AZURE_SQL_DATABASE');
+  if (!config.user) missing.push('AZURE_SQL_USER');
+  if (!config.password) missing.push('AZURE_SQL_PASSWORD');
   
   return {
     valid: missing.length === 0,
@@ -115,7 +127,17 @@ export const RATE_LIMIT_CONFIG = {
 // Notifications
 // ============================================================================
 
-export const SLACK_WEBHOOK = getEnv('SLACK_WEBHOOK');
+export function getSlackWebhook(locals?: any): string | undefined {
+  return locals?.runtime?.env?.SLACK_WEBHOOK || getEnv('SLACK_WEBHOOK');
+}
+
+// ============================================================================
+// Dashboard Password
+// ============================================================================
+
+export function getDashboardPassword(locals?: any): string | undefined {
+  return locals?.runtime?.env?.DASHBOARD_PASSWORD || getEnv('DASHBOARD_PASSWORD');
+}
 
 // ============================================================================
 // UI Constants
@@ -233,8 +255,8 @@ export const RELEVANTIE_LEVELS = {
 /**
  * Get environment variable with runtime fallback (for Cloudflare Workers)
  */
-export function getEnvVar(key: string): string | undefined {
-  return getEnv(key);
+export function getEnvVar(key: string, locals?: any): string | undefined {
+  return locals?.runtime?.env?.[key] || getEnv(key);
 }
 
 /**
@@ -298,14 +320,3 @@ export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
-
-
-
-
-
-
-
-
-
-
-

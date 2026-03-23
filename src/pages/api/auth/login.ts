@@ -1,8 +1,9 @@
 import type { APIRoute } from 'astro';
 import { generateToken } from '../../../lib/session-manager';
 import { checkRateLimit, recordFailedAttempt, resetRateLimit } from '../../../lib/rate-limiter';
+import { getDashboardPassword } from '../../../lib/config';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Check rate limit VOOR wachtwoord validatie
     const rateCheck = checkRateLimit(request);
@@ -26,8 +27,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { password } = await request.json();
 
-    // Haal het wachtwoord op uit environment variables
-    const correctPassword = import.meta.env.DASHBOARD_PASSWORD || process.env.DASHBOARD_PASSWORD;
+    // Haal het wachtwoord op uit environment variables (met locals support voor Netlify)
+    const correctPassword = getDashboardPassword(locals);
 
     if (!correctPassword) {
       return new Response(
@@ -43,8 +44,8 @@ export const POST: APIRoute = async ({ request }) => {
       // Succesvol! Reset rate limit voor dit IP
       resetRateLimit(request);
       
-      // Genereer een echte JWT token
-      const token = await generateToken();
+      // Genereer een echte JWT token (met locals voor Netlify)
+      const token = await generateToken(locals);
       
       return new Response(
         JSON.stringify({ success: true, token }),
@@ -84,5 +85,6 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 };
+
 
 

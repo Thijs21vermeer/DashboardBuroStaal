@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { AUTH_SECRET } from './config';
+import { getAuthSecret } from './config';
 
 /**
  * API Authentication Middleware
@@ -70,13 +70,14 @@ async function validateToken(token: string, secret: string): Promise<TokenPayloa
  * Middleware function to protect API routes
  * Returns a 401 Unauthorized response if the token is invalid
  * 
- * @param request - The Astro API request
- * @param locals - The Astro locals object (for Cloudflare env)
+ * IMPORTANT: This function now takes the full APIContext to access locals
+ * 
+ * @param context - The Astro API context (includes request and locals)
  * @returns Response object if unauthorized, null if authorized
  * 
  * @example
- * export const GET: APIRoute = async ({ request, locals }) => {
- *   const authError = await requireAuth(request, locals);
+ * export const GET: APIRoute = async (context) => {
+ *   const authError = await requireAuth(context);
  *   if (authError) return authError;
  *   
  *   // Your protected API logic here
@@ -85,7 +86,8 @@ async function validateToken(token: string, secret: string): Promise<TokenPayloa
 export async function requireAuth(
   context: APIContext
 ): Promise<Response | null> {
-  const { request } = context;
+  const { request, locals } = context;
+  
   // Get token from Authorization header
   const authHeader = request.headers.get('Authorization');
   
@@ -104,8 +106,10 @@ export async function requireAuth(
 
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-  // Use AUTH_SECRET constant which checks JWT_SECRET first
-  if (!AUTH_SECRET) {
+  // Get AUTH_SECRET from runtime (critical for Netlify)
+  const secret = getAuthSecret(locals);
+  
+  if (!secret) {
     console.error('AUTH_SECRET not configured');
     return new Response(
       JSON.stringify({ 
@@ -120,7 +124,7 @@ export async function requireAuth(
   }
 
   // Validate token
-  const payload = await validateToken(token, AUTH_SECRET);
+  const payload = await validateToken(token, secret);
   
   if (!payload || !payload.authenticated) {
     return new Response(
@@ -138,5 +142,3 @@ export async function requireAuth(
   // Token is valid, allow request to proceed
   return null;
 }
-
-
