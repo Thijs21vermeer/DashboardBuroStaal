@@ -37,16 +37,7 @@ export default function TrendsManager() {
 
   const loadItems = async () => {
     try {
-      const response = await fetch(`${getBaseUrl()}/api/trends`);
-      
-      if (!response.ok) {
-        console.warn('API request failed, using mock data');
-        setItems(mockTrends);
-        setConnectionStatus('mock');
-        return;
-      }
-      
-      const data = await response.json() as Trend[];
+      const data = await apiClient.trends.getAll();
       
       if (data.length === 0) {
         setItems(mockTrends);
@@ -78,17 +69,26 @@ export default function TrendsManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const trendData = {
+      ...formData,
+      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+      datum: new Date().toISOString().split('T')[0],
+    };
+
     try {
       if (editingItem) {
-        await apiClient.trends.update(editingItem.id, formData);
+        const updated = await apiClient.trends.update(editingItem.id, trendData);
+        setItems(items.map(i => i.id === editingItem.id ? updated : i));
       } else {
-        await apiClient.trends.create(formData);
+        const newItem = await apiClient.trends.create(trendData);
+        setItems([newItem, ...items]);
       }
       
-      await loadTrends();
       resetForm();
+      setIsDialogOpen(false);
     } catch (error) {
       console.error('Error saving trend:', error);
+      alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
     }
   };
 
@@ -107,13 +107,13 @@ export default function TrendsManager() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Weet je zeker dat je deze trend wilt verwijderen?')) return;
-    
+  const handleDelete = async (id: number) => {
+    if (!confirm('Weet je zeker dat je deze trend wilt verwijderen?')) {
+      return;
+    }
+
     try {
-      await fetch(`${getBaseUrl()}/api/trends/${id}`, {
-        method: 'DELETE',
-      });
+      await apiClient.trends.delete(id);
       setItems(items.filter(i => i.id !== id));
     } catch (error) {
       console.error('Error deleting trend:', error);
@@ -331,6 +331,7 @@ export default function TrendsManager() {
     </div>
   );
 }
+
 
 
 

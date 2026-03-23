@@ -39,24 +39,9 @@ export default function KennisItemsManager() {
 
   const loadItems = async () => {
     try {
-      const baseUrl = getBaseUrl();
-      console.log('[KennisItemsManager] Fetching from:', `${baseUrl}/api/kennisitems`);
+      console.log('[KennisItemsManager] Fetching kennisitems...');
       
-      const response = await fetch(`${baseUrl}/api/kennisitems`);
-      console.log('[KennisItemsManager] Response status:', response.status, response.statusText);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[KennisItemsManager] API request failed:', response.status, errorText);
-        setItems(mockKennisItems);
-        setConnectionStatus('error');
-        return;
-      }
-      
-      const contentType = response.headers.get('content-type');
-      console.log('[KennisItemsManager] Content-Type:', contentType);
-      
-      const data = await response.json() as KennisItem[];
+      const data = await apiClient.kennisitems.getAll();
       console.log('[KennisItemsManager] Received items:', data.length);
       
       // Set items regardless of whether database is empty
@@ -83,42 +68,14 @@ export default function KennisItemsManager() {
     };
 
     try {
-      const baseUrl = getBaseUrl();
-      
       if (editingItem) {
         // Update existing item
-        const response = await fetch(`${baseUrl}/api/kennisitems/${editingItem.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(itemData),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to update item:', response.status, errorText);
-          alert('Fout bij opslaan: ' + errorText);
-          return;
-        }
-        
-        const updated = await response.json() as KennisItem;
+        const updated = await apiClient.kennisitems.update(editingItem.id, itemData);
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
         alert('✅ Item succesvol bijgewerkt!');
       } else {
         // Create new item
-        const response = await fetch(`${baseUrl}/api/kennisitems`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(itemData),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to create item:', response.status, errorText);
-          alert('Fout bij toevoegen: ' + errorText);
-          return;
-        }
-        
-        const newItem = await response.json() as KennisItem;
+        const newItem = await apiClient.kennisitems.create(itemData);
         setItems([newItem, ...items]);
         alert('✅ Item succesvol toegevoegd!');
       }
@@ -155,9 +112,7 @@ export default function KennisItemsManager() {
     if (!confirm('Weet je zeker dat je dit item wilt verwijderen?')) return;
     
     try {
-      await fetch(`${getBaseUrl()}/api/kennisitems/${id}`, {
-        method: 'DELETE',
-      });
+      await apiClient.kennisitems.delete(id);
       setItems(items.filter(i => i.id !== id));
     } catch (error) {
       console.error('Error deleting item:', error);
@@ -481,6 +436,7 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
 
 
 

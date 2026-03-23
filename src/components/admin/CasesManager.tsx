@@ -44,16 +44,7 @@ export default function CasesManager() {
 
   const loadItems = async () => {
     try {
-      const response = await fetch(`${getBaseUrl()}/api/cases`);
-      
-      if (!response.ok) {
-        console.warn('API request failed, using mock data');
-        setItems(mockCases);
-        setConnectionStatus('mock');
-        return;
-      }
-      
-      const data = await response.json() as Case[];
+      const data = await apiClient.cases.getAll();
       
       if (data.length === 0) {
         setItems(mockCases);
@@ -83,20 +74,10 @@ export default function CasesManager() {
 
     try {
       if (editingItem) {
-        const response = await fetch(`${getBaseUrl()}/api/cases/${editingItem.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(caseData),
-        });
-        const updated = await response.json() as Case;
+        const updated = await apiClient.cases.update(editingItem.id, caseData);
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
       } else {
-        const response = await fetch(`${getBaseUrl()}/api/cases`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(caseData),
-        });
-        const newCase = await response.json() as Case;
+        const newCase = await apiClient.cases.create(caseData);
         setItems([newCase, ...items]);
       }
       
@@ -130,14 +111,7 @@ export default function CasesManager() {
     }
 
     try {
-      const response = await fetch(`${getBaseUrl()}/api/cases/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete case');
-      }
-
+      await apiClient.cases.delete(id);
       setItems(items.filter(i => i.id !== id));
       alert('✅ Case succesvol verwijderd');
     } catch (err) {
@@ -360,6 +334,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

@@ -34,16 +34,7 @@ export default function NewsManager() {
 
   const loadItems = async () => {
     try {
-      const response = await fetch(`${getBaseUrl()}/api/nieuws`);
-      
-      if (!response.ok) {
-        console.warn('API request failed, using mock data');
-        setItems(mockNews);
-        setConnectionStatus('mock');
-        return;
-      }
-      
-      const data = await response.json() as NewsItem[];
+      const data = await apiClient.nieuws.getAll();
       
       if (data.length === 0) {
         setItems(mockNews);
@@ -64,53 +55,23 @@ export default function NewsManager() {
     
     const newsData = {
       ...formData,
-      belangrijk: formData.belangrijk === 'true',
+      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+      datum: new Date().toISOString().split('T')[0],
     };
 
     try {
-      const baseUrl = getBaseUrl();
-      
       if (editingItem) {
-        const response = await fetch(`${baseUrl}/api/nieuws/${editingItem.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newsData),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to update news:', response.status, errorText);
-          alert('Fout bij opslaan: ' + errorText);
-          return;
-        }
-        
-        const updated = await response.json() as NewsItem;
+        const updated = await apiClient.nieuws.update(editingItem.id, newsData);
         setItems(items.map(i => i.id === editingItem.id ? updated : i));
-        alert('✅ Nieuwsitem succesvol bijgewerkt!');
       } else {
-        const response = await fetch(`${baseUrl}/api/nieuws`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newsData),
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to create news:', response.status, errorText);
-          alert('Fout bij toevoegen: ' + errorText);
-          return;
-        }
-        
-        const newNews = await response.json() as NewsItem;
-        setItems([newNews, ...items]);
-        alert('✅ Nieuwsitem succesvol toegevoegd!');
+        const newItem = await apiClient.nieuws.create(newsData);
+        setItems([newItem, ...items]);
       }
       
       resetForm();
       setIsDialogOpen(false);
-      setConnectionStatus('connected');
     } catch (error) {
-      console.error('Error saving news:', error);
+      console.error('Error saving news item:', error);
       alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
     }
   };
@@ -135,15 +96,15 @@ export default function NewsManager() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Weet je zeker dat je dit nieuwsitem wilt verwijderen?')) return;
-    
+    if (!confirm('Weet je zeker dat je dit nieuwsbericht wilt verwijderen?')) {
+      return;
+    }
+
     try {
-      await fetch(`${getBaseUrl()}/api/nieuws/${id}`, {
-        method: 'DELETE',
-      });
+      await apiClient.nieuws.delete(id);
       setItems(items.filter(i => i.id !== id));
     } catch (error) {
-      console.error('Error deleting news:', error);
+      console.error('Error deleting news item:', error);
     }
   };
 
@@ -339,6 +300,7 @@ export default function NewsManager() {
     </div>
   );
 }
+
 
 
 
