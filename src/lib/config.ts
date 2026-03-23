@@ -1,3 +1,6 @@
+
+
+
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -12,7 +15,7 @@ import './load-env.cjs';
 
 function getEnv(key: string): string | undefined {
   // Try import.meta.env first (works in both dev and production)
-  if (import.meta.env[key]) {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.[key]) {
     return import.meta.env[key];
   }
   
@@ -28,8 +31,14 @@ function getEnv(key: string): string | undefined {
 // Environment Detection
 // ============================================================================
 
-export const isDevelopment = import.meta.env.DEV;
-export const isProduction = import.meta.env.PROD;
+// Environment detection - works in both Node.js and Astro contexts
+export const isDevelopment = 
+  (typeof import.meta !== 'undefined' && import.meta.env?.DEV) || 
+  process.env.NODE_ENV === 'development';
+
+export const isProduction = 
+  (typeof import.meta !== 'undefined' && import.meta.env?.PROD) || 
+  process.env.NODE_ENV === 'production';
 
 // ============================================================================
 // Authentication & Security
@@ -260,6 +269,9 @@ export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
+
+
 
 
 
