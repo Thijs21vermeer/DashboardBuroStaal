@@ -29,7 +29,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
   const { id } = params;
   
   try {
-    const dbPool = await getPool();
+    const dbPool = await getPool(locals);
     const result = await dbPool.request()
       .input('id', sql.Int, Number(id))
       .query('SELECT * FROM Trends WHERE id = @id');
@@ -67,7 +67,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
 
     const data = await request.json();
-    const dbPool = await getPool();
+    const dbPool = await getPool(locals);
 
     const result = await dbPool.request()
       .input('id', sql.Int, parseInt(id))
@@ -127,7 +127,7 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const dbPool = await getPool();
+    const dbPool = await getPool(locals);
     const result = await dbPool.request()
       .input('id', sql.Int, parseInt(id))
       .query('DELETE FROM Trends WHERE id = @id');
@@ -147,6 +147,7 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     return handleDbError(error, 'delete trend');
   }
 };
+
 
 
 

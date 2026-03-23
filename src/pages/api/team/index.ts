@@ -10,6 +10,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
 
   try {
+    const dbPool = await getPool(locals);
     const result = await query(`
       SELECT 
         id,
@@ -53,6 +54,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   
   try {
     const body = await request.json();
+    const dbPool = await getPool(locals);
     const { naam, rol, email, bio, expertiseGebieden, isEigenaar, volgorde } = body;
 
     if (!naam || !rol || !email) {
@@ -96,5 +98,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
 
 

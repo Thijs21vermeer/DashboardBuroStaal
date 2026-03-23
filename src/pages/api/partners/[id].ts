@@ -11,6 +11,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 
   try {
     const { id } = params;
+    const dbPool = await getPool(locals);
 
     const result = await query(`
       SELECT 
@@ -64,6 +65,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const { id } = params;
     const body = await request.json();
     const { naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertiseGebieden, volgorde } = body;
+    const dbPool = await getPool(locals);
 
     if (!naam || !specialisatie || !email) {
       return new Response(JSON.stringify({ error: 'Naam, specialisatie en email zijn verplicht' }), {
@@ -143,6 +145,7 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
   
   try {
     const { id } = params;
+    const dbPool = await getPool(locals);
 
     await query(`DELETE FROM externe_partners WHERE id = @id`, {
       id: parseInt(id!)
@@ -160,5 +163,6 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
 
 

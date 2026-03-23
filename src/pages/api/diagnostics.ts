@@ -21,6 +21,15 @@ export const GET: APIRoute = async ({ locals }) => {
       hasEnv: !!locals?.runtime?.env,
     };
 
+    // Test database connection
+    try {
+      const dbPool = await getPool(locals);
+      const result = await dbPool.request().query('SELECT 1 as test');
+    } catch (error) {
+      const err = error as Error;
+      console.error('Database connection test failed:', err);
+    }
+
     return new Response(
       JSON.stringify({
         timestamp: new Date().toISOString(),
@@ -47,4 +56,5 @@ export const GET: APIRoute = async ({ locals }) => {
     );
   }
 };
+
 

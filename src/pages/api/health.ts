@@ -1,6 +1,12 @@
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ locals }) => {
+  try {
+    const dbPool = await getPool(locals);
+  } catch (error) {
+    console.error('Error connecting to database:', error);
+  }
+
   // Check multiple sources for environment variables
   const getEnvValue = (key: string) => {
     return locals?.runtime?.env?.[key] || import.meta.env[key] || process.env[key];
@@ -31,5 +37,6 @@ export const GET: APIRoute = async ({ locals }) => {
     }
   );
 };
+
 
 

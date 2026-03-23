@@ -11,6 +11,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 
   try {
     const { id } = params;
+    const dbPool = await getPool(locals);
     const result = await queryOne(
       'SELECT * FROM tools WHERE id = @id',
       { id: parseInt(id || '0') }
@@ -51,6 +52,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const { id } = params;
     const body = await request.json();
     const { titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet } = body;
+    const dbPool = await getPool(locals);
 
     const result = await query(`
       UPDATE tools
@@ -105,6 +107,7 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
   
   try {
     const { id } = params;
+    const dbPool = await getPool(locals);
     await query('DELETE FROM tools WHERE id = @id', { id: parseInt(id || '0') });
 
     return new Response(JSON.stringify({ success: true }), {
@@ -141,4 +144,5 @@ export const PATCH: APIRoute = async ({ params }) => {
     });
   }
 };
+
 

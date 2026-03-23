@@ -43,12 +43,15 @@ function mapVideo(row: any): Video {
   };
 }
 
-export const GET: APIRoute = async ({ params, locals }) => {
+export const GET: APIRoute = async ({ params, request, locals }) => {
+  const authError = await requireAuth(request, locals);
+  if (authError) return authError;
+  
   try {
-    const pool = await getPool();
     const { id } = params;
+    const dbPool = await getPool(locals);
     
-    const result = await pool.request()
+    const result = await dbPool.request()
       .input('id', sql.Int, id)
       .query('SELECT * FROM videos WHERE id = @id');
     
@@ -60,7 +63,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
     
     // Increment views
-    await pool.request()
+    await dbPool.request()
       .input('id', sql.Int, id)
       .query('UPDATE videos SET views = views + 1 WHERE id = @id');
     
@@ -80,13 +83,13 @@ export const GET: APIRoute = async ({ params, locals }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
-    const pool = await getPool();
     const { id } = params;
+    const data = await request.json();
+    const dbPool = await getPool(locals);
     
     if (!id) {
       return new Response(JSON.stringify({ error: 'Video ID is required' }), {
@@ -95,27 +98,24 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
     
-    const body = await request.json();
-    const { titel, beschrijving, youtube_url, categorie, tags, eigenaar, featured } = body;
-    
-    console.log('Updating video:', { id, titel, categorie, featured });
+    console.log('Updating video:', { id, ...data });
     
     // Als youtube_url is gewijzigd, update ook de thumbnail
-    let thumbnail_url = body.thumbnail_url;
-    if (youtube_url) {
-      thumbnail_url = getYouTubeThumbnail(youtube_url);
+    let thumbnail_url = data.thumbnail_url;
+    if (data.youtube_url) {
+      thumbnail_url = getYouTubeThumbnail(data.youtube_url);
     }
     
-    const result = await pool.request()
+    const result = await dbPool.request()
       .input('id', sql.Int, parseInt(id))
-      .input('titel', sql.NVarChar, titel)
-      .input('beschrijving', sql.NVarChar, beschrijving || null)
-      .input('youtube_url', sql.NVarChar, youtube_url)
+      .input('titel', sql.NVarChar, data.titel)
+      .input('beschrijving', sql.NVarChar, data.beschrijving || null)
+      .input('youtube_url', sql.NVarChar, data.youtube_url)
       .input('thumbnail_url', sql.NVarChar, thumbnail_url)
-      .input('categorie', sql.NVarChar, categorie)
-      .input('tags', sql.NVarChar, tags || null)
-      .input('eigenaar', sql.NVarChar, eigenaar || null)
-      .input('featured', sql.Bit, featured ? 1 : 0)
+      .input('categorie', sql.NVarChar, data.categorie)
+      .input('tags', sql.NVarChar, data.tags || null)
+      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
+      .input('featured', sql.Bit, data.featured ? 1 : 0)
       .query(`
         UPDATE videos 
         SET titel = @titel,
@@ -160,15 +160,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
-    const pool = await getPool();
     const { id } = params;
+    const dbPool = await getPool(locals);
     
-    const result = await pool.request()
+    const result = await dbPool.request()
       .input('id', sql.Int, id)
       .query('DELETE FROM videos WHERE id = @id');
     
@@ -191,6 +190,7 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
 
 
 

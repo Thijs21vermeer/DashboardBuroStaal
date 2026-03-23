@@ -1,46 +1,70 @@
 import sql from 'mssql';
-import { DB_CONFIG, getEnvVar } from './config';
+import { DB_CONFIG } from './config';
 
-/**
- * Get database configuration
- * Works for both server-side and Cloudflare Workers contexts
- */
-export function getDbConfig(locals?: any): sql.config {
-  const password = getEnvVar('AZURE_SQL_PASSWORD', locals);
-  
-  if (!password) {
-    throw new Error('AZURE_SQL_PASSWORD is not configured');
-  }
-
-  return {
-    server: getEnvVar('AZURE_SQL_SERVER', locals) || DB_CONFIG.server,
-    database: getEnvVar('AZURE_SQL_DATABASE', locals) || DB_CONFIG.database,
-    user: getEnvVar('AZURE_SQL_USER', locals) || DB_CONFIG.user,
-    password,
-    port: parseInt(getEnvVar('AZURE_SQL_PORT', locals) || String(DB_CONFIG.port), 10),
-    options: {
-      encrypt: true,
-      trustServerCertificate: false,
-      connectTimeout: 30000,
-      requestTimeout: 30000,
-    }
-  };
-};
-
+// Connection pool (singleton)
 let pool: sql.ConnectionPool | null = null;
 
-export async function getPool() {
-  if (!pool) {
-    try {
-      const config = getDbConfig();
-      pool = await sql.connect(config);
-      console.log('✅ Database connected successfully');
-    } catch (error) {
-      console.error('❌ Database connection failed:', error);
-      throw error;
-    }
+/**
+ * Get database configuration at runtime
+ * This ensures environment variables are available from locals in Netlify
+ */
+function getDbConfig(locals?: any) {
+  // Try to get from locals.runtime.env (Netlify/Cloudflare)
+  const server = locals?.runtime?.env?.AZURE_SQL_SERVER || import.meta.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net';
+  const database = locals?.runtime?.env?.AZURE_SQL_DATABASE || import.meta.env.AZURE_SQL_DATABASE || 'dashboarddb';
+  const user = locals?.runtime?.env?.AZURE_SQL_USER || import.meta.env.AZURE_SQL_USER || 'databasedashboard';
+  const password = locals?.runtime?.env?.AZURE_SQL_PASSWORD || import.meta.env.AZURE_SQL_PASSWORD || '';
+  const port = parseInt(locals?.runtime?.env?.AZURE_SQL_PORT || import.meta.env.AZURE_SQL_PORT || '1433', 10);
+
+  return {
+    server,
+    database,
+    user,
+    password,
+    port
+  };
+}
+
+/**
+ * Get or create database connection pool
+ */
+export async function getPool(locals?: any): Promise<sql.ConnectionPool> {
+  if (pool && pool.connected) {
+    return pool;
   }
-  return pool;
+
+  try {
+    const config = getDbConfig(locals);
+    
+    // Validate config
+    if (!config.server || !config.database || !config.user || !config.password) {
+      const missing = [];
+      if (!config.server) missing.push('AZURE_SQL_SERVER');
+      if (!config.database) missing.push('AZURE_SQL_DATABASE');
+      if (!config.user) missing.push('AZURE_SQL_USER');
+      if (!config.password) missing.push('AZURE_SQL_PASSWORD');
+      
+      throw new Error(`Missing database configuration: ${missing.join(', ')}`);
+    }
+
+    pool = await sql.connect({
+      server: config.server,
+      database: config.database,
+      user: config.user,
+      password: config.password,
+      port: config.port,
+      options: {
+        encrypt: true,
+        trustServerCertificate: false,
+      },
+    });
+
+    console.log('✅ Database connected successfully');
+    return pool;
+  } catch (error) {
+    console.error('❌ Database connection failed:', error);
+    throw error;
+  }
 }
 
 export function handleDbError(error: unknown, context: string) {
@@ -55,5 +79,6 @@ export function handleDbError(error: unknown, context: string) {
     headers: { 'Content-Type': 'application/json' }
   });
 }
+
 
 

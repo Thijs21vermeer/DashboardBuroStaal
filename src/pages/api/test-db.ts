@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { getPool, query } from '../../lib/azure-db';
 import { validateDatabaseConfig, DB_CONFIG } from '../../lib/config';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ locals }) => {
   const results: any = {
     timestamp: new Date().toISOString(),
     configValidation: validateDatabaseConfig(),
@@ -27,7 +27,7 @@ export const GET: APIRoute = async () => {
 
   // Test connection
   try {
-    const pool = await getPool();
+    const pool = await getPool(locals);
     results.connection.status = pool.connected ? 'connected' : 'disconnected';
   } catch (error) {
     results.connection.status = 'failed';
@@ -58,3 +58,4 @@ export const GET: APIRoute = async () => {
     headers: { 'Content-Type': 'application/json' },
   });
 };
+

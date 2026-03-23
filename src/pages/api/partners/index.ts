@@ -10,6 +10,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
 
   try {
+    const dbPool = await getPool(locals);
     const result = await query(`
       SELECT 
         id,
@@ -52,8 +53,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const body = await request.json();
-    const { naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertiseGebieden, volgorde } = body;
+    const data = await request.json();
+    const dbPool = await getPool(locals);
+    const { naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertiseGebieden, volgorde } = data;
 
     if (!naam || !specialisatie || !email) {
       return new Response(JSON.stringify({ error: 'Naam, specialisatie en email zijn verplicht' }), {
@@ -97,5 +99,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
 
 

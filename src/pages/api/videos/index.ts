@@ -44,8 +44,11 @@ function mapVideo(row: any): Video {
 }
 
 export const GET: APIRoute = async ({ request, locals }) => {
+  const authError = await requireAuth(request, locals);
+  if (authError) return authError;
+  
   try {
-    const pool = await getPool();
+    const dbPool = await getPool(locals);
     const url = new URL(request.url);
     const categorie = url.searchParams.get('categorie');
     const featured = url.searchParams.get('featured');
@@ -64,7 +67,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     
     query += ' ORDER BY datum_toegevoegd DESC';
     
-    const requestObj = pool.request();
+    const requestObj = dbPool.request();
     inputs.forEach(input => {
       requestObj.input(input.name, input.type, input.value);
     });
@@ -88,14 +91,13 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
 // POST - Voeg een nieuwe video toe
 export const POST: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth(request, locals);
   if (authError) return authError;
   
   try {
-    const pool = await getPool();
-    const body = await request.json();
-    const { titel, beschrijving, youtube_url, categorie, tags, eigenaar, featured } = body;
+    const data = await request.json();
+    const dbPool = await getPool(locals);
+    const { titel, beschrijving, youtube_url, categorie, tags, eigenaar, featured } = data;
     
     if (!titel || !youtube_url || !categorie) {
       return new Response(JSON.stringify({ error: 'Titel, YouTube URL en categorie zijn verplicht' }), {
@@ -107,7 +109,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Automatisch thumbnail genereren
     const thumbnail_url = getYouTubeThumbnail(youtube_url);
     
-    const result = await pool.request()
+    const result = await dbPool.request()
       .input('titel', sql.NVarChar, titel)
       .input('beschrijving', sql.NVarChar, beschrijving || null)
       .input('youtube_url', sql.NVarChar, youtube_url)
@@ -136,6 +138,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
 
 
 

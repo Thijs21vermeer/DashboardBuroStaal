@@ -10,6 +10,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
 
   try {
+    const dbPool = await getPool(locals);
     const result = await query(`
       SELECT 
         id,
@@ -57,8 +58,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const body = await request.json();
-    const { titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet } = body;
+    const data = await request.json();
+    const dbPool = await getPool(locals);
+    const { titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet } = data;
 
     const result = await query(`
       INSERT INTO tools (titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet)
@@ -90,4 +92,5 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
 

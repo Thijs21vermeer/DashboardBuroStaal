@@ -39,7 +39,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
 
   try {
-    const dbPool = await getPool();
+    const dbPool = await getPool(locals);
     const result = await dbPool.request().query('SELECT * FROM Nieuws ORDER BY datum DESC');
     
     // Map database records to TypeScript types
@@ -65,7 +65,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   
   try {
     const data = await request.json();
-    const dbPool = await getPool();
+    const dbPool = await getPool(locals);
     
     const result = await dbPool.request()
       .input('titel', sql.NVarChar, data.titel)
@@ -90,6 +90,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return handleDbError(error, 'create nieuws');
   }
 };
+
 
 
 

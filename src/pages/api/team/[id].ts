@@ -11,6 +11,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 
   try {
     const { id } = params;
+    const dbPool = await getPool(locals);
 
     const result = await query(`
       SELECT 
@@ -63,6 +64,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const { id } = params;
     const body = await request.json();
     const { naam, rol, email, bio, expertiseGebieden, isEigenaar, volgorde } = body;
+    const dbPool = await getPool(locals);
 
     if (!naam || !rol || !email) {
       return new Response(JSON.stringify({ error: 'Naam, rol en email zijn verplicht' }), {
@@ -137,6 +139,7 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
   
   try {
     const { id } = params;
+    const dbPool = await getPool(locals);
 
     await query(`DELETE FROM team_members WHERE id = @id`, {
       id: parseInt(id!)
@@ -154,5 +157,6 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
 
 
