@@ -11,14 +11,14 @@ export const GET: APIRoute = async ({ locals }) => {
       AZURE_SQL_PASSWORD: !!import.meta.env.AZURE_SQL_PASSWORD || !!(locals?.runtime?.env?.AZURE_SQL_PASSWORD),
       
       // Check sources
-      fromImportMeta: !!import.meta.env.JWT_SECRET,
-      fromLocalsRuntime: !!(locals?.runtime?.env?.JWT_SECRET),
+      fromImportMeta: !!import.meta.env?.JWT_SECRET || !!import.meta.env?.AUTH_SECRET,
+      fromLocalsRuntime: !!locals?.runtime?.env?.JWT_SECRET || !!locals?.runtime?.env?.AUTH_SECRET,
       
       // Platform info
-      platform: locals?.runtime?.cf ? 'cloudflare' : 'netlify',
+      platform: import.meta.env.MODE,
       hasLocals: !!locals,
-      hasRuntime: !!(locals?.runtime),
-      hasEnv: !!(locals?.runtime?.env),
+      hasRuntime: !!locals?.runtime,
+      hasEnv: !!locals?.runtime?.env,
     };
 
     return new Response(
@@ -47,3 +47,4 @@ export const GET: APIRoute = async ({ locals }) => {
     );
   }
 };
+

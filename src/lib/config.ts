@@ -2,6 +2,7 @@
 
 
 
+
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -45,7 +46,7 @@ export const isProduction =
 // Authentication & Security
 // ============================================================================
 
-export const AUTH_SECRET = getEnv('AUTH_SECRET') || 'burostaal-secret-key-change-in-production';
+export const AUTH_SECRET = getEnv('JWT_SECRET') || getEnv('AUTH_SECRET') || 'burostaal-secret-key-change-in-production';
 export const SESSION_DURATION_HOURS = 24;
 export const SESSION_DURATION_MS = SESSION_DURATION_HOURS * 60 * 60 * 1000;
 export const SESSION_DURATION_SECONDS = SESSION_DURATION_HOURS * 60 * 60;
@@ -296,6 +297,7 @@ export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
 
 
 
