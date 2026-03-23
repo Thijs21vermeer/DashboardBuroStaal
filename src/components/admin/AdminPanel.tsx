@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import React, { Component, type ErrorInfo, useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Button } from '../ui/button';
 import { 
   BookOpen, Briefcase, TrendingUp, Newspaper, 
   Users, Wrench, Video, Home, LogOut, 
-  BarChart3, Lightbulb, Code
+  BarChart3, Lightbulb, Code, Settings, Database, ArrowLeft
 } from 'lucide-react';
 import KennisItemsManager from './KennisItemsManager';
 import CasesManager from './CasesManager';
@@ -17,7 +17,7 @@ import VideosManager from './VideosManager';
 import { apiClient } from '../../lib/api-client';
 import { baseUrl } from '../../lib/base-url';
 
-class ErrorBoundary extends React.Component<
+class ErrorBoundary extends Component<
   { children: React.ReactNode },
   { hasError: boolean; error: Error | null }
 > {
@@ -30,7 +30,7 @@ class ErrorBoundary extends React.Component<
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Admin Panel Error:', error, errorInfo);
   }
 
@@ -62,8 +62,8 @@ class ErrorBoundary extends React.Component<
 }
 
 export default function AdminPanel() {
-  const [error, setError] = React.useState<string | null>(null);
-  const [totalItems, setTotalItems] = React.useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [totalItems, setTotalItems] = useState<number | null>(null);
 
   useEffect(() => {
     // Test if we can access the API
@@ -209,6 +209,9 @@ export default function AdminPanel() {
     </ErrorBoundary>
   );
 }
+
+
+
 
 
 

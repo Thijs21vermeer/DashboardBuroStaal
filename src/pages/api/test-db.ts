@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../lib/azure-db';
+import { getPool } from '../../lib/db-config';
 
 export const GET: APIRoute = async () => {
   try {
@@ -42,3 +42,4 @@ export const GET: APIRoute = async () => {
     });
   }
 };
+

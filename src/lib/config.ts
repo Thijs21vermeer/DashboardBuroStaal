@@ -1,7 +1,28 @@
+// Load environment variables from .env in development
+import './load-env.cjs';
+
 /**
  * Application Configuration
  * Centralized configuration for all environment variables and constants
  */
+
+// ============================================================================
+// Environment Variable Helper (for Node.js and Cloudflare Workers)
+// ============================================================================
+
+function getEnv(key: string): string | undefined {
+  // Try import.meta.env first (works in both dev and production)
+  if (import.meta.env[key]) {
+    return import.meta.env[key];
+  }
+  
+  // Fallback to process.env for Node.js (development mode)
+  if (typeof process !== 'undefined' && process.env?.[key]) {
+    return process.env[key];
+  }
+  
+  return undefined;
+}
 
 // ============================================================================
 // Environment Detection
@@ -14,7 +35,7 @@ export const isProduction = import.meta.env.PROD;
 // Authentication & Security
 // ============================================================================
 
-export const AUTH_SECRET = import.meta.env.AUTH_SECRET || 'burostaal-secret-key-change-in-production';
+export const AUTH_SECRET = getEnv('AUTH_SECRET') || 'burostaal-secret-key-change-in-production';
 export const SESSION_DURATION_HOURS = 24;
 export const SESSION_DURATION_MS = SESSION_DURATION_HOURS * 60 * 60 * 1000;
 export const SESSION_DURATION_SECONDS = SESSION_DURATION_HOURS * 60 * 60;
@@ -24,11 +45,11 @@ export const SESSION_DURATION_SECONDS = SESSION_DURATION_HOURS * 60 * 60;
 // ============================================================================
 
 export const DB_CONFIG = {
-  server: import.meta.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net',
-  database: import.meta.env.AZURE_SQL_DATABASE || 'dashboarddb',
-  user: import.meta.env.AZURE_SQL_USER || 'databasedashboard',
-  password: import.meta.env.AZURE_SQL_PASSWORD || '',
-  port: parseInt(import.meta.env.AZURE_SQL_PORT || '1433', 10),
+  server: getEnv('AZURE_SQL_SERVER') || 'dashboardbs.database.windows.net',
+  database: getEnv('AZURE_SQL_DATABASE') || 'dashboarddb',
+  user: getEnv('AZURE_SQL_USER') || 'databasedashboard',
+  password: getEnv('AZURE_SQL_PASSWORD') || '',
+  port: parseInt(getEnv('AZURE_SQL_PORT') || '1433', 10),
 } as const;
 
 // ============================================================================
@@ -36,8 +57,8 @@ export const DB_CONFIG = {
 // ============================================================================
 
 export const API_CONFIG = {
-  azureFunctionsUrl: import.meta.env.AZURE_FUNCTIONS_URL,
-  useAzureFunctions: !!import.meta.env.AZURE_FUNCTIONS_URL,
+  azureFunctionsUrl: getEnv('AZURE_FUNCTIONS_URL'),
+  useAzureFunctions: !!getEnv('AZURE_FUNCTIONS_URL'),
   timeout: 30000, // 30 seconds
   retryAttempts: 3,
 } as const;
@@ -56,7 +77,7 @@ export const RATE_LIMIT_CONFIG = {
 // Notifications
 // ============================================================================
 
-export const SLACK_WEBHOOK = import.meta.env.SLACK_WEBHOOK;
+export const SLACK_WEBHOOK = getEnv('SLACK_WEBHOOK');
 
 // ============================================================================
 // UI Constants
@@ -175,7 +196,7 @@ export const RELEVANTIE_LEVELS = {
  * Get environment variable with runtime fallback (for Cloudflare Workers)
  */
 export function getEnvVar(key: string, locals?: any): string | undefined {
-  return locals?.runtime?.env?.[key] || import.meta.env[key];
+  return locals?.runtime?.env?.[key] || getEnv(key);
 }
 
 /**
@@ -239,3 +260,8 @@ export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
+
+
+
+

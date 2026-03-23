@@ -1,3 +1,6 @@
+// Load environment variables in development
+import './env-init';
+
 import type {MiddlewareHandler} from 'astro';
 
 export const onRequest: MiddlewareHandler = async (ctx, next) => {
@@ -17,3 +20,4 @@ export const onRequest: MiddlewareHandler = async (ctx, next) => {
 
   return next();
 };
+

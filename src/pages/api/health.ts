@@ -1,18 +1,21 @@
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ locals }) => {
-  const env = locals?.runtime?.env || import.meta.env;
+  // Check multiple sources for environment variables
+  const getEnvValue = (key: string) => {
+    return locals?.runtime?.env?.[key] || import.meta.env[key] || process.env[key];
+  };
   
   return new Response(
     JSON.stringify({
       status: 'ok',
       timestamp: new Date().toISOString(),
       environment: {
-        hasAzureServer: !!env.AZURE_SQL_SERVER,
-        hasAzureDatabase: !!env.AZURE_SQL_DATABASE,
-        hasAzureUser: !!env.AZURE_SQL_USER,
-        hasAzurePassword: !!env.AZURE_SQL_PASSWORD,
-        hasSlackWebhook: !!env.SLACK_WEBHOOK,
+        hasAzureServer: !!getEnvValue('AZURE_SQL_SERVER'),
+        hasAzureDatabase: !!getEnvValue('AZURE_SQL_DATABASE'),
+        hasAzureUser: !!getEnvValue('AZURE_SQL_USER'),
+        hasAzurePassword: !!getEnvValue('AZURE_SQL_PASSWORD'),
+        hasSlackWebhook: !!getEnvValue('SLACK_WEBHOOK'),
       },
       runtime: {
         node: process.version,
@@ -28,4 +31,5 @@ export const GET: APIRoute = async ({ locals }) => {
     }
   );
 };
+
 
