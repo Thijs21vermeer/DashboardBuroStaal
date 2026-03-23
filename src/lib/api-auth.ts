@@ -1,5 +1,5 @@
 import type { APIContext } from 'astro';
-import { getEnvVar } from './config';
+import { AUTH_SECRET } from './config';
 
 /**
  * API Authentication Middleware
@@ -85,7 +85,7 @@ async function validateToken(token: string, secret: string): Promise<TokenPayloa
 export async function requireAuth(
   context: APIContext
 ): Promise<Response | null> {
-  const { request, locals } = context;
+  const { request } = context;
   // Get token from Authorization header
   const authHeader = request.headers.get('Authorization');
   
@@ -104,10 +104,8 @@ export async function requireAuth(
 
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-  // Get AUTH_SECRET from environment
-  const secret = getEnvVar('AUTH_SECRET', locals);
-  
-  if (!secret) {
+  // Use AUTH_SECRET constant which checks JWT_SECRET first
+  if (!AUTH_SECRET) {
     console.error('AUTH_SECRET not configured');
     return new Response(
       JSON.stringify({ 
@@ -122,7 +120,7 @@ export async function requireAuth(
   }
 
   // Validate token
-  const payload = await validateToken(token, secret);
+  const payload = await validateToken(token, AUTH_SECRET);
   
   if (!payload || !payload.authenticated) {
     return new Response(
@@ -140,4 +138,5 @@ export async function requireAuth(
   // Token is valid, allow request to proceed
   return null;
 }
+
 
