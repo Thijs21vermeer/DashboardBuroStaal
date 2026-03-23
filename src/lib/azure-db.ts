@@ -1,5 +1,5 @@
 import sql from 'mssql';
-import { DB_CONFIG, getEnvVar } from './config';
+import { DB_CONFIG, getEnvVar, validateDatabaseConfig } from './config';
 
 /**
  * Database configuration
@@ -31,6 +31,14 @@ let connecting: Promise<sql.ConnectionPool> | null = null;
  * Krijg de database connection pool (met singleton pattern)
  */
 export async function getPool(): Promise<sql.ConnectionPool> {
+  // Validate config first
+  const validation = validateDatabaseConfig();
+  if (!validation.valid) {
+    const error = new Error(`Missing required database environment variables: ${validation.missing.join(', ')}`);
+    console.error('Database configuration error:', error.message);
+    throw error;
+  }
+
   // Als er al een actieve pool is, gebruik die
   if (pool && pool.connected) {
     return pool;
@@ -41,12 +49,22 @@ export async function getPool(): Promise<sql.ConnectionPool> {
     return connecting;
   }
 
+  // Log connection attempt (zonder wachtwoord)
+  console.log('Attempting database connection to:', {
+    server: config.server,
+    database: config.database,
+    user: config.user,
+    port: config.port,
+  });
+
   // Start een nieuwe connectie
   connecting = sql.connect(config);
   
   try {
     pool = await connecting;
     connecting = null;
+    
+    console.log('Database connection successful');
     
     // Error handlers
     pool.on('error', (err) => {
@@ -58,6 +76,16 @@ export async function getPool(): Promise<sql.ConnectionPool> {
   } catch (error) {
     connecting = null;
     console.error('Failed to connect to database:', error);
+    
+    // Provide helpful error message
+    if (error instanceof Error) {
+      if (error.message.includes('Login failed')) {
+        console.error('❌ Login failed - check AZURE_SQL_USER and AZURE_SQL_PASSWORD');
+      } else if (error.message.includes('Cannot open server')) {
+        console.error('❌ Cannot reach server - check firewall rules and AZURE_SQL_SERVER');
+      }
+    }
+    
     throw error;
   }
 }
@@ -226,6 +254,7 @@ export function parseJsonField(jsonString: string | null | undefined): any {
 export function stringifyJsonField(data: any): string {
   return JSON.stringify(data);
 }
+
 
 
 

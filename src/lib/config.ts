@@ -1,6 +1,7 @@
 
 
 
+
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -54,12 +55,38 @@ export const SESSION_DURATION_SECONDS = SESSION_DURATION_HOURS * 60 * 60;
 // ============================================================================
 
 export const DB_CONFIG = {
-  server: getEnv('AZURE_SQL_SERVER') || 'dashboardbs.database.windows.net',
-  database: getEnv('AZURE_SQL_DATABASE') || 'dashboarddb',
-  user: getEnv('AZURE_SQL_USER') || 'databasedashboard',
-  password: getEnv('AZURE_SQL_PASSWORD') || '',
-  port: parseInt(getEnv('AZURE_SQL_PORT') || '1433', 10),
+  server: getEnvVar('AZURE_SQL_SERVER', 'dashboardbs.database.windows.net'),
+  database: getEnvVar('AZURE_SQL_DATABASE', 'dashboarddb'),
+  user: getEnvVar('AZURE_SQL_USER', 'databasedashboard'),
+  password: getEnvVar('AZURE_SQL_PASSWORD', ''),
+  port: parseInt(getEnvVar('AZURE_SQL_PORT', '1433'), 10),
 } as const;
+
+// Log database config (zonder wachtwoord) voor debugging
+if (isDevelopment) {
+  console.log('Database Config:', {
+    server: DB_CONFIG.server,
+    database: DB_CONFIG.database,
+    user: DB_CONFIG.user,
+    hasPassword: !!DB_CONFIG.password,
+    port: DB_CONFIG.port,
+  });
+}
+
+// Validate database config
+export function validateDatabaseConfig(): { valid: boolean; missing: string[] } {
+  const missing: string[] = [];
+  
+  if (!DB_CONFIG.server) missing.push('AZURE_SQL_SERVER');
+  if (!DB_CONFIG.database) missing.push('AZURE_SQL_DATABASE');
+  if (!DB_CONFIG.user) missing.push('AZURE_SQL_USER');
+  if (!DB_CONFIG.password) missing.push('AZURE_SQL_PASSWORD');
+  
+  return {
+    valid: missing.length === 0,
+    missing
+  };
+}
 
 // ============================================================================
 // API Configuration
@@ -269,6 +296,7 @@ export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
 
 
 
