@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Video, PlayCircle, Filter, RefreshCw, Eye, Calendar, Link2, Check, Sparkles, Search } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -8,7 +9,7 @@ import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import type { Video as VideoType } from '../../types';
 import { apiClient } from '../../lib/api-client';
-import { truncateText } from '../../lib/config';
+import { formatDate } from '../../lib/config';
 
 const CATEGORIES = [
   'Alle Categorieën',
@@ -77,15 +78,6 @@ export default function VideosPage() {
       if (match) return match[1];
     }
     return null;
-  };
-
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'Geen datum';
-    return new Date(dateString).toLocaleDateString('nl-NL', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
   };
 
   const getThumbnail = (video: VideoType): string => {
@@ -508,6 +500,7 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
 
 
 

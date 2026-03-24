@@ -1,14 +1,10 @@
 
-
-
-
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle, Search, X } from 'lucide-react';
 import { getBaseUrl } from '../../lib/base-url';
 import { kennisitemsApi, casesApi, trendsApi, nieuwsApi, toolsApi } from '../../lib/api-client';
+import { formatDate } from '../../lib/config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -547,7 +543,7 @@ export function Overview({ onNavigate }: OverviewProps) {
                   <p className="text-sm text-gray-600 mb-2">{item.beschrijving}</p>
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span>{item.auteur}</span>
-                    <span>{item.datum ? new Date(item.datum).toLocaleDateString('nl-NL') : 'Geen datum'}</span>
+                    <span>{formatDate(item.datum)}</span>
                   </div>
                 </div>
               ))}
@@ -558,6 +554,8 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
 
 
 
