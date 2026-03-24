@@ -9,14 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Plus, Edit, Trash2, Search, RefreshCw, Calendar, Newspaper, Save, X, Image as ImageIcon } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { formatDateShort, truncateText } from '../../lib/config';
-import { mockNews } from '../../data/mockData';
-import type { NewsItem } from '../../types';
+import { getBaseUrl } from '../../lib/base-url';
+import type { NieuwsItem } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function NewsManager() {
-  const [items, setItems] = useState<NewsItem[]>([]);
+  const [items, setItems] = useState<NieuwsItem[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
+  const [editingItem, setEditingItem] = useState<NieuwsItem | null>(null);
   const [formData, setFormData] = useState({
     titel: '',
     categorie: 'Bedrijfsnieuws' as 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen',
@@ -37,15 +37,15 @@ export default function NewsManager() {
       const data = await apiClient.nieuws.getAll();
       
       if (data.length === 0) {
-        setItems(mockNews);
-        setConnectionStatus('mock');
+        setItems([]);
+        setConnectionStatus('empty');
       } else {
         setItems(data);
         setConnectionStatus('connected');
       }
     } catch (error) {
       console.error('Error loading items:', error);
-      setItems(mockNews);
+      setItems([]);
       setConnectionStatus('error');
     }
   };
@@ -76,7 +76,7 @@ export default function NewsManager() {
     }
   };
 
-  const handleEdit = (item: NewsItem) => {
+  const handleEdit = (item: NieuwsItem) => {
     setEditingItem(item);
     const tagsString = Array.isArray(item.tags) 
       ? item.tags.join(', ') 
@@ -300,6 +300,7 @@ export default function NewsManager() {
     </div>
   );
 }
+
 
 
 

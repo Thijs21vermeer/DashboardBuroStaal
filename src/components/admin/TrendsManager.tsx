@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -13,7 +14,6 @@ import { Plus, Edit, Trash2, Search, RefreshCw, TrendingUp, Save, X, Calendar, A
 import { apiClient } from '../../lib/api-client';
 import { formatDateShort, truncateText, getRelevantieLevel } from '../../lib/config';
 import { getBaseUrl } from '../../lib/base-url';
-import { mockTrends } from '../../data/mockData';
 import type { Trend } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
@@ -43,15 +43,15 @@ export default function TrendsManager() {
       const data = await apiClient.trends.getAll();
       
       if (data.length === 0) {
-        setItems(mockTrends);
-        setConnectionStatus('mock');
+        setItems([]);
+        setConnectionStatus('empty');
       } else {
         setItems(data);
         setConnectionStatus('connected');
       }
     } catch (error) {
       console.error('Error loading items:', error);
-      setItems(mockTrends);
+      setItems([]);
       setConnectionStatus('error');
     }
   };
@@ -322,6 +322,7 @@ export default function TrendsManager() {
     </div>
   );
 }
+
 
 
 

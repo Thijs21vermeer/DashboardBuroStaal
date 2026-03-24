@@ -16,15 +16,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { getBaseUrl } from '../../lib/base-url';
-import { mockCases } from '../../data/mockData';
-import type { CaseStudy } from '../../types';
+import type { Case } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function CasesManager() {
-  const [cases, setCases] = useState<CaseStudy[]>([]);
+  const [cases, setCases] = useState<Case[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<CaseStudy | null>(null);
+  const [editingItem, setEditingItem] = useState<Case | null>(null);
   const [formData, setFormData] = useState({
     titel: '',
     klant: '',
@@ -47,15 +46,15 @@ export default function CasesManager() {
       const data = await apiClient.cases.getAll();
       
       if (data.length === 0) {
-        setCases(mockCases);
-        setConnectionStatus('mock');
+        setCases([]);
+        setConnectionStatus('empty');
       } else {
         setCases(data);
         setConnectionStatus('connected');
       }
     } catch (error) {
       console.error('Error loading items:', error);
-      setCases(mockCases);
+      setCases([]);
       setConnectionStatus('error');
     }
   };
@@ -89,7 +88,7 @@ export default function CasesManager() {
     }
   };
 
-  const handleEdit = (item: CaseStudy) => {
+  const handleEdit = (item: Case) => {
     setEditingItem(item);
     setFormData({
       titel: item.titel,
@@ -334,6 +333,9 @@ export default function CasesManager() {
     </div>
   );
 }
+
+
+
 
 
 
