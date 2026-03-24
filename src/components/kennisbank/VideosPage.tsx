@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Video, PlayCircle, Filter, RefreshCw, Eye, Calendar, Link2, Check, Sparkles, Search } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -379,7 +380,7 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
             <div className="flex items-center gap-0.5 sm:gap-1">
               <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5" />
               <span className="hidden sm:inline">{formatDate(video.datum_toegevoegd)}</span>
-              <span className="sm:hidden">{video.datum_toegevoegd ? new Date(video.datum_toegevoegd).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' }) : 'Geen datum'}</span>
+              <span className="sm:hidden">{formatDate(video.datum_toegevoegd)}</span>
             </div>
           </div>
           
@@ -507,6 +508,7 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
 
 
 
