@@ -4,8 +4,6 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Search, Newspaper, Calendar, Tag, ArrowRight, Award, Briefcase, User, Users, TrendingUp, Rocket, PartyPopper, RefreshCw } from 'lucide-react';
-import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
 import { NewsDetail } from './NewsDetail';
 import { apiClient } from '../../lib/api-client';
 import { truncateText } from '../../lib/config';
@@ -231,7 +229,7 @@ export function NewsPage() {
                       </Badge>
                       <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {format(new Date(item.datum), 'd MMMM yyyy', { locale: nl })}
+                        {formatDate(item.datum)}
                       </span>
                     </div>
                     <CardTitle className="text-xl mb-1">{item.titel}</CardTitle>
@@ -293,6 +291,8 @@ export function NewsPage() {
     </div>
   );
 }
+
+
 
 
 
