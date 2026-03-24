@@ -1,50 +1,56 @@
 import type { APIRoute } from 'astro';
 import { getPool } from '../../lib/db-config';
-import { getEnvVar } from '../../lib/config';
 
+/**
+ * SECURITY: Minimal health check endpoint
+ * 
+ * Public endpoint for load balancers and monitoring tools.
+ * Returns ONLY the minimum information needed:
+ * - Is the service running? (always yes if this returns)
+ * - Is it healthy? (can it connect to critical dependencies)
+ * - When was it checked?
+ * 
+ * REMOVED for security:
+ * ❌ Which services are configured (reconnaissance)
+ * ❌ Which env vars are set (configuration disclosure)
+ * ❌ Specific error messages (infrastructure details)
+ * ❌ Authentication status (helps attackers)
+ * ❌ Database connection details (infrastructure)
+ * 
+ * Standard health check format:
+ * - 200 OK = Healthy (all critical services working)
+ * - 503 Service Unavailable = Unhealthy (critical service down)
+ */
 export const GET: APIRoute = async ({ locals }) => {
-  let dbStatus = 'unknown';
+  let isHealthy = false;
   
-  // Test database connection
   try {
+    // Test critical dependencies (database)
+    // If this fails, the app cannot function
     const dbPool = await getPool(locals);
     await dbPool.request().query('SELECT 1');
-    dbStatus = 'connected';
+    isHealthy = true;
   } catch (error) {
-    console.error('Health check - database connection failed:', error);
-    dbStatus = 'failed';
+    // Log detailed error server-side only
+    console.error('[HEALTH] Critical dependency check failed:', error);
+    isHealthy = false;
   }
   
-  // SECURITY: Only expose minimal necessary information
-  // Don't expose specific missing env vars to prevent reconnaissance
-  const hasAllDbConfig = !!(
-    getEnvVar('AZURE_SQL_SERVER', locals) &&
-    getEnvVar('AZURE_SQL_DATABASE', locals) &&
-    getEnvVar('AZURE_SQL_USER', locals) &&
-    getEnvVar('AZURE_SQL_PASSWORD', locals)
-  );
-  
-  const hasAuthConfig = !!(
-    getEnvVar('JWT_SECRET', locals) || 
-    getEnvVar('AUTH_SECRET', locals)
-  );
+  // Minimal response - only status + timestamp
+  const response = {
+    status: isHealthy ? 'healthy' : 'unhealthy',
+    timestamp: new Date().toISOString()
+  };
   
   return new Response(
-    JSON.stringify({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      services: {
-        database: dbStatus,
-        authentication: hasAuthConfig ? 'configured' : 'not_configured',
-      }
-    }),
+    JSON.stringify(response),
     {
-      status: dbStatus === 'connected' && hasAuthConfig ? 200 : 503,
+      status: isHealthy ? 200 : 503,
       headers: { 
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'X-Content-Type-Options': 'nosniff'
       }
     }
   );
 };
-
