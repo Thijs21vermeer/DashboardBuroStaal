@@ -110,7 +110,7 @@ export function CaseDetail({ caseId, onBack }: CaseDetailProps) {
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5" />
-          <span>{caseItem.datum ? new Date(caseItem.datum).toLocaleDateString('nl-NL', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Geen datum'}</span>
+          <span>{caseItem.datum ? formatDate(caseItem.datum) : 'Geen datum'}</span>
         </div>
         {caseItem.projectDuur && (
           <div className="flex items-center gap-2">
@@ -326,6 +326,7 @@ export function CaseDetail({ caseId, onBack }: CaseDetailProps) {
     </div>
   );
 }
+
 
 
 

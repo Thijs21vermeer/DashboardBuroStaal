@@ -139,7 +139,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
           <div>
             <p className="text-xs text-gray-500">Datum</p>
             <p className="font-medium text-gray-900">
-              {item.datumToegevoegd ? new Date(item.datumToegevoegd).toLocaleDateString('nl-NL') : 'Geen datum'}
+              {item.datumToegevoegd ? formatDate(item.datumToegevoegd) : 'Geen datum'}
             </p>
           </div>
         </div>
@@ -293,6 +293,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
 
 
 

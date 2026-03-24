@@ -144,7 +144,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
               <div>
                 <p className="text-xs text-gray-500">Datum</p>
                 <p className="font-medium text-gray-900 text-sm sm:text-base">
-                  {trend.datum ? new Date(trend.datum).toLocaleDateString('nl-NL') : 'Geen datum'}
+                  {trend.datum ? formatDate(trend.datum) : 'Geen datum'}
                 </p>
               </div>
             </div>
@@ -260,6 +260,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+
 
 
 
