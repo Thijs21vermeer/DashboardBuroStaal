@@ -3,7 +3,6 @@
 
 
 
-
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -50,6 +49,10 @@ export const isProduction =
 /**
  * Get AUTH_SECRET at runtime from locals or environment
  * This is CRITICAL for Netlify where env vars come from locals.runtime.env
+ * 
+ * SECURITY: In production, we FAIL CLOSED if no secret is configured.
+ * A default secret is a security vulnerability - anyone with access to the code
+ * can generate valid tokens.
  */
 export function getAuthSecret(locals?: any): string {
   // Try locals.runtime.env first (Netlify/Cloudflare runtime)
@@ -57,8 +60,36 @@ export function getAuthSecret(locals?: any): string {
     locals?.runtime?.env?.JWT_SECRET || 
     locals?.runtime?.env?.AUTH_SECRET ||
     getEnv('JWT_SECRET') || 
-    getEnv('AUTH_SECRET') || 
-    'burostaal-secret-key-change-in-production';
+    getEnv('AUTH_SECRET');
+  
+  // SECURITY: FAIL CLOSED in production if no secret is configured
+  if (!secret) {
+    if (isProduction) {
+      console.error('🚨 SECURITY ERROR: No JWT_SECRET or AUTH_SECRET configured in production!');
+      throw new Error('Authentication secret not configured. Application cannot start.');
+    }
+    
+    // In development, allow a default for convenience, but warn loudly
+    console.warn('⚠️  WARNING: Using default auth secret in development. DO NOT use in production!');
+    return 'dev-only-secret-DO-NOT-USE-IN-PRODUCTION';
+  }
+  
+  // Additional validation: Reject known unsafe secrets
+  const unsafeSecrets = [
+    'burostaal-secret-key-change-in-production',
+    'change-me',
+    'secret',
+    'password',
+    'dev-only-secret-DO-NOT-USE-IN-PRODUCTION',
+  ];
+  
+  if (unsafeSecrets.includes(secret)) {
+    if (isProduction) {
+      console.error('🚨 SECURITY ERROR: Unsafe/default secret detected in production!');
+      throw new Error('Unsafe authentication secret detected. Application cannot start.');
+    }
+    console.warn('⚠️  WARNING: Using unsafe secret in development.');
+  }
   
   return secret;
 }
@@ -353,6 +384,7 @@ export function formatDateShort(date: string | Date | undefined | null): string 
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
 
 
 

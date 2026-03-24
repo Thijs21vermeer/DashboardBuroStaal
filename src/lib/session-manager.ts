@@ -42,9 +42,16 @@ async function generateSignature(data: string, secret: string): Promise<string> 
 /**
  * Generate a JWT token
  * IMPORTANT: Pass locals from API context for Netlify compatibility
+ * SECURITY: Will throw in production if no secret is configured (fail closed)
  */
 export async function generateToken(locals?: any): Promise<string> {
-  const secret = getAuthSecret(locals);
+  let secret: string;
+  try {
+    secret = getAuthSecret(locals);
+  } catch (error) {
+    console.error('🚨 CRITICAL: Cannot generate token - auth secret not configured');
+    throw new Error('Authentication not properly configured');
+  }
   
   // JWT header
   const header = {
@@ -75,6 +82,7 @@ export async function generateToken(locals?: any): Promise<string> {
 /**
  * Create a new session (alias for generateToken)
  * IMPORTANT: Pass locals from API context for Netlify compatibility
+ * SECURITY: Will throw in production if no secret is configured (fail closed)
  */
 export async function createSession(locals?: any): Promise<string> {
   return await generateToken(locals);
@@ -83,11 +91,19 @@ export async function createSession(locals?: any): Promise<string> {
 /**
  * Validate a JWT token
  * IMPORTANT: Pass locals from API context for Netlify compatibility
+ * SECURITY: Will throw in production if no secret is configured (fail closed)
  */
 export async function validateToken(token: string, locals?: any): Promise<boolean> {
   if (!token) return false;
 
-  const secret = getAuthSecret(locals);
+  let secret: string;
+  try {
+    secret = getAuthSecret(locals);
+  } catch (error) {
+    console.error('🚨 CRITICAL: Cannot validate token - auth secret not configured');
+    return false; // Fail closed - reject token
+  }
+  
   const parts = token.split('.');
   
   if (parts.length !== 3) {
@@ -151,4 +167,5 @@ export function deleteSession(): void {
 export function getActiveSessionCount(): number {
   return 0; // Stateless - we don't track sessions
 }
+
 

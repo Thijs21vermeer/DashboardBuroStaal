@@ -45,7 +45,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
       resetRateLimit(request);
       
       // Genereer een echte JWT token (met locals voor Netlify)
-      const token = await generateToken(locals);
+      // SECURITY: This will throw in production if no secret is configured (fail closed)
+      let token: string;
+      try {
+        token = await generateToken(locals);
+      } catch (error) {
+        console.error('🚨 CRITICAL: Cannot generate token during login:', error);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: 'Authentication not properly configured. Please contact the administrator.' 
+          }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      }
       
       // Set HttpOnly cookie (veilig tegen XSS)
       const cookieOptions = [
@@ -98,6 +114,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   }
 };
+
 
 
 

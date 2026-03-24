@@ -121,10 +121,13 @@ export async function requireAuth(
   }
 
   // Get AUTH_SECRET from runtime (critical for Netlify)
-  const secret = getAuthSecret(locals);
-  
-  if (!secret) {
-    console.error('AUTH_SECRET not configured');
+  // SECURITY: This will throw in production if no secret is configured (fail closed)
+  let secret: string;
+  try {
+    secret = getAuthSecret(locals);
+  } catch (error) {
+    // In production, getAuthSecret throws if no secret is configured
+    console.error('🚨 CRITICAL: Cannot get auth secret:', error);
     return new Response(
       JSON.stringify({ 
         error: 'Server configuration error',
@@ -156,5 +159,6 @@ export async function requireAuth(
   // Token is valid, allow request to proceed
   return null;
 }
+
 
 
