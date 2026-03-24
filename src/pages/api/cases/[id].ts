@@ -1,8 +1,45 @@
 import type { APIRoute } from 'astro';
+import { getPool } from '../../../lib/azure-db';
 import sql from 'mssql';
-import { getPool, handleDbError } from '../../../lib/db-config';
-import type { CaseStudy } from '../../../types';
 import { requireAuth } from '../../../lib/api-auth';
+import type { Case, CaseRequest } from '../../../types';
+
+interface CaseStudy {
+  id: number;
+  titel: string;
+  klant: string;
+  industrie: string;
+  uitdaging: string;
+  oplossing: string;
+  resultaten: string[];
+  tags: string[];
+  eigenaar: string;
+  datum: string;
+  imageUrl?: string;
+  featured: boolean;
+  type?: string;
+  projectDuur?: string;
+  team: string[];
+  status: string;
+  budget?: string;
+  roi?: string;
+  referenties: string[];
+}
+
+// Helper functie voor database errors
+function handleDbError(error: unknown, operation: string): Response {
+  console.error(`Database error during ${operation}:`, error);
+  return new Response(
+    JSON.stringify({ 
+      error: 'Database error', 
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    }), 
+    {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+}
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToCaseStudy(dbRecord: any): CaseStudy {
@@ -119,7 +156,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const data = await request.json();
+    const data = (await request.json()) as CaseRequest;
     const dbPool = await getPool(locals);
 
     const result = await dbPool.request()
@@ -133,7 +170,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       .input('referenties', sql.NVarChar(sql.MAX), JSON.stringify(data.referenties || []))
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
       .input('eigenaar', sql.NVarChar, data.eigenaar || null)
-      .input('project_duur', sql.NVarChar, data.projectDuur || null)
+      .input('project_duur', sql.NVarChar, data.project_duur || null)
       .input('team_size', sql.NVarChar, data.teamSize || null)
       .input('image_url', sql.NVarChar, data.imageUrl || null)
       .query(`
@@ -208,16 +245,4 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     return handleDbError(error, 'delete case');
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
 

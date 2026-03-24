@@ -17,14 +17,14 @@ import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { getBaseUrl } from '../../lib/base-url';
 import { mockCases } from '../../data/mockData';
-import type { Case } from '../../types';
+import type { CaseStudy } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function CasesManager() {
-  const [items, setItems] = useState<Case[]>([]);
+  const [cases, setCases] = useState<CaseStudy[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Case | null>(null);
+  const [editingItem, setEditingItem] = useState<CaseStudy | null>(null);
   const [formData, setFormData] = useState({
     titel: '',
     klant: '',
@@ -47,15 +47,15 @@ export default function CasesManager() {
       const data = await apiClient.cases.getAll();
       
       if (data.length === 0) {
-        setItems(mockCases);
+        setCases(mockCases);
         setConnectionStatus('mock');
       } else {
-        setItems(data);
+        setCases(data);
         setConnectionStatus('connected');
       }
     } catch (error) {
       console.error('Error loading items:', error);
-      setItems(mockCases);
+      setCases(mockCases);
       setConnectionStatus('error');
     }
   };
@@ -75,10 +75,10 @@ export default function CasesManager() {
     try {
       if (editingItem) {
         const updated = await apiClient.cases.update(editingItem.id, caseData);
-        setItems(items.map(i => i.id === editingItem.id ? updated : i));
+        setCases(cases.map(i => i.id === editingItem.id ? updated : i));
       } else {
         const newCase = await apiClient.cases.create(caseData);
-        setItems([newCase, ...items]);
+        setCases([newCase, ...cases]);
       }
       
       resetForm();
@@ -89,7 +89,7 @@ export default function CasesManager() {
     }
   };
 
-  const handleEdit = (item: Case) => {
+  const handleEdit = (item: CaseStudy) => {
     setEditingItem(item);
     setFormData({
       titel: item.titel,
@@ -112,7 +112,7 @@ export default function CasesManager() {
 
     try {
       await apiClient.cases.delete(id);
-      setItems(items.filter(i => i.id !== id));
+      setCases(cases.filter(i => i.id !== id));
       alert('✅ Case succesvol verwijderd');
     } catch (err) {
       console.error('Error deleting case:', err);
@@ -135,7 +135,7 @@ export default function CasesManager() {
     });
   };
 
-  const filteredItems = items.filter(item =>
+  const filteredItems = cases.filter(item =>
     item.titel.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.klant.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -322,7 +322,7 @@ export default function CasesManager() {
               <div>
                 <strong className="text-sm">Resultaten:</strong>
                 <ul className="list-disc list-inside text-sm text-gray-600 mt-1">
-                  {(typeof item.resultaten === 'string' ? item.resultaten.split('\n').filter(Boolean) : Array.isArray(item.resultaten) ? item.resultaten : []).map((result: string, idx: number) => (
+                  {(Array.isArray(item.resultaten) ? item.resultaten : []).map((result: string, idx: number) => (
                     <li key={idx}>{result}</li>
                   ))}
                 </ul>
@@ -334,6 +334,8 @@ export default function CasesManager() {
     </div>
   );
 }
+
+
 
 
 

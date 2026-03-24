@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import type { Partner, PartnerRequest } from '../../../types';
 import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
@@ -53,7 +54,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const data = await request.json();
+    const data = (await request.json()) as PartnerRequest;
     const dbPool = await getPool(locals);
     const { naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertiseGebieden, volgorde } = data;
 
@@ -99,6 +100,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
+
+
 
 
 

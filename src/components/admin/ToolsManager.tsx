@@ -1,3 +1,6 @@
+
+
+
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Code, Search, Save, X, Wrench } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -37,23 +40,15 @@ export default function ToolsManager() {
     e.preventDefault();
     
     try {
-      const url = editingTool.id
-        ? `${baseUrl}/api/tools/${editingTool.id}`
-        : `${baseUrl}/api/tools`;
-      
-      const method = editingTool.id ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingTool),
-      });
-
-      if (response.ok) {
-        loadTools();
-        setIsEditing(false);
-        setEditingTool({});
+      if (editingTool.id) {
+        await apiClient.tools.update(editingTool.id, editingTool);
+      } else {
+        await apiClient.tools.create(editingTool);
       }
+      
+      loadTools();
+      setIsEditing(false);
+      setEditingTool({});
     } catch (error) {
       console.error('Error saving tool:', error);
     }
@@ -76,12 +71,17 @@ export default function ToolsManager() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number | undefined) => {
+    if (!id) {
+      console.error('Ongeldige tool ID');
+      return;
+    }
+    
     if (!confirm('Weet je zeker dat je deze tool wilt verwijderen?')) return;
-
+    
     try {
       await apiClient.tools.delete(id);
-      loadTools();
+      await loadTools();
     } catch (error) {
       console.error('Error deleting tool:', error);
     }
@@ -101,12 +101,10 @@ export default function ToolsManager() {
     if (!searchTerm) return true;
     const search = searchTerm.toLowerCase();
     return (
-      tool.titel.toLowerCase().includes(search) ||
+      tool.naam.toLowerCase().includes(search) ||
       tool.beschrijving?.toLowerCase().includes(search) ||
-      tool.code.toLowerCase().includes(search) ||
       tool.tags?.toLowerCase().includes(search) ||
-      tool.categorie.toLowerCase().includes(search) ||
-      tool.taal?.toLowerCase().includes(search)
+      tool.categorie.toLowerCase().includes(search)
     );
   });
 
@@ -152,11 +150,11 @@ export default function ToolsManager() {
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Titel *</label>
+              <label className="block text-sm font-medium mb-1">Naam *</label>
               <Input
                 required
-                value={editingTool.titel || ''}
-                onChange={(e) => setEditingTool({ ...editingTool, titel: e.target.value })}
+                value={editingTool.naam || ''}
+                onChange={(e) => setEditingTool({ ...editingTool, naam: e.target.value })}
                 placeholder="Bijv: Database Connection String"
               />
             </div>
@@ -180,46 +178,25 @@ export default function ToolsManager() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Taal</label>
-                <select
-                  value={editingTool.taal || ''}
-                  onChange={(e) => setEditingTool({ ...editingTool, taal: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-sm"
-                >
-                  <option value="">Selecteer...</option>
-                  <option value="bash">Bash</option>
-                  <option value="typescript">TypeScript</option>
-                  <option value="javascript">JavaScript</option>
-                  <option value="sql">SQL</option>
-                  <option value="json">JSON</option>
-                  <option value="yaml">YAML</option>
-                  <option value="python">Python</option>
-                  <option value="css">CSS</option>
-                  <option value="html">HTML</option>
-                </select>
+                <label className="block text-sm font-medium mb-1">URL</label>
+                <Input
+                  value={editingTool.url || ''}
+                  onChange={(e) => setEditingTool({ ...editingTool, url: e.target.value })}
+                  placeholder="https://..."
+                  className="text-sm"
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Beschrijving</label>
-              <Textarea
-                value={editingTool.beschrijving || ''}
-                onChange={(e) => setEditingTool({ ...editingTool, beschrijving: e.target.value })}
-                placeholder="Korte uitleg over wat deze tool doet..."
-                rows={2}
-                className="text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Code / Command *</label>
+              <label className="block text-sm font-medium mb-1">Beschrijving *</label>
               <Textarea
                 required
-                value={editingTool.code || ''}
-                onChange={(e) => setEditingTool({ ...editingTool, code: e.target.value })}
-                placeholder="De tool, snippet of command..."
-                rows={6}
-                className="font-mono text-xs sm:text-sm"
+                value={editingTool.beschrijving || ''}
+                onChange={(e) => setEditingTool({ ...editingTool, beschrijving: e.target.value })}
+                placeholder="Beschrijving van deze tool..."
+                rows={4}
+                className="text-sm"
               />
             </div>
 
@@ -245,19 +222,6 @@ export default function ToolsManager() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="favoriet"
-                checked={editingTool.favoriet || false}
-                onChange={(e) => setEditingTool({ ...editingTool, favoriet: e.target.checked })}
-                className="w-4 h-4"
-              />
-              <label htmlFor="favoriet" className="text-sm font-medium">
-                Markeer als favoriet
-              </label>
-            </div>
-
             <div className="flex flex-col sm:flex-row gap-2">
               <Button type="submit" className="bg-[#280bc4] text-white hover:bg-[#1f0a9a] w-full sm:w-auto">
                 {editingTool.id ? 'Bijwerken' : 'Toevoegen'}
@@ -276,28 +240,21 @@ export default function ToolsManager() {
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <h3 className="font-bold text-sm sm:text-base break-words">{tool.titel}</h3>
-                  {tool.favoriet && (
-                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">Favoriet</Badge>
-                  )}
+                  <h3 className="font-bold text-sm sm:text-base break-words">{tool.naam}</h3>
                   <Badge variant="outline" className="text-xs">{tool.categorie}</Badge>
-                  {tool.taal && (
-                    <Badge variant="secondary" className="text-xs">{tool.taal}</Badge>
-                  )}
                 </div>
                 {tool.beschrijving && (
                   <p className="text-xs sm:text-sm text-gray-600 mb-2 break-words">{tool.beschrijving}</p>
                 )}
-                <div className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2 max-w-full">
-                  <pre className="whitespace-pre-wrap break-all">
-                    <code>{tool.code.length > 100 ? tool.code.substring(0, 100) + '...' : tool.code}</code>
-                  </pre>
-                </div>
+                {tool.url && (
+                  <div className="mb-2">
+                    <a href={tool.url} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm text-blue-600 hover:underline break-all">
+                      {tool.url}
+                    </a>
+                  </div>
+                )}
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500">
                   {tool.eigenaar && <span>👤 {tool.eigenaar}</span>}
-                  {tool.gebruik_count !== undefined && tool.gebruik_count > 0 && (
-                    <span>📋 {tool.gebruik_count}x gebruikt</span>
-                  )}
                   {tool.tags && <span className="break-words">🏷️ {tool.tags}</span>}
                 </div>
               </div>
@@ -333,6 +290,14 @@ export default function ToolsManager() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

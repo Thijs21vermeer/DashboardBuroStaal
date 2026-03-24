@@ -3,23 +3,26 @@ import { getPool } from '../../lib/db-config';
 
 export const GET: APIRoute = async ({ locals }) => {
   try {
+    // Type-safe runtime access (may not exist in all environments)
+    const runtime = (locals as any)?.runtime;
+    
     // Check environment variables (without exposing sensitive data)
     const envCheck = {
-      JWT_SECRET: !!import.meta.env.JWT_SECRET || !!(locals?.runtime?.env?.JWT_SECRET),
-      AZURE_SQL_SERVER: !!import.meta.env.AZURE_SQL_SERVER || !!(locals?.runtime?.env?.AZURE_SQL_SERVER),
-      AZURE_SQL_DATABASE: !!import.meta.env.AZURE_SQL_DATABASE || !!(locals?.runtime?.env?.AZURE_SQL_DATABASE),
-      AZURE_SQL_USER: !!import.meta.env.AZURE_SQL_USER || !!(locals?.runtime?.env?.AZURE_SQL_USER),
-      AZURE_SQL_PASSWORD: !!import.meta.env.AZURE_SQL_PASSWORD || !!(locals?.runtime?.env?.AZURE_SQL_PASSWORD),
+      JWT_SECRET: !!import.meta.env.JWT_SECRET || !!(runtime?.env?.JWT_SECRET),
+      AZURE_SQL_SERVER: !!import.meta.env.AZURE_SQL_SERVER || !!(runtime?.env?.AZURE_SQL_SERVER),
+      AZURE_SQL_DATABASE: !!import.meta.env.AZURE_SQL_DATABASE || !!(runtime?.env?.AZURE_SQL_DATABASE),
+      AZURE_SQL_USER: !!import.meta.env.AZURE_SQL_USER || !!(runtime?.env?.AZURE_SQL_USER),
+      AZURE_SQL_PASSWORD: !!import.meta.env.AZURE_SQL_PASSWORD || !!(runtime?.env?.AZURE_SQL_PASSWORD),
       
       // Check sources
       fromImportMeta: !!import.meta.env?.JWT_SECRET || !!import.meta.env?.AUTH_SECRET,
-      fromLocalsRuntime: !!locals?.runtime?.env?.JWT_SECRET || !!locals?.runtime?.env?.AUTH_SECRET,
+      fromLocalsRuntime: !!(runtime?.env?.JWT_SECRET) || !!(runtime?.env?.AUTH_SECRET),
       
       // Platform info
       platform: import.meta.env.MODE,
       hasLocals: !!locals,
-      hasRuntime: !!locals?.runtime,
-      hasEnv: !!locals?.runtime?.env,
+      hasRuntime: !!runtime,
+      hasEnv: !!(runtime?.env),
     };
 
     // Test database connection
@@ -66,6 +69,7 @@ export const GET: APIRoute = async ({ locals }) => {
     );
   }
 };
+
 
 
 

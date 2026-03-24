@@ -1,4 +1,5 @@
 
+
 /**
  * API Client - Centralized API calls with authentication
  * 
@@ -210,6 +211,25 @@ export const teamApi = {
 };
 
 /**
+ * Partners API
+ */
+export const partnersApi = {
+  getAll: () => apiFetch<any[]>('/partners'),
+  getById: (id: number) => apiFetch<any>(`/partners/${id}`),
+  create: (data: any) => apiFetch<any>('/partners', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  update: (id: number, data: any) => apiFetch<any>(`/partners/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  }),
+  delete: (id: number) => apiFetch<void>(`/partners/${id}`, {
+    method: 'DELETE',
+  }),
+};
+
+/**
  * Unified API Client export
  */
 export const apiClient = {
@@ -220,6 +240,7 @@ export const apiClient = {
   tools: toolsApi,
   videos: videosApi,
   team: teamApi,
+  partners: partnersApi,
 };
 
 /**
@@ -229,5 +250,6 @@ if (typeof window !== 'undefined') {
   console.log(`🔌 API Client initialized`);
   console.log(`📍 Base URL: ${baseUrl}/api`);
 }
+
 
 

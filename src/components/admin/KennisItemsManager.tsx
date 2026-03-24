@@ -6,6 +6,7 @@ import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Badge } from '../ui/badge';
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { KENNISITEM_TYPES } from '../../lib/config';
@@ -25,11 +26,11 @@ export default function KennisItemsManager() {
     type: 'Artikel',
     categorie: '',
     tags: '',
-    gekoppeld_project: '',
+    gekoppeldProject: '',
     eigenaar: '',
     samenvatting: '',
     inhoud: '',
-    video_link: '',
+    videoLink: '',
     afbeelding: '',
   });
 
@@ -97,12 +98,12 @@ export default function KennisItemsManager() {
       titel: item.titel,
       type: item.type,
       categorie: item.categorie || '',
-      tags: Array.isArray(item.tags) ? item.tags.join(', ') : item.tags,
-      gekoppeld_project: item.gekoppeld_project || '',
+      tags: Array.isArray(item.tags) ? item.tags.join(', ') : item.tags || '',
+      gekoppeldProject: item.gekoppeldProject || '',
       eigenaar: item.eigenaar,
       samenvatting: item.samenvatting,
       inhoud: item.inhoud,
-      video_link: item.video_link || '',
+      videoLink: item.videoLink || '',
       afbeelding: item.afbeelding || '',
     });
     setIsDialogOpen(true);
@@ -126,11 +127,11 @@ export default function KennisItemsManager() {
       type: 'Artikel',
       categorie: '',
       tags: '',
-      gekoppeld_project: '',
+      gekoppeldProject: '',
       eigenaar: '',
       samenvatting: '',
       inhoud: '',
-      video_link: '',
+      videoLink: '',
       afbeelding: '',
     });
   };
@@ -233,12 +234,12 @@ export default function KennisItemsManager() {
 
               {formData.type === 'Video' && (
                 <div>
-                  <Label htmlFor="video_link">Video Link</Label>
+                  <Label htmlFor="videoLink">Video Link</Label>
                   <Input
-                    id="video_link"
+                    id="videoLink"
                     type="url"
-                    value={formData.video_link}
-                    onChange={(e) => setFormData({ ...formData, video_link: e.target.value })}
+                    value={formData.videoLink}
+                    onChange={(e) => setFormData({ ...formData, videoLink: e.target.value })}
                     placeholder="https://youtube.com/watch?v=..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -423,10 +424,10 @@ export default function KennisItemsManager() {
             <CardContent>
               <p className="text-sm text-gray-600 mb-2">{item.samenvatting}</p>
               <div className="flex flex-wrap gap-1 mt-2">
-                {(typeof item.tags === 'string' ? item.tags.split(',') : []).map((tag: string, idx: number) => (
-                  <span key={idx} className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                    {tag.trim()}
-                  </span>
+                {(Array.isArray(item.tags) ? item.tags : []).map((tag: string, idx: number) => (
+                  <Badge key={idx} variant="secondary" className="text-xs">
+                    {tag}
+                  </Badge>
                 ))}
               </div>
             </CardContent>
@@ -436,6 +437,13 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

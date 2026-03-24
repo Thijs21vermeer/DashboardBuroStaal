@@ -1,38 +1,10 @@
 import type { APIRoute } from 'astro';
-import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { NewsItem } from '../../../types';
+import type { NewsItem, NewsRequest } from '../../../types';
 
-// Helper functie om database records te mappen naar TypeScript types
-function mapDbToNewsItem(dbRecord: any): NewsItem {
-  let tags: string[] = [];
-  
-  if (dbRecord.tags) {
-    try {
-      // Probeer te parsen als JSON
-      const parsed = JSON.parse(dbRecord.tags);
-      tags = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      // Als het geen JSON is, splits de string op komma's
-      if (typeof dbRecord.tags === 'string') {
-        tags = dbRecord.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag);
-      }
-    }
-  }
-  
-  return {
-    id: String(dbRecord.id),
-    titel: dbRecord.titel,
-    categorie: dbRecord.categorie as 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen',
-    inhoud: dbRecord.inhoud,
-    auteur: dbRecord.auteur,
-    datum: dbRecord.datum,
-    tags,
-  };
-}
-
-// GET - Haal alle nieuwsitems op
+// GET - Haal alle nieuwsberichten op
 export const GET: APIRoute = async ({ request, locals }) => {
   // Check authentication
   const authError = await requireAuth({ request, locals });
@@ -64,7 +36,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const data = await request.json();
+    const data = (await request.json()) as NewsRequest;
     const dbPool = await getPool(locals);
     
     const result = await dbPool.request()
@@ -90,6 +62,38 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return handleDbError(error, 'create nieuws');
   }
 };
+
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToNewsItem(dbRecord: any): NewsItem {
+  let tags: string[] = [];
+  
+  if (dbRecord.tags) {
+    try {
+      // Probeer te parsen als JSON
+      const parsed = JSON.parse(dbRecord.tags);
+      tags = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      // Als het geen JSON is, splits de string op komma's
+      if (typeof dbRecord.tags === 'string') {
+        tags = dbRecord.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag);
+      }
+    }
+  }
+  
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    categorie: dbRecord.categorie as 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen',
+    inhoud: dbRecord.inhoud,
+    auteur: dbRecord.auteur,
+    datum: dbRecord.datum,
+    tags,
+  };
+}
+
+
+
+
 
 
 

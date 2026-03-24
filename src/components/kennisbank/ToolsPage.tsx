@@ -75,6 +75,19 @@ export default function ToolsPage() {
     loadData();
   }, []);
 
+  const fetchTools = async () => {
+    try {
+      setLoading(true);
+      const data = await apiClient.tools.getAll();
+      setTools(data);
+      setFilteredTools(data);
+    } catch (error) {
+      console.error('Error loading tools:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     let result = tools;
 
@@ -324,6 +337,7 @@ export default function ToolsPage() {
     </div>
   );
 }
+
 
 
 

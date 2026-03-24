@@ -1,48 +1,10 @@
 import type { APIRoute } from 'astro';
+import { getPool } from '../../../lib/azure-db';
 import sql from 'mssql';
-import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
-import type { Video } from '../../../types';
+import type { Video, VideoRequest } from '../../../types';
 
-// Helper: YouTube video ID extraheren
-function extractYouTubeId(url: string): string | null {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /^([a-zA-Z0-9_-]{11})$/
-  ];
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) return match[1];
-  }
-  return null;
-}
-
-// Helper: YouTube thumbnail URL genereren
-function getYouTubeThumbnail(url: string): string | null {
-  const videoId = extractYouTubeId(url);
-  if (!videoId) return null;
-  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-}
-
-// Mapper functie
-function mapVideo(row: any): Video {
-  return {
-    id: Number(row.id),
-    titel: String(row.titel || ''),
-    beschrijving: row.beschrijving ? String(row.beschrijving) : undefined,
-    youtube_url: String(row.youtube_url || ''),
-    thumbnail_url: row.thumbnail_url ? String(row.thumbnail_url) : undefined,
-    categorie: String(row.categorie || ''),
-    tags: row.tags ? String(row.tags) : undefined,
-    eigenaar: row.eigenaar ? String(row.eigenaar) : undefined,
-    datum_toegevoegd: row.datum_toegevoegd ? new Date(row.datum_toegevoegd).toISOString() : new Date().toISOString(),
-    laatst_bijgewerkt: row.laatst_bijgewerkt ? new Date(row.laatst_bijgewerkt).toISOString() : new Date().toISOString(),
-    views: Number(row.views || 0),
-    featured: Boolean(row.featured)
-  };
-}
-
+// GET - Haal een specifieke video op
 export const GET: APIRoute = async ({ params, request, locals }) => {
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
@@ -82,17 +44,26 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
   }
 };
 
+// PUT - Werk een video bij
 export const PUT: APIRoute = async ({ params, request, locals }) => {
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
+  const { id } = params;
+  
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'Video ID is verplicht' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
   try {
-    const { id } = params;
-    const data = await request.json();
+    const data = await request.json() as VideoRequest & { thumbnail_url?: string };
     const dbPool = await getPool(locals);
     
-    if (!id) {
-      return new Response(JSON.stringify({ error: 'Video ID is required' }), {
+    if (!data.titel || !data.youtube_url || !data.categorie) {
+      return new Response(JSON.stringify({ error: 'Titel, YouTube URL en categorie zijn verplicht' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -103,7 +74,8 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     // Als youtube_url is gewijzigd, update ook de thumbnail
     let thumbnail_url = data.thumbnail_url;
     if (data.youtube_url) {
-      thumbnail_url = getYouTubeThumbnail(data.youtube_url);
+      const thumb = getYouTubeThumbnail(data.youtube_url);
+      thumbnail_url = thumb ?? undefined;
     }
     
     const result = await dbPool.request()
@@ -159,6 +131,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   }
 };
 
+// DELETE - Verwijder een video
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
@@ -190,6 +163,48 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+// Helper: YouTube video ID extraheren
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+// Helper: YouTube thumbnail URL genereren
+function getYouTubeThumbnail(url: string): string | null {
+  const videoId = extractYouTubeId(url);
+  if (!videoId) return null;
+  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+}
+
+// Mapper functie
+function mapVideo(row: any): Video {
+  return {
+    id: Number(row.id),
+    titel: String(row.titel || ''),
+    beschrijving: row.beschrijving ? String(row.beschrijving) : undefined,
+    youtube_url: String(row.youtube_url || ''),
+    thumbnail_url: row.thumbnail_url ? String(row.thumbnail_url) : undefined,
+    categorie: String(row.categorie || ''),
+    tags: row.tags ? String(row.tags) : undefined,
+    eigenaar: row.eigenaar ? String(row.eigenaar) : undefined,
+    datum_toegevoegd: row.datum_toegevoegd ? new Date(row.datum_toegevoegd).toISOString() : new Date().toISOString(),
+    laatst_bijgewerkt: row.laatst_bijgewerkt ? new Date(row.laatst_bijgewerkt).toISOString() : new Date().toISOString(),
+    views: Number(row.views || 0),
+    featured: Boolean(row.featured)
+  };
+}
+
+
+
 
 
 

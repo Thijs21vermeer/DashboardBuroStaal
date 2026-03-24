@@ -1,24 +1,8 @@
 import type { APIRoute } from 'astro';
-import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { Trend } from '../../../types';
-
-// Helper functie om database records te mappen naar TypeScript types
-function mapDbToTrend(dbRecord: any): Trend {
-  return {
-    id: String(dbRecord.id),
-    titel: dbRecord.titel,
-    categorie: dbRecord.categorie,
-    beschrijving: dbRecord.beschrijving,
-    relevantie: dbRecord.relevantie as 'Hoog' | 'Middel' | 'Laag',
-    bronnen: dbRecord.bronnen ? JSON.parse(dbRecord.bronnen) : [],
-    datum: dbRecord.datum_toegevoegd,
-    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
-    impact: dbRecord.impact || '',
-    eigenaar: dbRecord.eigenaar || 'Onbekend',
-  };
-}
+import type { Trend, TrendRequest } from '../../../types';
 
 // GET - Haal een specifieke trend op
 export const GET: APIRoute = async ({ params, request, locals }) => {
@@ -66,7 +50,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const data = await request.json();
+    const data = (await request.json()) as TrendRequest;
     const dbPool = await getPool(locals);
 
     const result = await dbPool.request()
@@ -147,6 +131,27 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     return handleDbError(error, 'delete trend');
   }
 };
+
+// Helper functie om database records te mappen naar TypeScript types
+function mapDbToTrend(dbRecord: any): Trend {
+  return {
+    id: String(dbRecord.id),
+    titel: dbRecord.titel,
+    categorie: dbRecord.categorie,
+    beschrijving: dbRecord.beschrijving,
+    relevantie: dbRecord.relevantie as 'Hoog' | 'Middel' | 'Laag',
+    bronnen: dbRecord.bronnen ? JSON.parse(dbRecord.bronnen) : [],
+    datum: dbRecord.datum_toegevoegd,
+    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
+    impact: dbRecord.impact || '',
+    eigenaar: dbRecord.eigenaar || 'Onbekend',
+  };
+}
+
+
+
+
+
 
 
 

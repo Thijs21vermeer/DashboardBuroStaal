@@ -24,7 +24,10 @@ async function checkNews() {
     console.error('❌ Error:', err);
   } finally {
     await sql.close();
+    // Close the global connection pool
+    await (sql as any).globalPool?.close();
   }
 }
 
 checkNews();
+

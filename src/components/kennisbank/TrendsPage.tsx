@@ -1,37 +1,94 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Search, TrendingUp, Calendar, Tag, ArrowRight, AlertCircle, CheckCircle, Filter, Lightbulb, RefreshCw } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Search, TrendingUp, Calendar, AlertCircle, Filter, Lightbulb, RefreshCw, ArrowRight } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { formatDate } from '../../lib/config';
 import { TrendDetail } from './TrendDetail';
 
+interface Trend {
+  id: number;
+  titel: string;
+  beschrijving: string;
+  categorie: string;
+  relevantie: string;
+  impact?: string;
+  bronnen?: string[];
+  eigenaar?: string;
+  datumToegevoegd?: string;
+  datum?: string;
+  createdAt?: string;
+}
+
 export function TrendsPage() {
-  const [trends, setTrends] = useState([]);
+  const [trends, setTrends] = useState<Trend[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategorie, setSelectedCategorie] = useState('alle');
   const [selectedRelevantie, setSelectedRelevantie] = useState('alle');
   const [sortBy, setSortBy] = useState<'recent' | 'relevantie' | 'titel'>('recent');
   const [selectedTrendId, setSelectedTrendId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await apiClient.trends.getAll();
-        setTrends(data);
-        setFilteredTrends(data);
-      } catch (error) {
-        console.error('Error loading trends:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadTrends = async () => {
+    try {
+      setLoading(true);
+      const data = await apiClient.trends.getAll();
+      setTrends(data);
+    } catch (error) {
+      console.error('Error loading trends:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    loadData();
+  useEffect(() => {
+    loadTrends();
   }, []);
+
+  // Helper functions
+  const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  const formatDateShort = (dateString?: string): string => {
+    if (!dateString) return 'Onbekend';
+    try {
+      return formatDate(dateString);
+    } catch {
+      return 'Onbekend';
+    }
+  };
+
+  const getRelevantieLevel = (relevantie: string) => {
+    switch (relevantie) {
+      case 'Hoog':
+        return {
+          label: 'Hoog',
+          color: 'bg-red-100 text-red-800 border-red-300',
+          iconColor: 'text-red-600'
+        };
+      case 'Gemiddeld':
+        return {
+          label: 'Gemiddeld',
+          color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+          iconColor: 'text-yellow-600'
+        };
+      case 'Laag':
+        return {
+          label: 'Laag',
+          color: 'bg-green-100 text-green-800 border-green-300',
+          iconColor: 'text-green-600'
+        };
+      default:
+        return {
+          label: relevantie,
+          color: 'bg-gray-100 text-gray-800 border-gray-300',
+          iconColor: 'text-gray-600'
+        };
+    }
+  };
 
   // Verzamel alle unieke categorieën
   const allCategories = Array.from(
@@ -47,12 +104,14 @@ export function TrendsPage() {
     })
     .sort((a, b) => {
       if (sortBy === 'relevantie') {
-        const relevantieOrder = { 'Hoog': 0, 'Gemiddeld': 1, 'Laag': 2 };
-        return relevantieOrder[a.relevantie] - relevantieOrder[b.relevantie];
+        const relevantieOrder: { [key: string]: number } = { 'Hoog': 0, 'Gemiddeld': 1, 'Laag': 2 };
+        return (relevantieOrder[a.relevantie] || 3) - (relevantieOrder[b.relevantie] || 3);
       } else if (sortBy === 'titel') {
         return a.titel.localeCompare(b.titel);
       } else {
-        return new Date(b.datumToegevoegd || b.datum).getTime() - new Date(a.datumToegevoegd || a.datum).getTime();
+        const dateA = new Date(a.datumToegevoegd || a.datum || a.createdAt || 0).getTime();
+        const dateB = new Date(b.datumToegevoegd || b.datum || b.createdAt || 0).getTime();
+        return dateB - dateA;
       }
     });
 
@@ -65,32 +124,6 @@ export function TrendsPage() {
   const hasActiveFilters = 
     selectedCategorie !== 'alle' || 
     selectedRelevantie !== 'alle';
-
-  const getRelevantieIcon = (relevantie: string) => {
-    switch (relevantie) {
-      case 'Hoog':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
-      case 'Gemiddeld':
-        return <TrendingUp className="w-5 h-5 text-yellow-500" />;
-      case 'Laag':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      default:
-        return null;
-    }
-  };
-
-  const getRelevantieColor = (relevantie: string) => {
-    switch (relevantie) {
-      case 'Hoog':
-        return 'bg-red-100 text-red-800 border-red-300';
-      case 'Gemiddeld':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'Laag':
-        return 'bg-green-100 text-green-800 border-green-300';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
 
   const hoogRelevantieTrends = trends.filter(t => t.relevantie === 'Hoog').length;
 
@@ -203,7 +236,7 @@ export function TrendsPage() {
                 <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1 block">
                   Sorteren op
                 </label>
-                <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+                <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'recent' | 'relevantie' | 'titel')}>
                   <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
@@ -265,7 +298,7 @@ export function TrendsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {filteredTrends.map((trend) => (
             <Card 
               key={trend.id} 
@@ -278,7 +311,7 @@ export function TrendsPage() {
                     {trend.categorie}
                   </Badge>
                   {trend.relevantie && (
-                    <Badge className={getRelevantieLevel(trend.relevantie).color}>
+                    <Badge className={getRelevantieLevel(trend.relevantie).color + ' text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5'}>
                       <AlertCircle className={`h-3 w-3 mr-1 ${getRelevantieLevel(trend.relevantie).iconColor}`} />
                       {getRelevantieLevel(trend.relevantie).label}
                     </Badge>
@@ -290,14 +323,14 @@ export function TrendsPage() {
                 </CardTitle>
                 <div className="text-xs text-muted-foreground">
                   <Calendar className="inline h-3 w-3 mr-1" />
-                  {formatDateShort(trend.createdAt)}
+                  {formatDateShort(trend.createdAt || trend.datumToegevoegd || trend.datum)}
                 </div>
               </CardHeader>
               
               <CardContent className="space-y-2 sm:space-y-3 flex-1 flex flex-col p-3 sm:p-6 pt-0">
                 {/* Brief Description */}
                 <div className="bg-gray-50 rounded-lg p-2 sm:p-3 border-l-2 sm:border-l-4 border-[#280bc4] flex-1">
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3">
                     {truncateText(trend.beschrijving, 150)}
                   </p>
                 </div>
@@ -317,7 +350,7 @@ export function TrendsPage() {
                 {/* Sources */}
                 {trend.bronnen && trend.bronnen.length > 0 && (
                   <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                    {trend.bronnen.slice(0, 2).map((bron, idx) => (
+                    {trend.bronnen.slice(0, 2).map((bron: string, idx: number) => (
                       <Badge 
                         key={idx} 
                         variant="secondary"
@@ -354,32 +387,3 @@ export function TrendsPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

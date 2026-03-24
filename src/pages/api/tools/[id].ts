@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
-import { query, queryOne } from '../../../lib/azure-db';
+import { getPool } from '../../../lib/azure-db';
 import sql from 'mssql';
-import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
+import type { Tool, ToolRequest } from '../../../types';
 
+// GET - Haal een specifieke tool op
 export const GET: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
   const authError = await requireAuth({ request, locals });
@@ -50,7 +51,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   
   try {
     const { id } = params;
-    const body = await request.json();
+    const body = (await request.json()) as ToolRequest;
     const { titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet } = body;
     const dbPool = await getPool(locals);
 
@@ -144,5 +145,8 @@ export const PATCH: APIRoute = async ({ params }) => {
     });
   }
 };
+
+
+
 
 

@@ -1,9 +1,8 @@
 import type { APIRoute } from 'astro';
-import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
-import type { KennisItem } from '../../../types';
+import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import { getSlackWebhook } from '../../../lib/config';
+import type { KennisItem, KennisItemRequest } from '../../../types';
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToKennisItem(dbRecord: any): KennisItem {
@@ -133,7 +132,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const data = await request.json();
+    const data = (await request.json()) as KennisItemRequest;
     const dbPool = await getPool(locals);
     
     const result = await dbPool.request()
@@ -141,13 +140,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .input('type', sql.NVarChar, data.type)
       .input('categorie', sql.NVarChar, data.categorie || data.type || 'Algemeen')
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .input('gekoppeld_project', sql.NVarChar, data.gekoppeld_project || null)
+      .input('gekoppeld_project', sql.NVarChar, data.gekoppeldProject || null)
       .input('eigenaar', sql.NVarChar, data.eigenaar)
       .input('samenvatting', sql.NVarChar, data.samenvatting || null)
       .input('inhoud', sql.NVarChar(sql.MAX), data.inhoud || null)
       .input('media_type', sql.NVarChar, data.media_type || null)
       .input('media_url', sql.NVarChar, data.media_url || null)
-      .input('video_link', sql.NVarChar, data.video_link || null)
+      .input('video_link', sql.NVarChar, data.videoLink || null)
       .input('afbeelding', sql.NVarChar(sql.MAX), data.afbeelding || null)
       .query(`
         INSERT INTO KennisItems 
@@ -176,6 +175,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return handleDbError(error, 'create kennisitem');
   }
 };
+
+
+
 
 
 

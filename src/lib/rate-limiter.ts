@@ -9,6 +9,7 @@ import { RATE_LIMIT_CONFIG } from './config';
 interface RateLimitEntry {
   attempts: number;
   firstAttempt: number;
+  lastAttempt: number;
   blockedUntil?: number;
 }
 
@@ -183,4 +184,5 @@ export function getRateLimitStats() {
     },
   };
 }
+
 

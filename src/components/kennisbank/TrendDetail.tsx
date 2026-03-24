@@ -11,6 +11,21 @@ interface TrendDetailProps {
   onBack: () => void;
 }
 
+// Helper function to get relevance level styling
+const getRelevantieLevel = (relevantie: string) => {
+  switch (relevantie?.toLowerCase()) {
+    case 'hoog':
+      return { label: 'Hoog', color: 'bg-red-500', iconColor: 'text-red-100' };
+    case 'middel':
+    case 'gemiddeld':
+      return { label: 'Gemiddeld', color: 'bg-orange-500', iconColor: 'text-orange-100' };
+    case 'laag':
+      return { label: 'Laag', color: 'bg-blue-500', iconColor: 'text-blue-100' };
+    default:
+      return { label: 'Onbekend', color: 'bg-gray-500', iconColor: 'text-gray-100' };
+  }
+};
+
 export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
   const [trend, setTrend] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -245,6 +260,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+
 
 
 

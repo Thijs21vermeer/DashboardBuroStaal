@@ -1,3 +1,4 @@
+
 import 'dotenv/config';
 import sql from 'mssql';
 
@@ -80,7 +81,10 @@ async function updateCategories() {
     console.error('Error:', err);
   } finally {
     await sql.close();
+    // Close the global connection pool
+    await (sql as any).globalPool?.close();
   }
 }
 
 updateCategories();
+

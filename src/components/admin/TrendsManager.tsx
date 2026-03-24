@@ -1,8 +1,11 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
+import { Badge } from '../ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -22,12 +25,12 @@ export default function TrendsManager() {
   const [formData, setFormData] = useState({
     titel: '',
     categorie: 'Technologie',
-    beschrijving: '',
-    relevantie: 'Middel' as 'Hoog' | 'Middel' | 'Laag',
-    bronnen: '',
+    samenvatting: '',
+    inhoud: '',
+    bron: '',
     tags: '',
-    impact: '',
     eigenaar: '',
+    relevantie: 'Middel',
   });
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
@@ -53,26 +56,12 @@ export default function TrendsManager() {
     }
   };
 
-  useEffect(() => {
-    loadTrends();
-  }, []);
-
-  const loadTrends = async () => {
-    try {
-      const data = await apiClient.trends.getAll();
-      setItems(data);
-    } catch (error) {
-      console.error('Error loading trends:', error);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const trendData = {
       ...formData,
-      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
-      datum: new Date().toISOString().split('T')[0],
+      datum_gepubliceerd: new Date().toISOString().split('T')[0],
     };
 
     try {
@@ -97,12 +86,12 @@ export default function TrendsManager() {
     setFormData({
       titel: item.titel,
       categorie: item.categorie,
-      beschrijving: item.beschrijving,
-      relevantie: item.relevantie,
-      bronnen: item.bronnen.join('\n'),
-      tags: item.tags.join(', '),
-      impact: item.impact,
+      samenvatting: item.samenvatting,
+      inhoud: item.inhoud,
+      bron: item.bron || '',
+      tags: item.tags || '',
       eigenaar: item.eigenaar || '',
+      relevantie: item.relevantie,
     });
     setIsDialogOpen(true);
   };
@@ -124,19 +113,19 @@ export default function TrendsManager() {
     setEditingItem(null);
     setFormData({
       titel: '',
-      categorie: 'Productie',
-      beschrijving: '',
-      relevantie: 'Middel',
-      bronnen: '',
+      categorie: 'Technologie',
+      samenvatting: '',
+      inhoud: '',
+      bron: '',
       tags: '',
-      impact: '',
       eigenaar: '',
+      relevantie: 'Middel',
     });
   };
 
   const filteredItems = items.filter(item =>
     item.titel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.beschrijving.toLowerCase().includes(searchTerm.toLowerCase())
+    item.samenvatting.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -234,35 +223,35 @@ export default function TrendsManager() {
               </div>
 
               <div>
-                <Label htmlFor="bronnen">Bronnen (gescheiden door komma's)</Label>
+                <Label htmlFor="bron">Bron</Label>
                 <Input
-                  id="bronnen"
-                  value={formData.bronnen}
-                  onChange={(e) => setFormData({ ...formData, bronnen: e.target.value })}
-                  placeholder="Gartner, HubSpot, LinkedIn"
-                  required
+                  id="bron"
+                  value={formData.bron}
+                  onChange={(e) => setFormData({ ...formData, bron: e.target.value })}
+                  placeholder="Bijv. Gartner, HubSpot, LinkedIn"
                 />
               </div>
 
               <div>
-                <Label htmlFor="impact">Impact</Label>
+                <Label htmlFor="samenvatting">Samenvatting</Label>
                 <Textarea
-                  id="impact"
-                  value={formData.impact}
-                  onChange={(e) => setFormData({ ...formData, impact: e.target.value })}
+                  id="samenvatting"
+                  value={formData.samenvatting}
+                  onChange={(e) => setFormData({ ...formData, samenvatting: e.target.value })}
                   rows={2}
-                  placeholder="Beschrijf de impact van deze trend..."
+                  placeholder="Korte samenvatting van de trend..."
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="beschrijving">Beschrijving</Label>
+                <Label htmlFor="inhoud">Inhoud</Label>
                 <Textarea
-                  id="beschrijving"
-                  value={formData.beschrijving}
-                  onChange={(e) => setFormData({ ...formData, beschrijving: e.target.value })}
+                  id="inhoud"
+                  value={formData.inhoud}
+                  onChange={(e) => setFormData({ ...formData, inhoud: e.target.value })}
                   rows={4}
+                  placeholder="Uitgebreide beschrijving van de trend..."
                   required
                 />
               </div>
@@ -299,10 +288,10 @@ export default function TrendsManager() {
                     )}
                     <div className="text-xs text-muted-foreground">
                       <Calendar className="inline h-3 w-3 mr-1" />
-                      {formatDateShort(item.createdAt)}
+                      {formatDateShort(item.datum_gepubliceerd)}
                     </div>
                     <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                      {truncateText(item.beschrijving, 100)}
+                      {truncateText(item.samenvatting, 100)}
                     </p>
                   </div>
                 </div>
@@ -317,13 +306,15 @@ export default function TrendsManager() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-2">{item.beschrijving}</p>
+              <p className="text-sm text-gray-600 mb-2">{item.samenvatting}</p>
               <p className="text-sm text-gray-600 mb-2">
-                <strong>Impact:</strong> {item.impact}
+                <strong>Inhoud:</strong> {truncateText(item.inhoud, 200)}
               </p>
-              <p className="text-xs text-gray-500">
-                <strong>Bronnen:</strong> {item.bronnen.join(', ')}
-              </p>
+              {item.bron && (
+                <p className="text-xs text-gray-500">
+                  <strong>Bron:</strong> {item.bron}
+                </p>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -331,6 +322,11 @@ export default function TrendsManager() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

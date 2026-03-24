@@ -5,7 +5,9 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
-import { Plus, Edit, Trash2, Save, X, Video, ExternalLink } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Switch } from '../ui/switch';
+import { Plus, Edit, Trash2, Save, X, Video, ExternalLink, PlayCircle } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { truncateText } from '../../lib/config';
 import type { Video as VideoType } from '../../types';
@@ -204,18 +206,20 @@ export default function VideosManager() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="categorie">Categorie *</Label>
-                <Select 
-                  value={formData.categorie} 
-                  onValueChange={(value) => setFormData({ ...formData, categorie: value })}
+                <Label htmlFor="categorie">Categorie</Label>
+                <Select
+                  value={formData.categorie}
+                  onValueChange={(value: string) => setFormData({ ...formData, categorie: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecteer categorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map(cat => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
+                    <SelectItem value="tutorial">Tutorial</SelectItem>
+                    <SelectItem value="webinar">Webinar</SelectItem>
+                    <SelectItem value="demo">Demo</SelectItem>
+                    <SelectItem value="presentatie">Presentatie</SelectItem>
+                    <SelectItem value="interview">Interview</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -241,13 +245,13 @@ export default function VideosManager() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <Switch
                 id="featured"
                 checked={formData.featured}
-                onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+                onCheckedChange={(checked: boolean) => setFormData({ ...formData, featured: checked })}
               />
-              <Label htmlFor="featured">Featured video (verschijnt bovenaan)</Label>
+              <Label htmlFor="featured">Featured video</Label>
             </div>
 
             <div className="flex gap-2">
@@ -316,7 +320,7 @@ export default function VideosManager() {
                             )}
                           </div>
                           <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                            {truncateText(video.beschrijving, 100)}
+                            {truncateText(video.beschrijving || '', 100)}
                           </p>
                           <div className="flex flex-wrap gap-2 text-sm text-gray-500">
                             <Badge variant="outline">{video.categorie}</Badge>
@@ -373,6 +377,10 @@ export default function VideosManager() {
     </div>
   );
 }
+
+
+
+
 
 
 

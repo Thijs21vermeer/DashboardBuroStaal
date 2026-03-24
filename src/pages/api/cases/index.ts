@@ -1,11 +1,77 @@
 import type { APIRoute } from 'astro';
-import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
-import type { CaseStudy } from '../../../types';
+import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
+import type { Case, CaseRequest } from '../../../types';
+
+// GET - Haal alle cases op
+export const GET: APIRoute = async ({ request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth({ request, locals });
+  if (authError) return authError;
+  
+  try {
+    const dbPool = await getPool(locals);
+    const result = await dbPool.request().query('SELECT * FROM Cases ORDER BY datum_toegevoegd DESC');
+    
+    // Map database records to TypeScript types
+    const cases = result.recordset.map(mapDbToCaseStudy);
+
+    return new Response(JSON.stringify(cases), {
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
+    });
+  } catch (error) {
+    return handleDbError(error, 'fetch cases');
+  }
+};
+
+// POST - Voeg een nieuwe case toe
+export const POST: APIRoute = async ({ request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth({ request, locals });
+  if (authError) return authError;
+  
+  try {
+    const data = (await request.json()) as CaseRequest;
+    const dbPool = await getPool(locals);
+    
+    const result = await dbPool.request()
+      .input('titel', sql.NVarChar, data.titel)
+      .input('klant', sql.NVarChar, data.klant)
+      .input('industrie', sql.NVarChar, data.industrie || null)
+      .input('uitdaging', sql.NVarChar(sql.MAX), data.uitdaging || null)
+      .input('oplossing', sql.NVarChar(sql.MAX), data.oplossing || null)
+      .input('resultaten', sql.NVarChar(sql.MAX), JSON.stringify(data.resultaten || []))
+      .input('referenties', sql.NVarChar(sql.MAX), JSON.stringify(data.referenties || []))
+      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
+      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
+      .input('project_duur', sql.NVarChar, data.project_duur || null)
+      .input('team_size', sql.NVarChar, data.team_size || null)
+      .input('image_url', sql.NVarChar, data.image_url || null)
+      .query(`
+        INSERT INTO Cases 
+        (titel, klant, industrie, uitdaging, oplossing, resultaten, referenties, tags, eigenaar, project_duur, team_size, datum_toegevoegd, laatst_bijgewerkt, featured, image_url)
+        OUTPUT INSERTED.*
+        VALUES 
+        (@titel, @klant, @industrie, @uitdaging, @oplossing, @resultaten, @referenties, @tags, @eigenaar, @project_duur, @team_size, GETDATE(), GETDATE(), 0, @image_url)
+      `);
+
+    const newCase = mapDbToCaseStudy(result.recordset[0]);
+    return new Response(JSON.stringify(newCase), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    return handleDbError(error, 'create case');
+  }
+};
 
 // Helper functie om database records te mappen naar TypeScript types
-function mapDbToCaseStudy(dbRecord: any): CaseStudy {
+function mapDbToCaseStudy(dbRecord: any): Case {
   // Parse resultaten - handle string (JSON) or already parsed array
   let resultaten: string[] = [];
   if (dbRecord.resultaten) {
@@ -66,71 +132,10 @@ function mapDbToCaseStudy(dbRecord: any): CaseStudy {
   };
 }
 
-// GET - Haal alle cases op
-export const GET: APIRoute = async ({ request, locals }) => {
-  // Check authentication
-  const authError = await requireAuth({ request, locals });
-  if (authError) return authError;
-  
-  try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request().query('SELECT * FROM Cases ORDER BY datum_toegevoegd DESC');
-    
-    // Map database records to TypeScript types
-    const cases = result.recordset.map(mapDbToCaseStudy);
 
-    return new Response(JSON.stringify(cases), {
-      status: 200,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache'
-      }
-    });
-  } catch (error) {
-    return handleDbError(error, 'fetch cases');
-  }
-};
 
-// POST - Voeg een nieuwe case toe
-export const POST: APIRoute = async ({ request, locals }) => {
-  // Check authentication
-  const authError = await requireAuth({ request, locals });
-  if (authError) return authError;
-  
-  try {
-    const data = await request.json();
-    const dbPool = await getPool(locals);
-    
-    const result = await dbPool.request()
-      .input('titel', sql.NVarChar, data.titel)
-      .input('klant', sql.NVarChar, data.klant)
-      .input('industrie', sql.NVarChar, data.industrie || null)
-      .input('uitdaging', sql.NVarChar(sql.MAX), data.uitdaging || null)
-      .input('oplossing', sql.NVarChar(sql.MAX), data.oplossing || null)
-      .input('resultaten', sql.NVarChar(sql.MAX), JSON.stringify(data.resultaten || []))
-      .input('referenties', sql.NVarChar(sql.MAX), JSON.stringify(data.referenties || []))
-      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
-      .input('project_duur', sql.NVarChar, data.projectDuur || null)
-      .input('team_size', sql.NVarChar, data.teamSize || null)
-      .input('image_url', sql.NVarChar, data.imageUrl || null)
-      .query(`
-        INSERT INTO Cases 
-        (titel, klant, industrie, uitdaging, oplossing, resultaten, referenties, tags, eigenaar, project_duur, team_size, datum_toegevoegd, laatst_bijgewerkt, featured, image_url)
-        OUTPUT INSERTED.*
-        VALUES 
-        (@titel, @klant, @industrie, @uitdaging, @oplossing, @resultaten, @referenties, @tags, @eigenaar, @project_duur, @team_size, GETDATE(), GETDATE(), 0, @image_url)
-      `);
 
-    const newCase = mapDbToCaseStudy(result.recordset[0]);
-    return new Response(JSON.stringify(newCase), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (error) {
-    return handleDbError(error, 'create case');
-  }
-};
+
 
 
 

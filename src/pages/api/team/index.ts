@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
+import { getPool } from '../../../lib/azure-db';
 import sql from 'mssql';
-import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
-import { query } from '../../../lib/azure-db';
+import type { TeamMember, TeamMemberRequest } from '../../../types';
 
+// GET - Haal alle teamleden op
 export const GET: APIRoute = async ({ request, locals }) => {
   // Check authentication
   const authError = await requireAuth({ request, locals });
@@ -52,7 +53,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const body = await request.json();
+    const body = (await request.json()) as TeamRequest;
     const { naam, rol, email, bio, expertiseGebieden, isEigenaar, volgorde } = body;
 
     if (!naam || !rol || !email) {
@@ -96,6 +97,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
+
+
 
 
 

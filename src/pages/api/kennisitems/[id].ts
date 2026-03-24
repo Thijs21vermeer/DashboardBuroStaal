@@ -1,12 +1,26 @@
 import type { APIRoute } from 'astro';
+import { getPool } from '../../../lib/azure-db';
 import sql from 'mssql';
-import { getPool, handleDbError } from '../../../lib/db-config';
-import type { KennisItem } from '../../../types';
 import { requireAuth } from '../../../lib/api-auth';
+import type { KennisItem, KennisItemRequest } from '../../../types';
 
-// Helper functie om database records te mappen naar TypeScript types
+// Helper functie voor database errors
+function handleDbError(error: unknown, operation: string): Response {
+  console.error(`Database error during ${operation}:`, error);
+  return new Response(
+    JSON.stringify({ 
+      error: 'Database error', 
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    }), 
+    {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+}
+
+// Helper functie om database records te mappen
 function mapDbToKennisItem(dbRecord: any): KennisItem {
-  // Parse tags safely
   let tags: string[] = [];
   if (dbRecord.tags) {
     if (typeof dbRecord.tags === 'string') {
@@ -27,16 +41,15 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
     categorie: dbRecord.categorie || dbRecord.type || 'Algemeen',
     tags,
     gekoppeldProject: dbRecord.gekoppeld_project || undefined,
-    eigenaar: dbRecord.eigenaar,
-    auteur: dbRecord.eigenaar, // Alias voor frontend compatibility
-    samenvatting: dbRecord.samenvatting,
-    inhoud: dbRecord.inhoud,
-    datumToegevoegd: dbRecord.datum_toegevoegd,
-    laatstBijgewerkt: dbRecord.laatst_bijgewerkt,
-    views: dbRecord.views || 0,
+    eigenaar: dbRecord.eigenaar || 'Onbekend',
+    datum: dbRecord.datum_toegevoegd,
+    samenvatting: dbRecord.samenvatting || undefined,
+    inhoud: dbRecord.inhoud || undefined,
+    afbeelding: dbRecord.afbeelding || undefined,
     featured: dbRecord.featured || false,
     videoLink: dbRecord.video_link || undefined,
-    afbeelding: dbRecord.afbeelding || undefined,
+    media_type: dbRecord.media_type || undefined,
+    media_url: dbRecord.media_url || undefined,
   };
 }
 
@@ -86,7 +99,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const data = await request.json();
+    const data = (await request.json()) as KennisItemRequest;
     const dbPool = await getPool(locals);
 
     const result = await dbPool.request()
@@ -95,13 +108,13 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       .input('type', sql.NVarChar, data.type)
       .input('categorie', sql.NVarChar, data.categorie || data.type || 'Algemeen')
       .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .input('gekoppeld_project', sql.NVarChar, data.gekoppeld_project || null)
+      .input('gekoppeld_project', sql.NVarChar, data.gekoppeldProject || null)
       .input('eigenaar', sql.NVarChar, data.eigenaar)
       .input('samenvatting', sql.NVarChar, data.samenvatting || null)
       .input('inhoud', sql.NVarChar(sql.MAX), data.inhoud || null)
       .input('media_type', sql.NVarChar, data.media_type || null)
       .input('media_url', sql.NVarChar, data.media_url || null)
-      .input('video_link', sql.NVarChar, data.video_link || null)
+      .input('video_link', sql.NVarChar, data.videoLink || null)
       .input('afbeelding', sql.NVarChar(sql.MAX), data.afbeelding || null)
       .query(`
         UPDATE KennisItems 
@@ -175,18 +188,4 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     return handleDbError(error, 'delete kennisitem');
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

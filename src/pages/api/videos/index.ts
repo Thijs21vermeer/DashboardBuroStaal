@@ -1,48 +1,10 @@
 import type { APIRoute } from 'astro';
+import { getPool } from '../../../lib/azure-db';
 import sql from 'mssql';
-import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
-import type { Video } from '../../../types';
+import type { Video, VideoRequest } from '../../../types';
 
-// Helper: YouTube video ID extraheren
-function extractYouTubeId(url: string): string | null {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /^([a-zA-Z0-9_-]{11})$/
-  ];
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) return match[1];
-  }
-  return null;
-}
-
-// Helper: YouTube thumbnail URL genereren
-function getYouTubeThumbnail(url: string): string | null {
-  const videoId = extractYouTubeId(url);
-  if (!videoId) return null;
-  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-}
-
-// Mapper functie voor consistente type conversie
-function mapVideo(row: any): Video {
-  return {
-    id: Number(row.id),
-    titel: String(row.titel || ''),
-    beschrijving: row.beschrijving ? String(row.beschrijving) : undefined,
-    youtube_url: String(row.youtube_url || ''),
-    thumbnail_url: row.thumbnail_url ? String(row.thumbnail_url) : undefined,
-    categorie: String(row.categorie || ''),
-    tags: row.tags ? String(row.tags) : undefined,
-    eigenaar: row.eigenaar ? String(row.eigenaar) : undefined,
-    datum_toegevoegd: row.datum_toegevoegd ? new Date(row.datum_toegevoegd).toISOString() : new Date().toISOString(),
-    laatst_bijgewerkt: row.laatst_bijgewerkt ? new Date(row.laatst_bijgewerkt).toISOString() : new Date().toISOString(),
-    views: Number(row.views || 0),
-    featured: Boolean(row.featured)
-  };
-}
-
+// GET - Haal alle videos op
 export const GET: APIRoute = async ({ request, locals }) => {
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
@@ -95,7 +57,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const data = await request.json();
+    const data = await request.json() as VideoRequest;
     const dbPool = await getPool(locals);
     const { titel, beschrijving, youtube_url, categorie, tags, eigenaar, featured } = data;
     
@@ -138,6 +100,51 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
+// Helper: YouTube video ID extraheren
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+// Helper: YouTube thumbnail URL genereren
+function getYouTubeThumbnail(url: string): string | null {
+  const videoId = extractYouTubeId(url);
+  if (!videoId) return null;
+  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+}
+
+// Mapper functie voor consistente type conversie
+function mapVideo(row: any): Video {
+  return {
+    id: Number(row.id),
+    titel: String(row.titel || ''),
+    beschrijving: row.beschrijving ? String(row.beschrijving) : undefined,
+    youtube_url: String(row.youtube_url || ''),
+    thumbnail_url: row.thumbnail_url ? String(row.thumbnail_url) : undefined,
+    categorie: String(row.categorie || ''),
+    tags: row.tags ? String(row.tags) : undefined,
+    eigenaar: row.eigenaar ? String(row.eigenaar) : undefined,
+    datum_toegevoegd: row.datum_toegevoegd ? new Date(row.datum_toegevoegd).toISOString() : new Date().toISOString(),
+    laatst_bijgewerkt: row.laatst_bijgewerkt ? new Date(row.laatst_bijgewerkt).toISOString() : new Date().toISOString(),
+    views: Number(row.views || 0),
+    featured: Boolean(row.featured)
+  };
+}
+
+
+
+
+
+
 
 
 

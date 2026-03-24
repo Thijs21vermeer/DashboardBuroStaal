@@ -3,7 +3,6 @@
 
 
 
-
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -121,6 +120,12 @@ export const RATE_LIMIT_CONFIG = {
   maxAttempts: 5,
   windowMinutes: 15,
   blockDurationMinutes: 30,
+  cleanupIntervalMinutes: 60,
+  delayAfterAttempts: {
+    3: 1000,
+    4: 3000,
+    5: 5000,
+  }
 } as const;
 
 // ============================================================================
@@ -320,3 +325,4 @@ export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+

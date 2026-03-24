@@ -84,7 +84,7 @@ async function validateToken(token: string, secret: string): Promise<TokenPayloa
  * };
  */
 export async function requireAuth(
-  context: APIContext
+  context: { request: Request; locals: any }
 ): Promise<Response | null> {
   const { request, locals } = context;
   
@@ -156,4 +156,5 @@ export async function requireAuth(
   // Token is valid, allow request to proceed
   return null;
 }
+
 

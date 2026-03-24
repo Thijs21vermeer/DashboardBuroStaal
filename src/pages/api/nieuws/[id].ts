@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
-import sql from 'mssql';
 import { getPool, handleDbError } from '../../../lib/db-config';
+import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { NewsItem } from '../../../types';
+import type { NewsItem, NewsRequest } from '../../../types';
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToNewsItem(dbRecord: any): NewsItem {
@@ -32,7 +32,7 @@ function mapDbToNewsItem(dbRecord: any): NewsItem {
   };
 }
 
-// GET - Haal een specifiek nieuwsitem op
+// GET - Haal een specifiek nieuwsbericht op
 export const GET: APIRoute = async ({ params, request, locals }) => {
   // Check authentication
   const authError = await requireAuth({ request, locals });
@@ -78,7 +78,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const data = await request.json();
+    const data = (await request.json()) as NewsRequest;
     const dbPool = await getPool(locals);
 
     const result = await dbPool.request()
@@ -152,6 +152,9 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     return handleDbError(error, 'delete nieuws');
   }
 };
+
+
+
 
 
 

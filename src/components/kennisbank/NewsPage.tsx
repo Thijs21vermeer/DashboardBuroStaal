@@ -4,6 +4,8 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Search, Newspaper, Calendar, Tag, ArrowRight, Award, Briefcase, User, Users, TrendingUp, Rocket, PartyPopper, RefreshCw } from 'lucide-react';
+import { format } from 'date-fns';
+import { nl } from 'date-fns/locale';
 import { NewsDetail } from './NewsDetail';
 import { apiClient } from '../../lib/api-client';
 import { formatDate } from '../../lib/config';
@@ -14,20 +16,27 @@ export function NewsPage() {
   const [selectedCategorie, setSelectedCategorie] = useState<string>('alle');
   const [selectedNewsId, setSelectedNewsId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await apiClient.nieuws.getAll();
-        setNewsItems(data);
-      } catch (error) {
-        console.error('Error loading nieuws:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadNews = async () => {
+    try {
+      setLoading(true);
+      const data = await apiClient.nieuws.getAll();
+      setNewsItems(data);
+    } catch (error) {
+      console.error('Error loading nieuws:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    loadData();
+  useEffect(() => {
+    loadNews();
   }, []);
+
+  // Helper function
+  const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
 
   // Filter nieuws op categorie
   const filteredNews = selectedCategorie === 'alle' 
@@ -282,6 +291,7 @@ export function NewsPage() {
     </div>
   );
 }
+
 
 
 

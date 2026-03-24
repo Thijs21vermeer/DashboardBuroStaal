@@ -32,6 +32,26 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     loadItem();
   }, [itemId]);
 
+  // Helper function to extract YouTube video ID from various URL formats
+  const extractYouTubeId = (url: string): string | null => {
+    if (!url) return null;
+    
+    // Match various YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+      /^([a-zA-Z0-9_-]{11})$/ // Direct ID format
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -163,16 +183,22 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
           <CardContent>
             <div className="max-w-3xl mx-auto">
               <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={`https://www.youtube.com/embed/${youtubeId}`}
-                  title={item.titel}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                ></iframe>
+                {extractYouTubeId(item.videoLink) ? (
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${extractYouTubeId(item.videoLink)}`}
+                    title={item.titel}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white">
+                    <p>Ongeldige YouTube URL</p>
+                  </div>
+                )}
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <p className="text-sm text-gray-600">
@@ -267,6 +293,8 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
+
 
 
 

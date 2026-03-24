@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
-import { query } from '../../../lib/azure-db';
+import type { Partner, PartnerRequest } from '../../../types';
 import sql from 'mssql';
+import { query } from '../../../lib/azure-db';
 import { getPool, handleDbError } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
 
@@ -63,7 +64,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   
   try {
     const { id } = params;
-    const body = await request.json();
+    const body = (await request.json()) as PartnerRequest;
     const { naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertiseGebieden, volgorde } = body;
     const dbPool = await getPool(locals);
 
@@ -163,6 +164,9 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+
+
 
 
 
