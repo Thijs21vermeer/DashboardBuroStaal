@@ -320,11 +320,11 @@ export default function ToolsPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-4 text-xs sm:text-sm text-gray-500 gap-2">
                       <span>Door: <span className="font-semibold text-black">{tool.eigenaar}</span></span>
                       <span>
-                        {new Date(tool.datum_toegevoegd).toLocaleDateString('nl-NL', {
+                        {tool.datum_toegevoegd ? new Date(tool.datum_toegevoegd).toLocaleDateString('nl-NL', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
-                        })}
+                        }) : 'onbekend'}
                       </span>
                     </div>
                   </div>
@@ -337,6 +337,7 @@ export default function ToolsPage() {
     </div>
   );
 }
+
 
 
 

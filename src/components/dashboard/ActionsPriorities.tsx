@@ -104,7 +104,7 @@ export function ActionsPriorities({ filters }: ActionsPrioritiesProps) {
               <div className="flex-1">
                 <h4 className="font-medium text-gray-900 mb-1">{priority.titel}</h4>
                 <div className="text-sm text-gray-600 mb-2">
-                  {priority.eigenaar} • Deadline: {new Date(priority.deadline).toLocaleDateString('nl-NL')}
+                  {priority.eigenaar} • Deadline: {priority.deadline ? new Date(priority.deadline).toLocaleDateString('nl-NL') : 'Geen deadline'}
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${getCategoryColor(priority.categorie)}`}>
@@ -156,7 +156,7 @@ export function ActionsPriorities({ filters }: ActionsPrioritiesProps) {
                     <div>Eigenaar: {priority.eigenaar}</div>
                     <div className="flex items-center gap-1 text-gray-500 mt-2">
                       <Clock className="w-3 h-3" />
-                      {new Date(priority.deadline).toLocaleDateString('nl-NL')}
+                      {priority.deadline ? new Date(priority.deadline).toLocaleDateString('nl-NL') : 'Geen deadline'}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -189,7 +189,7 @@ export function ActionsPriorities({ filters }: ActionsPrioritiesProps) {
                     <div>Eigenaar: {priority.eigenaar}</div>
                     <div className="flex items-center gap-1 text-gray-500 mt-2">
                       <Clock className="w-3 h-3" />
-                      {new Date(priority.deadline).toLocaleDateString('nl-NL')}
+                      {priority.deadline ? new Date(priority.deadline).toLocaleDateString('nl-NL') : 'Geen deadline'}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -222,7 +222,7 @@ export function ActionsPriorities({ filters }: ActionsPrioritiesProps) {
                     <div>Eigenaar: {priority.eigenaar}</div>
                     <div className="flex items-center gap-1 text-gray-500 mt-2">
                       <Clock className="w-3 h-3" />
-                      {new Date(priority.deadline).toLocaleDateString('nl-NL')}
+                      {priority.deadline ? new Date(priority.deadline).toLocaleDateString('nl-NL') : 'Geen deadline'}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -242,6 +242,7 @@ export function ActionsPriorities({ filters }: ActionsPrioritiesProps) {
     </div>
   );
 }
+
 
 
 

@@ -93,11 +93,11 @@ export function ProjectProgress({ filters }: ProjectProgressProps) {
                   </div>
                 </td>
                 <td className="px-6 py-5 text-sm text-gray-600">
-                  {new Date(project.startdatum).toLocaleDateString('nl-NL', {
+                  {project.startdatum ? new Date(project.startdatum).toLocaleDateString('nl-NL', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric'
-                  })}
+                  }) : ''}
                 </td>
                 <td className="px-6 py-5">
                   <div className="text-sm text-gray-900">{project.volgendeMijlpaal}</div>
@@ -126,6 +126,7 @@ export function ProjectProgress({ filters }: ProjectProgressProps) {
     </div>
   );
 }
+
 
 
 

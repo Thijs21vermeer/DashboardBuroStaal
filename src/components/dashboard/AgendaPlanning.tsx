@@ -89,7 +89,7 @@ export function AgendaPlanning({ filters }: AgendaPlanningProps) {
                 <div className="text-center min-w-[60px] bg-gray-50 rounded-lg p-2">
                   <div className="text-2xl font-bold text-gray-900">{new Date(item.startdatum).getDate()}</div>
                   <div className="text-xs text-gray-600">
-                    {new Date(item.startdatum).toLocaleDateString('nl-NL', { month: 'short' })}
+                    {item.startdatum ? new Date(item.startdatum).toLocaleDateString('nl-NL', { month: 'short' }) : ''}
                   </div>
                 </div>
                 <div className="flex-1">
@@ -145,7 +145,7 @@ export function AgendaPlanning({ filters }: AgendaPlanningProps) {
                 <div className="text-center min-w-[80px] bg-gradient-to-br from-[#280bc4] to-[#280bc4]/80 text-white rounded-lg p-3">
                   <div className="text-xl font-bold">{new Date(item.startdatum).getDate()}</div>
                   <div className="text-xs opacity-90">
-                    {new Date(item.startdatum).toLocaleDateString('nl-NL', { month: 'short' })}
+                    {item.startdatum ? new Date(item.startdatum).toLocaleDateString('nl-NL', { month: 'short' }) : ''}
                   </div>
                 </div>
                 <div className="flex-1">
@@ -170,6 +170,7 @@ export function AgendaPlanning({ filters }: AgendaPlanningProps) {
     </div>
   );
 }
+
 
 
 

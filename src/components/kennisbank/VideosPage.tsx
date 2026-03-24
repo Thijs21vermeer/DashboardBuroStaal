@@ -79,6 +79,7 @@ export default function VideosPage() {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'Geen datum';
     return new Date(dateString).toLocaleDateString('nl-NL', {
       day: 'numeric',
       month: 'short',
@@ -378,7 +379,7 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
             <div className="flex items-center gap-0.5 sm:gap-1">
               <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5" />
               <span className="hidden sm:inline">{formatDate(video.datum_toegevoegd)}</span>
-              <span className="sm:hidden">{new Date(video.datum_toegevoegd).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}</span>
+              <span className="sm:hidden">{video.datum_toegevoegd ? new Date(video.datum_toegevoegd).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' }) : 'Geen datum'}</span>
             </div>
           </div>
           
@@ -506,6 +507,7 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
 
 
 

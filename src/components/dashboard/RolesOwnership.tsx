@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo } from 'react';
 import { phaseMatrix, mockActions } from '../../data/mockData';
@@ -179,7 +180,7 @@ export function RolesOwnership() {
                         <td className="py-4 px-4 text-gray-600">{action.project}</td>
                         <td className="py-4 px-4 text-gray-700">{action.verantwoordelijke}</td>
                         <td className="py-4 px-4 text-gray-600">
-                          {new Date(action.deadline).toLocaleDateString('nl-NL')}
+                          {action.deadline ? new Date(action.deadline).toLocaleDateString('nl-NL') : 'Geen deadline'}
                         </td>
                         <td className="py-4 px-4">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(action.prioriteit || "Normaal")}`}>
@@ -203,4 +204,5 @@ export function RolesOwnership() {
     </div>
   );
 }
+
 

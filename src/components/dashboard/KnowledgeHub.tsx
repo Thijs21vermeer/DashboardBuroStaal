@@ -29,6 +29,7 @@ export function KnowledgeHub() {
 
   const newestItems = useMemo(() => {
     return [...mockKennisItems]
+      .filter(item => item.datumToegevoegd) // Filter out items without dates
       .sort((a, b) => new Date(b.datumToegevoegd).getTime() - new Date(a.datumToegevoegd).getTime())
       .slice(0, 3);
   }, []);
@@ -75,7 +76,7 @@ export function KnowledgeHub() {
                   </div>
                 </div>
                 <div className="text-xs text-gray-500 whitespace-nowrap">
-                  {new Date(item.datumToegevoegd).toLocaleDateString('nl-NL')}
+                  {item.datumToegevoegd ? new Date(item.datumToegevoegd).toLocaleDateString('nl-NL') : 'Geen datum'}
                 </div>
               </div>
             </div>
@@ -137,7 +138,7 @@ export function KnowledgeHub() {
                 </div>
                 <div className="flex items-center gap-2 text-gray-600">
                   <Calendar className="w-4 h-4" />
-                  <span>Bijgewerkt: {new Date(item.laatstBijgewerkt).toLocaleDateString('nl-NL')}</span>
+                  <span>Bijgewerkt: {item.laatstBijgewerkt ? new Date(item.laatstBijgewerkt).toLocaleDateString('nl-NL') : 'Onbekend'}</span>
                 </div>
               </div>
               
@@ -159,6 +160,7 @@ export function KnowledgeHub() {
     </div>
   );
 }
+
 
 
 
