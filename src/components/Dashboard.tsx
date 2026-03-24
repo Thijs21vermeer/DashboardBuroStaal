@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './dashboard/Sidebar';
-import { Header } from './dashboard/Header';
 import { Overview } from './kennisbank/Overview';
 import { KennisbankPage } from './kennisbank/KennisbankPage';
 import { CasesPage } from './kennisbank/CasesPage';
@@ -12,9 +11,6 @@ import VideosPage from './kennisbank/VideosPage';
 import { KennisItemDetail } from './kennisbank/KennisItemDetail';
 import { TrendDetail } from './kennisbank/TrendDetail';
 import { NewsDetail } from './kennisbank/NewsDetail';
-import { ProjectProgress } from './dashboard/ProjectProgress';
-import { RolesOwnership } from './dashboard/RolesOwnership';
-import { KnowledgeHub } from './dashboard/KnowledgeHub';
 import type { PageType } from '../types';
 import { LoginForm } from './auth/LoginForm';
 import KennisKoenWidget from './KennisKoenWidget';
@@ -159,6 +155,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 

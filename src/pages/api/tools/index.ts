@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/azure-db';
+import { getPool } from '../../../lib/db-config';
 import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
 import type { Tool, ToolRequest } from '../../../types';
@@ -11,7 +11,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
   try {
     const dbPool = await getPool(locals);
-    const result = await query(`
+    const result = await dbPool.request().query(`
       SELECT 
         id,
         titel,
@@ -29,7 +29,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
       ORDER BY favoriet DESC, laatst_bijgewerkt DESC
     `);
 
-    const tools = result.map(row => ({
+    const tools = result.recordset.map(row => ({
       ...row,
       favoriet: Boolean(row.favoriet),
       gebruik_count: row.gebruik_count || 0
@@ -62,22 +62,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const dbPool = await getPool(locals);
     const { titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet } = data;
 
-    const result = await query(`
+    const dbRequest = dbPool.request();
+    dbRequest.input('titel', sql.NVarChar, titel);
+    dbRequest.input('categorie', sql.NVarChar, categorie);
+    dbRequest.input('beschrijving', sql.NVarChar, beschrijving || null);
+    dbRequest.input('code', sql.NVarChar, code);
+    dbRequest.input('taal', sql.NVarChar, taal || null);
+    dbRequest.input('tags', sql.NVarChar, tags || null);
+    dbRequest.input('eigenaar', sql.NVarChar, eigenaar || null);
+    dbRequest.input('favoriet', sql.Bit, favoriet ? 1 : 0);
+
+    const result = await dbRequest.query(`
       INSERT INTO tools (titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet)
       OUTPUT INSERTED.*
       VALUES (@titel, @categorie, @beschrijving, @code, @taal, @tags, @eigenaar, @favoriet)
-    `, {
-      titel,
-      categorie,
-      beschrijving: beschrijving || null,
-      code,
-      taal: taal || null,
-      tags: tags || null,
-      eigenaar: eigenaar || null,
-      favoriet: favoriet ? 1 : 0
-    });
+    `);
 
-    return new Response(JSON.stringify(result[0]), {
+    return new Response(JSON.stringify(result.recordset[0]), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -92,6 +93,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
 
 
 

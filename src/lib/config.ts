@@ -3,6 +3,7 @@
 
 
 
+
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -229,6 +230,32 @@ export const KENNISITEM_TYPES = [
 ] as const;
 
 // ============================================================================
+// Kennisbank Categories and Media Types
+// ============================================================================
+
+export const KENNISBANK_CATEGORIES = [
+  'SEO & Online Marketing',
+  'Webdesign & Development',
+  'Branding & Communicatie',
+  'Social Media',
+  'Analytics & Data',
+  'Algemeen'
+] as const;
+
+export const MEDIA_TYPES = [
+  'Artikel',
+  'Video',
+  'Presentatie',
+  'Template',
+  'Checklist',
+  'Document',
+  'Whitepaper'
+] as const;
+
+export type KennisCategorie = typeof KENNISBANK_CATEGORIES[number];
+export type MediaType = typeof MEDIA_TYPES[number];
+
+// ============================================================================
 // Relevantie Levels
 // ============================================================================
 
@@ -325,4 +352,5 @@ export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
 

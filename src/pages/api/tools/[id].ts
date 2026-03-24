@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/azure-db';
+import { getPool } from '../../../lib/db-config';
 import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
 import type { Tool, ToolRequest } from '../../../types';
@@ -13,12 +13,11 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
   try {
     const { id } = params;
     const dbPool = await getPool(locals);
-    const result = await queryOne(
-      'SELECT * FROM tools WHERE id = @id',
-      { id: parseInt(id || '0') }
-    );
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id || '0'));
+    const result = await dbRequest.query('SELECT * FROM tools WHERE id = @id');
 
-    if (!result) {
+    if (!result.recordset || result.recordset.length === 0) {
       return new Response(JSON.stringify({ error: 'Tool not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
@@ -26,8 +25,8 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
     }
 
     const tool = {
-      ...result,
-      favoriet: Boolean(result.favoriet)
+      ...result.recordset[0],
+      favoriet: Boolean(result.recordset[0].favoriet)
     };
 
     return new Response(JSON.stringify(tool), {
@@ -55,7 +54,18 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const { titel, categorie, beschrijving, code, taal, tags, eigenaar, favoriet } = body;
     const dbPool = await getPool(locals);
 
-    const result = await query(`
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id || '0'));
+    dbRequest.input('titel', sql.NVarChar, titel);
+    dbRequest.input('categorie', sql.NVarChar, categorie);
+    dbRequest.input('beschrijving', sql.NVarChar, beschrijving || null);
+    dbRequest.input('code', sql.NVarChar, code);
+    dbRequest.input('taal', sql.NVarChar, taal || null);
+    dbRequest.input('tags', sql.NVarChar, tags || null);
+    dbRequest.input('eigenaar', sql.NVarChar, eigenaar || null);
+    dbRequest.input('favoriet', sql.Bit, favoriet ? 1 : 0);
+
+    const result = await dbRequest.query(`
       UPDATE tools
       SET titel = @titel,
           categorie = @categorie,
@@ -68,26 +78,16 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
           laatst_bijgewerkt = GETDATE()
       OUTPUT INSERTED.*
       WHERE id = @id
-    `, {
-      id: parseInt(id || '0'),
-      titel,
-      categorie,
-      beschrijving: beschrijving || null,
-      code,
-      taal: taal || null,
-      tags: tags || null,
-      eigenaar: eigenaar || null,
-      favoriet: favoriet ? 1 : 0
-    });
+    `);
 
-    if (result.length === 0) {
+    if (result.recordset.length === 0) {
       return new Response(JSON.stringify({ error: 'Tool not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify(result[0]), {
+    return new Response(JSON.stringify(result.recordset[0]), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -109,7 +109,9 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
   try {
     const { id } = params;
     const dbPool = await getPool(locals);
-    await query('DELETE FROM tools WHERE id = @id', { id: parseInt(id || '0') });
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id || '0'));
+    await dbRequest.query('DELETE FROM tools WHERE id = @id');
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -125,12 +127,18 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
 };
 
 // Endpoint om gebruik_count te incrementeren bij kopiëren
-export const PATCH: APIRoute = async ({ params }) => {
+export const PATCH: APIRoute = async ({ params, request, locals }) => {
+  // Check authentication
+  const authError = await requireAuth({ request, locals });
+  if (authError) return authError;
+  
   try {
     const { id } = params;
-    await query(
-      'UPDATE tools SET gebruik_count = gebruik_count + 1, laatst_gebruikt = GETDATE() WHERE id = @id',
-      { id: parseInt(id || '0') }
+    const dbPool = await getPool(locals);
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id || '0'));
+    await dbRequest.query(
+      'UPDATE tools SET gebruik_count = gebruik_count + 1, laatst_gebruikt = GETDATE() WHERE id = @id'
     );
 
     return new Response(JSON.stringify({ success: true }), {
@@ -145,8 +153,3 @@ export const PATCH: APIRoute = async ({ params }) => {
     });
   }
 };
-
-
-
-
-

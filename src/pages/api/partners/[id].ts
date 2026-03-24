@@ -1,8 +1,7 @@
 import type { APIRoute } from 'astro';
 import type { Partner, PartnerRequest } from '../../../types';
 import sql from 'mssql';
-import { query } from '../../../lib/azure-db';
-import { getPool, handleDbError } from '../../../lib/db-config';
+import { getPool } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
 
 export const GET: APIRoute = async ({ params, request, locals }) => {
@@ -14,7 +13,10 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
     const { id } = params;
     const dbPool = await getPool(locals);
 
-    const result = await query(`
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id!));
+
+    const result = await dbRequest.query(`
       SELECT 
         id,
         naam,
@@ -30,16 +32,16 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
         updated_at as updatedAt
       FROM externe_partners
       WHERE id = @id
-    `, { id: parseInt(id!) });
+    `);
 
-    if (result.length === 0) {
+    if (result.recordset.length === 0) {
       return new Response(JSON.stringify({ error: 'Partner not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const partner = result[0];
+    const partner = result.recordset[0];
 
     return new Response(JSON.stringify({
       ...partner,
@@ -77,7 +79,19 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const expertiseJson = JSON.stringify(expertiseGebieden || []);
 
-    await query(`
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id!));
+    dbRequest.input('naam', sql.NVarChar, naam);
+    dbRequest.input('bedrijf', sql.NVarChar, bedrijf || null);
+    dbRequest.input('specialisatie', sql.NVarChar, specialisatie);
+    dbRequest.input('email', sql.NVarChar, email);
+    dbRequest.input('telefoon', sql.NVarChar, telefoon || null);
+    dbRequest.input('website', sql.NVarChar, website || null);
+    dbRequest.input('beschrijving', sql.NVarChar, beschrijving || '');
+    dbRequest.input('expertiseGebieden', sql.NVarChar, expertiseJson);
+    dbRequest.input('volgorde', sql.Int, volgorde || 0);
+
+    await dbRequest.query(`
       UPDATE externe_partners
       SET naam = @naam,
           bedrijf = @bedrijf,
@@ -90,20 +104,11 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
           volgorde = @volgorde,
           updated_at = GETDATE()
       WHERE id = @id
-    `, {
-      id: parseInt(id!),
-      naam,
-      bedrijf: bedrijf || null,
-      specialisatie,
-      email,
-      telefoon: telefoon || null,
-      website: website || null,
-      beschrijving: beschrijving || '',
-      expertiseGebieden: expertiseJson,
-      volgorde: volgorde || 0
-    });
+    `);
 
-    const result = await query(`
+    const dbRequest2 = dbPool.request();
+    dbRequest2.input('id', sql.Int, parseInt(id!));
+    const result = await dbRequest2.query(`
       SELECT 
         id,
         naam,
@@ -119,9 +124,9 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
         updated_at as updatedAt
       FROM externe_partners
       WHERE id = @id
-    `, { id: parseInt(id!) });
+    `);
 
-    const updatedPartner = result[0];
+    const updatedPartner = result.recordset[0];
 
     return new Response(JSON.stringify({
       ...updatedPartner,
@@ -148,9 +153,9 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     const { id } = params;
     const dbPool = await getPool(locals);
 
-    await query(`DELETE FROM externe_partners WHERE id = @id`, {
-      id: parseInt(id!)
-    });
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id!));
+    await dbRequest.query(`DELETE FROM externe_partners WHERE id = @id`);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -164,9 +169,3 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
-
-
-
-
-
-

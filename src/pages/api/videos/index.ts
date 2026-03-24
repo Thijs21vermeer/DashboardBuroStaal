@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/azure-db';
+import { getPool } from '../../../lib/db-config';
 import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
 import type { Video, VideoRequest } from '../../../types';

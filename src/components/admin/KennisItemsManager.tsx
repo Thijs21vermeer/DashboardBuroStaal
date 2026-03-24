@@ -9,9 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../ui/badge';
 import { Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import { KENNISITEM_TYPES } from '../../lib/config';
+import { KENNISITEM_TYPES, KENNISBANK_CATEGORIES } from '../../lib/config';
 import { getBaseUrl } from '../../lib/base-url';
-import { mockKennisItems } from '../../data/mockData';
 import type { KennisItem } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
@@ -45,17 +44,15 @@ export default function KennisItemsManager() {
       const data = await apiClient.kennisitems.getAll();
       console.log('[KennisItemsManager] Received items:', data.length);
       
-      // Set items regardless of whether database is empty
       setItems(data);
       setConnectionStatus('connected');
       
-      // If database is empty, log it but don't use mock data
       if (data.length === 0) {
         console.log('[KennisItemsManager] Database is empty - ready to add items');
       }
     } catch (error) {
       console.error('[KennisItemsManager] Error loading items:', error);
-      setItems(mockKennisItems);
+      setItems([]);
       setConnectionStatus('error');
     }
   };
@@ -222,12 +219,11 @@ export default function KennisItemsManager() {
                     <SelectValue placeholder="Selecteer een categorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="SEO & Online Marketing">SEO & Online Marketing</SelectItem>
-                    <SelectItem value="Webdesign & Development">Webdesign & Development</SelectItem>
-                    <SelectItem value="Branding & Communicatie">Branding & Communicatie</SelectItem>
-                    <SelectItem value="Social Media">Social Media</SelectItem>
-                    <SelectItem value="Analytics & Data">Analytics & Data</SelectItem>
-                    <SelectItem value="Algemeen">Algemeen</SelectItem>
+                    {KENNISBANK_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -437,6 +433,9 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
+
 
 
 

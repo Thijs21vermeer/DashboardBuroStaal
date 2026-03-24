@@ -3,11 +3,10 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Calendar, User, Tag, ArrowRight, BookOpen, RefreshCw } from 'lucide-react';
-import { kennisCategorieen, typeMedia } from '../../data/mockData';
+import { KENNISBANK_CATEGORIES, MEDIA_TYPES } from '../../lib/config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -22,7 +21,7 @@ import {
 import { baseUrl } from '../../lib/base-url';
 import { KennisItemDetail } from './KennisItemDetail';
 import { apiClient } from '../../lib/api-client';
-import { KENNISITEM_TYPES, truncateText, formatDateShort } from '../../lib/config';
+import type { KennisItem } from '../../types';
 
 export function KennisbankPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -159,12 +158,10 @@ export function KennisbankPage() {
                   <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue className="truncate" />
                   </SelectTrigger>
-                  <SelectContent position="popper" side="bottom" align="start" sideOffset={4} className="max-w-[200px] sm:max-w-[250px]">
+                  <SelectContent>
                     <SelectItem value="alle">Alle categorieën</SelectItem>
-                    {kennisCategorieen.map(cat => (
-                      <SelectItem key={cat} value={cat} className="text-xs sm:text-sm">
-                        {cat}
-                      </SelectItem>
+                    {KENNISBANK_CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -178,9 +175,9 @@ export function KennisbankPage() {
                   <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent position="popper" side="bottom" align="start" sideOffset={4}>
+                  <SelectContent>
                     <SelectItem value="alle">Alle types</SelectItem>
-                    {typeMedia.map(type => (
+                    {MEDIA_TYPES.map(type => (
                       <SelectItem key={type} value={type}>{type}</SelectItem>
                     ))}
                   </SelectContent>
@@ -358,6 +355,9 @@ export function KennisbankPage() {
     </div>
   );
 }
+
+
+
 
 
 

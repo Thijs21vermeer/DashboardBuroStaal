@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/azure-db';
+import { getPool } from '../../../lib/db-config';
 import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
 import type { TeamMember, TeamMemberRequest } from '../../../types';
@@ -13,8 +13,11 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
   try {
     const { id } = params;
     const dbPool = await getPool(locals);
+    
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id!));
 
-    const result = await query(`
+    const result = await dbRequest.query(`
       SELECT 
         id,
         naam,
@@ -28,16 +31,16 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
         updated_at as updatedAt
       FROM team_members
       WHERE id = @id
-    `, { id: parseInt(id!) });
+    `);
 
-    if (result.length === 0) {
+    if (result.recordset.length === 0) {
       return new Response(JSON.stringify({ error: 'Team member not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const member = result[0];
+    const member = result.recordset[0];
 
     return new Response(JSON.stringify({
       ...member,
@@ -63,7 +66,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   
   try {
     const { id } = params;
-    const body = (await request.json()) as TeamRequest;
+    const body = (await request.json()) as TeamMemberRequest;
     const { naam, rol, email, bio, expertiseGebieden, isEigenaar, volgorde } = body;
     const dbPool = await getPool(locals);
 
@@ -76,7 +79,17 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const expertiseJson = JSON.stringify(expertiseGebieden || []);
 
-    await query(`
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id!));
+    dbRequest.input('naam', sql.NVarChar, naam);
+    dbRequest.input('rol', sql.NVarChar, rol);
+    dbRequest.input('email', sql.NVarChar, email);
+    dbRequest.input('bio', sql.NVarChar, bio || '');
+    dbRequest.input('expertiseGebieden', sql.NVarChar, expertiseJson);
+    dbRequest.input('isEigenaar', sql.Bit, isEigenaar ? 1 : 0);
+    dbRequest.input('volgorde', sql.Int, volgorde || 0);
+
+    await dbRequest.query(`
       UPDATE team_members
       SET naam = @naam,
           rol = @rol,
@@ -87,18 +100,11 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
           volgorde = @volgorde,
           updated_at = GETDATE()
       WHERE id = @id
-    `, {
-      id: parseInt(id!),
-      naam,
-      rol,
-      email,
-      bio: bio || '',
-      expertiseGebieden: expertiseJson,
-      isEigenaar: isEigenaar ? 1 : 0,
-      volgorde: volgorde || 0
-    });
+    `);
 
-    const result = await query(`
+    const dbRequest2 = dbPool.request();
+    dbRequest2.input('id', sql.Int, parseInt(id!));
+    const result = await dbRequest2.query(`
       SELECT 
         id,
         naam,
@@ -112,9 +118,9 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
         updated_at as updatedAt
       FROM team_members
       WHERE id = @id
-    `, { id: parseInt(id!) });
+    `);
 
-    const updatedMember = result[0];
+    const updatedMember = result.recordset[0];
 
     return new Response(JSON.stringify({
       ...updatedMember,
@@ -142,9 +148,9 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     const { id } = params;
     const dbPool = await getPool(locals);
 
-    await query(`DELETE FROM team_members WHERE id = @id`, {
-      id: parseInt(id!)
-    });
+    const dbRequest = dbPool.request();
+    dbRequest.input('id', sql.Int, parseInt(id!));
+    await dbRequest.query(`DELETE FROM team_members WHERE id = @id`);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -158,9 +164,3 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
-
-
-
-
-
-

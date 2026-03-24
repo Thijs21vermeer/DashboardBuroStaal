@@ -1,9 +1,8 @@
 import type { APIRoute } from 'astro';
 import type { Partner, PartnerRequest } from '../../../types';
 import sql from 'mssql';
-import { getPool, handleDbError } from '../../../lib/db-config';
+import { getPool } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
-import { query } from '../../../lib/azure-db';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   // Check authentication
@@ -12,7 +11,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
   try {
     const dbPool = await getPool(locals);
-    const result = await query(`
+    const result = await dbPool.request().query(`
       SELECT 
         id,
         naam,
@@ -30,7 +29,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
       ORDER BY volgorde ASC, id ASC
     `);
 
-    const partners = result.map((row: any) => ({
+    const partners = result.recordset.map((row: any) => ({
       ...row,
       expertiseGebieden: row.expertiseGebieden ? JSON.parse(row.expertiseGebieden) : []
     }));
@@ -66,24 +65,25 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const expertiseJson = JSON.stringify(expertiseGebieden || []);
+    
+    const dbRequest = dbPool.request();
+    dbRequest.input('naam', sql.NVarChar, naam);
+    dbRequest.input('bedrijf', sql.NVarChar, bedrijf || null);
+    dbRequest.input('specialisatie', sql.NVarChar, specialisatie);
+    dbRequest.input('email', sql.NVarChar, email);
+    dbRequest.input('telefoon', sql.NVarChar, telefoon || null);
+    dbRequest.input('website', sql.NVarChar, website || null);
+    dbRequest.input('beschrijving', sql.NVarChar, beschrijving || '');
+    dbRequest.input('expertiseGebieden', sql.NVarChar, expertiseJson);
+    dbRequest.input('volgorde', sql.Int, volgorde || 0);
 
-    const result = await query(`
+    const result = await dbRequest.query(`
       INSERT INTO externe_partners (naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertise_gebieden, volgorde)
       OUTPUT INSERTED.*
       VALUES (@naam, @bedrijf, @specialisatie, @email, @telefoon, @website, @beschrijving, @expertiseGebieden, @volgorde)
-    `, {
-      naam,
-      bedrijf: bedrijf || null,
-      specialisatie,
-      email,
-      telefoon: telefoon || null,
-      website: website || null,
-      beschrijving: beschrijving || '',
-      expertiseGebieden: expertiseJson,
-      volgorde: volgorde || 0
-    });
+    `);
 
-    const newPartner = result[0];
+    const newPartner = result.recordset[0];
 
     return new Response(JSON.stringify({
       ...newPartner,
@@ -100,9 +100,3 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
-
-
-
-
-
-
