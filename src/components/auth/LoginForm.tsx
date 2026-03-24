@@ -32,10 +32,10 @@ export function LoginForm({ onLogin, error }: LoginFormProps) {
 
       const data = await response.json();
 
-      if (data.success && data.token) {
-        // Token wordt nu opgeslagen in HttpOnly cookie door de server
-        // We gebruiken de token alleen als signaal dat login succesvol was
-        onLogin(data.token);
+      if (data.success) {
+        // Token zit nu veilig in HttpOnly cookie
+        // We signaleren alleen success
+        onLogin('success');
       } else {
         onLogin(''); // Empty string triggers error in parent
       }
@@ -117,6 +117,7 @@ export function LoginForm({ onLogin, error }: LoginFormProps) {
     </div>
   );
 }
+
 
 
 

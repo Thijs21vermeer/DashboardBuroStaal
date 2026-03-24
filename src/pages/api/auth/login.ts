@@ -58,7 +58,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       ];
       
       return new Response(
-        JSON.stringify({ success: true, token }), // Keep token for backward compatibility (temporary)
+        JSON.stringify({ success: true }), // Token NIET meer in response!
         {
           status: 200,
           headers: { 
@@ -98,6 +98,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   }
 };
+
 
 
 

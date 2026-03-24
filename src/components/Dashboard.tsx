@@ -53,11 +53,10 @@ export default function Dashboard() {
     validateSession();
   }, []);
 
-  const handleLogin = (token: string) => {
-    if (token) {
+  const handleLogin = (status: string) => {
+    if (status) {
+      // Login succesvol - token zit veilig in HttpOnly cookie
       setIsAuthenticated(true);
-      // Token wordt nu in HttpOnly cookie opgeslagen door de API
-      // GEEN localStorage meer!
       setLoginError('');
     } else {
       setLoginError('Ongeldig wachtwoord');
@@ -146,6 +145,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 

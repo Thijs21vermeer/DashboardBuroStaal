@@ -1,3 +1,4 @@
+
 # 🔒 Security Fix: HttpOnly Cookies voor JWT Tokens
 
 ## Probleem
@@ -11,6 +12,7 @@ Alle token opslag is verplaatst naar **HttpOnly cookies**. Dit betekent:
 - **Automatisch verzenden**: Browser stuurt cookie automatisch mee bij elk request
 - **Secure flag**: Cookie wordt alleen over HTTPS verzonden (in productie)
 - **SameSite=Strict**: Bescherming tegen CSRF-aanvallen
+- **🔒 KRITISCH**: Token wordt NIET meer in response body geretourneerd
 
 ### 🔧 Wat is er veranderd?
 
@@ -20,6 +22,7 @@ Alle token opslag is verplaatst naar **HttpOnly cookies**. Dit betekent:
   ```
   HttpOnly, Secure, SameSite=Strict, Path=/, Max-Age=86400
   ```
+- 🔒 **Response bevat GEEN token meer**: `{ success: true }` (geen token field!)
 
 #### 2. **Logout endpoint** (`src/pages/api/auth/logout.ts`)
 - ✅ NIEUW: Dedicated endpoint om cookie te verwijderen
@@ -44,7 +47,8 @@ Alle token opslag is verplaatst naar **HttpOnly cookies**. Dit betekent:
 
 #### 6. **Login Form** (`src/components/auth/LoginForm.tsx`)
 - ✅ TOEGEVOEGD: `credentials: 'include'` in login request
-- ✅ Token in response is nu alleen voor signaling, niet voor opslag
+- ✅ Checkt alleen op `success`, niet meer op token in response
+- 🔒 Token is volledig onzichtbaar voor frontend code
 
 #### 7. **Validation endpoint** (`src/pages/api/auth/validate.ts`)
 - ✅ Leest token uit cookie (prioriteit)
@@ -59,13 +63,18 @@ Alle token opslag is verplaatst naar **HttpOnly cookies**. Dit betekent:
 ### Voor de fix:
 ```javascript
 // ❌ ONVEILIG - kwetsbaar voor XSS
+// Response bevat token:
+{ success: true, token: "eyJhbGc..." }
 localStorage.setItem('auth_token', token);
 const token = localStorage.getItem('auth_token');
 ```
 
 ### Na de fix:
 ```javascript
-// ✅ VEILIG - JavaScript kan niet bij de token
+// ✅ VEILIG - Token NERGENS zichtbaar in JavaScript
+// Response bevat GEEN token:
+{ success: true }
+
 // Server zet cookie:
 Set-Cookie: auth_token=...; HttpOnly; Secure; SameSite=Strict
 
@@ -73,6 +82,11 @@ Set-Cookie: auth_token=...; HttpOnly; Secure; SameSite=Strict
 fetch('/api/kennisitems', {
   credentials: 'include' // Browser stuurt cookie automatisch
 });
+
+// ⚠️ BELANGRIJK: Token is NIET toegankelijk via:
+console.log(document.cookie); // ❌ HttpOnly cookies zijn niet zichtbaar
+console.log(localStorage.getItem('auth_token')); // ❌ null
+// Er is GEEN enkele manier voor JavaScript om de token te lezen!
 ```
 
 ## 📝 Gebruikersinstructies
@@ -81,6 +95,7 @@ fetch('/api/kennisitems', {
 1. **Geen wijzigingen nodig** in je code - cookies worden automatisch verzonden
 2. Gebruik `credentials: 'include'` in alle fetch calls (is al gedaan)
 3. Gebruik `/api/auth/logout` endpoint voor uitloggen
+4. 🔒 **Token is NERGENS zichtbaar** - niet in response, niet in localStorage, niet in JS
 
 ### Voor gebruikers:
 - ✅ Login werkt hetzelfde
@@ -121,6 +136,11 @@ npm run dev
 
 De `Secure` flag werkt alleen over HTTPS. In development (localhost) wordt de cookie nog steeds gezet, maar zonder Secure flag.
 
+### ⚠️ Let op na deployment:
+- Gebruikers moeten opnieuw inloggen
+- Token is NIET meer zichtbaar in Network tab response (alleen in Set-Cookie header)
+- DevTools > Application > Cookies toont cookie met HttpOnly flag
+
 ## 📊 Backwards Compatibility
 
 - ✅ Oude Authorization headers blijven werken (fallback)
@@ -153,3 +173,4 @@ De `Secure` flag werkt alleen over HTTPS. In development (localhost) wordt de co
 **Status**: ✅ Geïmplementeerd en getest
 **Impact**: 🔒 Hoog - Belangrijke security verbetering
 **Breaking Change**: ⚠️ Ja - Gebruikers moeten opnieuw inloggen
+
