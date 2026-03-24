@@ -27,38 +27,24 @@ export default function Dashboard() {
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Valideer token bij mount
+  // Valideer token bij mount - Cookie wordt automatisch meegestuurd
   useEffect(() => {
     const validateSession = async () => {
-      const token = localStorage.getItem('auth_token');
-      
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
       try {
         const response = await fetch(`${baseUrl}/api/auth/validate`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+          credentials: 'include', // Stuurt cookies automatisch mee
         });
 
         if (response.ok) {
           const data = (await response.json()) as { valid: boolean };
           if (data.valid) {
             setIsAuthenticated(true);
-          } else {
-            // Token is verlopen of ongeldig
-            localStorage.removeItem('auth_token');
           }
         } else {
           console.error('Token validation error:', response.statusText);
-          localStorage.removeItem('auth_token');
         }
       } catch (error) {
         console.error('Token validation error:', error);
-        localStorage.removeItem('auth_token');
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +56,8 @@ export default function Dashboard() {
   const handleLogin = (token: string) => {
     if (token) {
       setIsAuthenticated(true);
-      localStorage.setItem('auth_token', token);
+      // Token wordt nu in HttpOnly cookie opgeslagen door de API
+      // GEEN localStorage meer!
       setLoginError('');
     } else {
       setLoginError('Ongeldig wachtwoord');
@@ -79,7 +66,11 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('auth_token');
+    // Verwijder cookie via logout endpoint
+    fetch(`${baseUrl}/api/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    }).catch(console.error);
     setCurrentPage('overzicht');
   };
 
@@ -155,6 +146,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 

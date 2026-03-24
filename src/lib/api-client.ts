@@ -1,5 +1,6 @@
 
 
+
 /**
  * API Client - Centralized API calls with authentication
  * 
@@ -26,26 +27,16 @@ const MAX_RETRY_ATTEMPTS = API_CONFIG.retryAttempts;
 async function apiFetch<T>(endpoint: string, options?: RequestInit, retryCount = 0): Promise<T> {
   const url = `${baseUrl}/api${endpoint}`;
   
-  // Get JWT token from session (browser environment)
-  let token: string | null = null;
-  if (typeof window !== 'undefined') {
-    // Try localStorage first (browser)
-    token = localStorage.getItem('auth_token');
-    
-    // Fallback to session manager
-    if (!token) {
-      const session = getSession();
-      token = session?.token || null;
-    }
-  }
+  // Token wordt automatisch via HttpOnly cookie verstuurd
+  // GEEN localStorage meer - veiliger tegen XSS!
   
   try {
     const response = await Promise.race([
       fetch(url, {
         ...options,
+        credentials: 'include', // Stuurt cookies automatisch mee
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
           ...options?.headers,
         },
       }),
@@ -250,6 +241,7 @@ if (typeof window !== 'undefined') {
   console.log(`🔌 API Client initialized`);
   console.log(`📍 Base URL: ${baseUrl}/api`);
 }
+
 
 
 

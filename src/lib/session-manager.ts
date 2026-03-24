@@ -126,27 +126,23 @@ export async function validateToken(token: string, locals?: any): Promise<boolea
 
 /**
  * Get session from localStorage (client-side only)
+ * @deprecated - Token is nu alleen in HttpOnly cookie, niet meer in localStorage
+ * Deze functie blijft voor backward compatibility maar doet niets meer
  */
 export function getSession(): { token: string } | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  const token = localStorage.getItem('auth_token');
-  if (!token) {
-    return null;
-  }
-
-  return { token };
+  // Token zit nu veilig in HttpOnly cookie
+  // JavaScript kan er niet meer bij - beschermd tegen XSS!
+  return null;
 }
 
 /**
  * Remove session (for logout - client-side action)
+ * @deprecated - Gebruik de /api/auth/logout endpoint om cookie te verwijderen
  */
 export function deleteSession(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('auth_token');
-  }
+  // HttpOnly cookies kunnen niet door JavaScript verwijderd worden
+  // Gebruik de /api/auth/logout endpoint
+  console.warn('deleteSession is deprecated - use /api/auth/logout endpoint');
 }
 
 /**
@@ -155,3 +151,4 @@ export function deleteSession(): void {
 export function getActiveSessionCount(): number {
   return 0; // Stateless - we don't track sessions
 }
+

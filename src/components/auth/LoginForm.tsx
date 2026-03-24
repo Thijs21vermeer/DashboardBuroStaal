@@ -26,13 +26,16 @@ export function LoginForm({ onLogin, error }: LoginFormProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Ontvang en stuur cookies
         body: JSON.stringify({ password }),
       });
 
       const data = await response.json();
 
       if (data.success && data.token) {
-        onLogin(data.token); // Pass the token to parent
+        // Token wordt nu opgeslagen in HttpOnly cookie door de server
+        // We gebruiken de token alleen als signaal dat login succesvol was
+        onLogin(data.token);
       } else {
         onLogin(''); // Empty string triggers error in parent
       }
@@ -114,6 +117,7 @@ export function LoginForm({ onLogin, error }: LoginFormProps) {
     </div>
   );
 }
+
 
 
 
