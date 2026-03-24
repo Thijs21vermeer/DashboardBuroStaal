@@ -5,7 +5,7 @@ const config: sql.config = {
   server: 'dashboardbs.database.windows.net',
   database: 'dashboarddb',
   user: 'databasedashboard',
-  password: 'Knolpower05!',
+  password: process.env.AZURE_SQL_PASSWORD || '',
   options: {
     encrypt: true,
     trustServerCertificate: false
@@ -63,3 +63,4 @@ async function testAstroDbConnection() {
 }
 
 testAstroDbConnection();
+

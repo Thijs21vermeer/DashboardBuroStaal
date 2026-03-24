@@ -1,10 +1,15 @@
 "use client";
 import React from "react";
-import * as _Builtin from "./_Builtin";
+import Block from "./_Builtin/Block";
+import BlockContainer from "./_Builtin/BlockContainer";
+import Heading from "./_Builtin/Heading";
+import Image from "./_Builtin/Image";
+import Link from "./_Builtin/Link";
+import Section from "./_Builtin/Section";
 
 export function Footer1(
     {
-        as: _Component = _Builtin.Section
+        as: _Component = Section
     }
 ) {
     return (
@@ -13,96 +18,96 @@ export function Footer1(
             grid={{
                 type: "section"
             }}
-            tag="div"><_Builtin.Block className="container-7 cc-footer" tag="div"><_Builtin.Block className="footer-column cc-footer" tag="div"><_Builtin.Link
-                        className="navigation-logo"
-                        button={false}
+            tag="div"><Block className="container-7 cc-footer" tag="div"><Block className="footer-column cc-footer" tag="div"><Link
                         block="inline"
+                        button={false}
+                        className="navigation-logo"
                         options={{
                             href: "#"
-                        }}><_Builtin.Image
+                        }}><Image
+                            alt="Logo van De Ambivent Groep - Evenementen"
                             className="image-9"
-                            width="92"
                             height="auto"
                             loading="auto"
-                            alt="Logo van De Ambivent Groep - Evenementen"
-                            src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/66d567d919fc19869a5b51dd_DeAmbiventGroep-logo-plat%20RGB.jpg" /></_Builtin.Link><_Builtin.Block className="text-footer-credits" tag="div">{"© 2025 De Ambivent Groep, Alle rechten voorbehouden."}</_Builtin.Block></_Builtin.Block><_Builtin.BlockContainer
+                            src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/66d567d919fc19869a5b51dd_DeAmbiventGroep-logo-plat%20RGB.jpg"
+                            width="92" /></Link><Block className="text-footer-credits" tag="div">{"© 2025 De Ambivent Groep, Alle rechten voorbehouden."}</Block></Block><BlockContainer
                     className="container-103"
                     grid={{
                         type: "container"
                     }}
-                    tag="div"><_Builtin.Heading className="heading-64" tag="h1">{"Bezoekadres:"}</_Builtin.Heading><_Builtin.Block tag="div">{"Hoofdstraat 100, 2678 CM, De Lier"}</_Builtin.Block><_Builtin.Block className=" div-block-58" tag="div" /><_Builtin.Heading className="heading-64" tag="h1">{"Contactgegevens:"}</_Builtin.Heading><_Builtin.Block tag="div">{"Telefoon: 0174 52 86 13"}<br />{"E-mailadres: "}<_Builtin.Link
-                            className=" link-14"
-                            button={false}
+                    tag="div"><Heading className="heading-64" tag="h1">{"Bezoekadres:"}</Heading><Block tag="div">{"Hoofdstraat 100, 2678 CM, De Lier"}</Block><Block className=" div-block-58" tag="div" /><Heading className="heading-64" tag="h1">{"Contactgegevens:"}</Heading><Block tag="div">{"Telefoon: 0174 52 86 13"}<br />{"E-mailadres: "}<Link
                             block=""
+                            button={false}
+                            className=" link-14"
                             options={{
                                 href: "mailto:info@deambiventgroep.nl"
-                            }}>{"info@deambiventgroep.nl"}</_Builtin.Link></_Builtin.Block></_Builtin.BlockContainer><_Builtin.Block className="footer-column" tag="div"><_Builtin.Block className="footer-links-list" tag="div"><_Builtin.Link
-                            className="link-footer"
-                            button={false}
+                            }}>{"info@deambiventgroep.nl"}</Link></Block></BlockContainer><Block className="footer-column" tag="div"><Block className="footer-links-list" tag="div"><Link
                             block=""
+                            button={false}
+                            className="link-footer"
                             options={{
                                 href: "#"
-                            }}>{"Home"}</_Builtin.Link><_Builtin.Link
-                            className="link-footer"
-                            button={false}
+                            }}>{"Home"}</Link><Link
                             block=""
+                            button={false}
+                            className="link-footer"
                             options={{
                                 href: "#"
-                            }}>{"Offerte"}</_Builtin.Link><_Builtin.Link
-                            className="link-footer"
-                            button={false}
+                            }}>{"Offerte"}</Link><Link
                             block=""
+                            button={false}
+                            className="link-footer"
                             options={{
                                 href: "#"
-                            }}>{"Bruiloften"}</_Builtin.Link><_Builtin.Link
-                            className="link-footer"
-                            button={false}
+                            }}>{"Bruiloften"}</Link><Link
                             block=""
+                            button={false}
+                            className="link-footer"
                             options={{
                                 href: "#",
                                 target: "_blank"
-                            }}>{"Download Nieuwsbrief"}</_Builtin.Link></_Builtin.Block><_Builtin.Block className="footer-links-list" tag="div"><_Builtin.Link
-                            className="link-footer"
-                            button={false}
+                            }}>{"Download Nieuwsbrief"}</Link></Block><Block className="footer-links-list" tag="div"><Link
                             block=""
+                            button={false}
+                            className="link-footer"
                             options={{
                                 href: "#"
-                            }}>{"Werken bij"}</_Builtin.Link><_Builtin.Link
-                            className="link-footer"
-                            button={false}
+                            }}>{"Werken bij"}</Link><Link
                             block=""
+                            button={false}
+                            className="link-footer"
                             options={{
                                 href: "#"
-                            }}>{"Over ons"}</_Builtin.Link><_Builtin.Link
-                            className="link-footer"
-                            button={false}
+                            }}>{"Over ons"}</Link><Link
                             block=""
+                            button={false}
+                            className="link-footer"
                             options={{
                                 href: "#"
-                            }}>{"Contact"}</_Builtin.Link></_Builtin.Block><_Builtin.Block className="footer-links-list" tag="div" /><_Builtin.Block className="footer-social" tag="div"><_Builtin.Link
-                            className="link-social"
-                            button={false}
+                            }}>{"Contact"}</Link></Block><Block className="footer-links-list" tag="div" /><Block className="footer-social" tag="div"><Link
                             block="inline"
+                            button={false}
+                            className="link-social"
                             options={{
                                 href: "#",
                                 target: "_blank"
-                            }}><_Builtin.Image
-                                width="auto"
+                            }}><Image
+                                alt=""
                                 height="auto"
                                 loading="auto"
-                                alt=""
-                                src="https://uploads-ssl.webflow.com/6384f34a3ebc934800e9a1d5/6384f34a3ebc9369bfe9a20e_icon-facebook.svg" /></_Builtin.Link><_Builtin.Link
-                            className="link-social"
-                            button={false}
+                                src="https://uploads-ssl.webflow.com/6384f34a3ebc934800e9a1d5/6384f34a3ebc9369bfe9a20e_icon-facebook.svg"
+                                width="auto" /></Link><Link
                             block="inline"
+                            button={false}
+                            className="link-social"
                             options={{
                                 href: "#",
                                 target: "_blank"
-                            }}><_Builtin.Image
-                                width="auto"
+                            }}><Image
+                                alt=""
                                 height="auto"
                                 loading="auto"
-                                alt=""
-                                src="https://uploads-ssl.webflow.com/6384f34a3ebc934800e9a1d5/6384f34a3ebc934285e9a20c_icon-instagram.svg" /></_Builtin.Link></_Builtin.Block></_Builtin.Block></_Builtin.Block></_Component>
+                                src="https://uploads-ssl.webflow.com/6384f34a3ebc934800e9a1d5/6384f34a3ebc934285e9a20c_icon-instagram.svg"
+                                width="auto" /></Link></Block></Block></Block></_Component>
     );
 }

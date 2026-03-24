@@ -1,10 +1,17 @@
 "use client";
 import React from "react";
-import * as _Builtin from "./_Builtin";
+import Block from "./_Builtin/Block";
+import BlockContainer from "./_Builtin/BlockContainer";
+import Section from "./_Builtin/Section";
+import SliderArrow from "./_Builtin/SliderArrow";
+import SliderMask from "./_Builtin/SliderMask";
+import SliderNav from "./_Builtin/SliderNav";
+import SliderSlide from "./_Builtin/SliderSlide";
+import SliderWrapper from "./_Builtin/SliderWrapper";
 
 export function Slideshow(
     {
-        as: _Component = _Builtin.Section
+        as: _Component = Section
     }
 ) {
     return (
@@ -13,75 +20,75 @@ export function Slideshow(
             grid={{
                 type: "section"
             }}
-            tag="section"><_Builtin.BlockContainer
+            tag="section"><BlockContainer
                 className="container-56"
                 grid={{
                     type: "container"
                 }}
-                tag="div"><_Builtin.Block className="div-block-41" tag="div"><_Builtin.SliderWrapper
+                tag="div"><Block className="div-block-41" tag="div"><SliderWrapper
+                        animation="fade"
+                        autoMax={0}
+                        autoplay={false}
                         className="slider-6"
-                        navSpacing={3}
-                        navShadow={false}
-                        autoplay={false}
                         delay={4000}
-                        iconArrows={true}
-                        animation="fade"
-                        navNumbers={false}
-                        easing="ease"
-                        navRound={false}
-                        hideArrows={false}
                         disableSwipe={false}
                         duration={500}
+                        easing="ease"
+                        hideArrows={false}
+                        iconArrows={true}
                         infinite={true}
+                        navInvert={true}
+                        navNumbers={false}
+                        navRound={false}
+                        navShadow={false}
+                        navSpacing={3}><SliderMask className="mask-3"><SliderSlide className="slide-28" tag="div" /><SliderSlide className="slide-29" tag="div" /></SliderMask><SliderArrow dir="left" /><SliderArrow dir="right" /><SliderNav /></SliderWrapper></Block><Block className="div-block-40" tag="div"><SliderWrapper
+                        animation="fade"
                         autoMax={0}
-                        navInvert={true}><_Builtin.SliderMask className="mask-3"><_Builtin.SliderSlide className="slide-28" tag="div" /><_Builtin.SliderSlide className="slide-29" tag="div" /></_Builtin.SliderMask><_Builtin.SliderArrow dir="left" /><_Builtin.SliderArrow dir="right" /><_Builtin.SliderNav /></_Builtin.SliderWrapper></_Builtin.Block><_Builtin.Block className="div-block-40" tag="div"><_Builtin.SliderWrapper
+                        autoplay={false}
                         className="slider-5"
-                        navSpacing={3}
-                        navShadow={false}
-                        autoplay={false}
                         delay={4000}
-                        iconArrows={true}
-                        animation="fade"
-                        navNumbers={false}
-                        easing="ease"
-                        navRound={false}
-                        hideArrows={false}
                         disableSwipe={false}
                         duration={500}
+                        easing="ease"
+                        hideArrows={false}
+                        iconArrows={true}
                         infinite={true}
+                        navInvert={true}
+                        navNumbers={false}
+                        navRound={false}
+                        navShadow={false}
+                        navSpacing={3}><SliderMask className="mask-6"><SliderSlide className="slide-26" tag="div" /><SliderSlide className="slide-27" tag="div" /></SliderMask><SliderArrow dir="left" /><SliderArrow dir="right" /><SliderNav /></SliderWrapper></Block><Block className="div-block-42" tag="div"><SliderWrapper
+                        animation="fade"
                         autoMax={0}
-                        navInvert={true}><_Builtin.SliderMask className="mask-6"><_Builtin.SliderSlide className="slide-26" tag="div" /><_Builtin.SliderSlide className="slide-27" tag="div" /></_Builtin.SliderMask><_Builtin.SliderArrow dir="left" /><_Builtin.SliderArrow dir="right" /><_Builtin.SliderNav /></_Builtin.SliderWrapper></_Builtin.Block><_Builtin.Block className="div-block-42" tag="div"><_Builtin.SliderWrapper
+                        autoplay={false}
                         className="slider-4"
-                        navSpacing={3}
-                        navShadow={false}
-                        autoplay={false}
                         delay={4000}
-                        iconArrows={true}
-                        animation="fade"
-                        navNumbers={false}
-                        easing="ease"
-                        navRound={false}
-                        hideArrows={false}
                         disableSwipe={false}
                         duration={500}
+                        easing="ease"
+                        hideArrows={false}
+                        iconArrows={true}
                         infinite={true}
+                        navInvert={true}
+                        navNumbers={false}
+                        navRound={false}
+                        navShadow={false}
+                        navSpacing={3}><SliderMask className="mask-5"><SliderSlide className="slide-25" tag="div" /><SliderSlide className="slide-24" tag="div" /></SliderMask><SliderArrow dir="left" /><SliderArrow dir="right" /><SliderNav /></SliderWrapper></Block><Block className="div-block-43" tag="div"><SliderWrapper
+                        animation="fade"
                         autoMax={0}
-                        navInvert={true}><_Builtin.SliderMask className="mask-5"><_Builtin.SliderSlide className="slide-25" tag="div" /><_Builtin.SliderSlide className="slide-24" tag="div" /></_Builtin.SliderMask><_Builtin.SliderArrow dir="left" /><_Builtin.SliderArrow dir="right" /><_Builtin.SliderNav /></_Builtin.SliderWrapper></_Builtin.Block><_Builtin.Block className="div-block-43" tag="div"><_Builtin.SliderWrapper
+                        autoplay={false}
                         className="slider-3"
-                        navSpacing={3}
-                        navShadow={false}
-                        autoplay={false}
                         delay={4000}
-                        iconArrows={true}
-                        animation="fade"
-                        navNumbers={false}
-                        easing="ease"
-                        navRound={false}
-                        hideArrows={false}
                         disableSwipe={false}
                         duration={500}
+                        easing="ease"
+                        hideArrows={false}
+                        iconArrows={true}
                         infinite={true}
-                        autoMax={0}
-                        navInvert={true}><_Builtin.SliderMask className="mask-4"><_Builtin.SliderSlide className="slide-22" tag="div" /><_Builtin.SliderSlide className="slide-23" tag="div" /></_Builtin.SliderMask><_Builtin.SliderArrow dir="left" /><_Builtin.SliderArrow dir="right" /><_Builtin.SliderNav /></_Builtin.SliderWrapper></_Builtin.Block></_Builtin.BlockContainer></_Component>
+                        navInvert={true}
+                        navNumbers={false}
+                        navRound={false}
+                        navShadow={false}
+                        navSpacing={3}><SliderMask className="mask-4"><SliderSlide className="slide-22" tag="div" /><SliderSlide className="slide-23" tag="div" /></SliderMask><SliderArrow dir="left" /><SliderArrow dir="right" /><SliderNav /></SliderWrapper></Block></BlockContainer></_Component>
     );
 }

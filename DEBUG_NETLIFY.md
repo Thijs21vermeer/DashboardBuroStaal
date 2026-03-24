@@ -27,7 +27,7 @@ Site settings > Environment variables > Add:
 AZURE_SQL_SERVER = dashboardbs.database.windows.net
 AZURE_SQL_DATABASE = dashboarddb
 AZURE_SQL_USER = databasedashboard
-AZURE_SQL_PASSWORD = Knolpower05!
+AZURE_SQL_PASSWORD = <YOUR_SECURE_PASSWORD>
 ```
 
 **⚠️ Let op:** Deze variabelen zijn momenteel hardcoded in de API endpoints!
@@ -44,7 +44,7 @@ const config: sql.config = {
   server: import.meta.env.AZURE_SQL_SERVER || 'dashboardbs.database.windows.net',
   database: import.meta.env.AZURE_SQL_DATABASE || 'dashboarddb',
   user: import.meta.env.AZURE_SQL_USER || 'databasedashboard',
-  password: import.meta.env.AZURE_SQL_PASSWORD || 'Knolpower05!',
+  password: import.meta.env.AZURE_SQL_PASSWORD || '<YOUR_SECURE_PASSWORD>',
   // ...
 };
 ```

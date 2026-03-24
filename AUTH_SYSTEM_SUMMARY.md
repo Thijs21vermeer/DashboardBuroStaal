@@ -1,3 +1,4 @@
+
 # 🔐 Buro Staal Auth System - Versie 2.0 (Vereenvoudigd)
 
 ## 📋 Overzicht
@@ -105,7 +106,7 @@ Middleware/API valideert token
 ### **Environment Variabelen**
 ```bash
 # Optioneel - voor custom secret key
-AUTH_SECRET=burostaal-super-secret-key-2026-change-this-in-production
+AUTH_SECRET=<YOUR_SECURE_RANDOM_STRING_MIN_32_CHARS>
 
 # Default: "buro-staal-auth-secret-key-2026"
 ```
@@ -120,7 +121,7 @@ const password = 'BurostaalDB'; // ← Wijzig hier
 
 ### **Environment Variables**
 ```
-AUTH_SECRET=jouw-super-geheime-key-hier
+AUTH_SECRET=<YOUR_SECURE_RANDOM_STRING_MIN_32_CHARS>
 ```
 
 ### **Build Command**
@@ -216,3 +217,4 @@ const password = 'BurostaalDB'; // Hoofdlettergevoelig!
 
 **Last Updated:** Maart 2026  
 **Version:** 2.0 (Vereenvoudigd Single-Login)
+

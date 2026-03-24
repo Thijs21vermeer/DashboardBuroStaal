@@ -1,6 +1,12 @@
 "use client";
 import React from "react";
-import * as _Builtin from "./_Builtin";
+import BackgroundVideoWrapper from "./_Builtin/BackgroundVideoWrapper";
+import Block from "./_Builtin/Block";
+import BlockContainer from "./_Builtin/BlockContainer";
+import Heading from "./_Builtin/Heading";
+import Image from "./_Builtin/Image";
+import Link from "./_Builtin/Link";
+import Strong from "./_Builtin/Strong";
 import * as _interactions from "./interactions";
 
 const _interactionsData = JSON.parse(
@@ -9,59 +15,59 @@ const _interactionsData = JSON.parse(
 
 export function VideosFeesten(
     {
-        as: _Component = _Builtin.Block
+        as: _Component = Block
     }
 ) {
     _interactions.useInteractions(_interactionsData);
 
     return (
-        <_Component className="section-intro-mockups" tag="div"><_Builtin.Block className="container-w1 gutter-outside" tag="div"><_Builtin.Block className="mockup-wrapper" tag="div"><_Builtin.Block
+        <_Component className="section-intro-mockups" tag="div"><Block className="container-w1 gutter-outside" tag="div"><Block className="mockup-wrapper" tag="div"><Block
                         className="iphone-mockup is-second"
                         data-w-id="7090d45f-f048-a5c1-551c-eee022b9af47"
-                        tag="div"><_Builtin.Block className="iphone14-screen" tag="div"><_Builtin.BackgroundVideoWrapper
+                        tag="div"><Block className="iphone14-screen" tag="div"><BackgroundVideoWrapper
+                                autoPlay={true}
                                 className="home-video"
-                                tag="div"
+                                loop={true}
+                                posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672a37fa21354c420b2c5b78_IMG_9915-poster-00001.jpg"
                                 sources={[
                                     "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672a37fa21354c420b2c5b78_IMG_9915-transcode.webm",
                                     "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672a37fa21354c420b2c5b78_IMG_9915-transcode.mp4"
                                 ]}
-                                posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672a37fa21354c420b2c5b78_IMG_9915-poster-00001.jpg"
-                                autoPlay={true}
-                                loop={true} /></_Builtin.Block><_Builtin.Image
+                                tag="div" /></Block><Image
+                            alt=""
                             className="iphone-shape"
-                            width="auto"
                             height="auto"
                             loading="lazy"
-                            alt=""
-                            src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672a2dc0f6fd11983155f9cc_iPhone14-space-black-min.svg" /></_Builtin.Block><_Builtin.Block
+                            src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672a2dc0f6fd11983155f9cc_iPhone14-space-black-min.svg"
+                            width="auto" /></Block><Block
                         className="iphone-mockup"
                         data-w-id="7090d45f-f048-a5c1-551c-eee022b9af50"
-                        tag="div"><_Builtin.Block className="iphone14-screen" tag="div"><_Builtin.BackgroundVideoWrapper
+                        tag="div"><Block className="iphone14-screen" tag="div"><BackgroundVideoWrapper
+                                autoPlay={true}
                                 className="home-video"
-                                tag="div"
+                                loop={true}
+                                posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672a39b94b4b602d346f673d_IMG_9857-poster-00001.jpg"
                                 sources={[
                                     "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672a39b94b4b602d346f673d_IMG_9857-transcode.webm",
                                     "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672a39b94b4b602d346f673d_IMG_9857-transcode.mp4"
                                 ]}
-                                posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672a39b94b4b602d346f673d_IMG_9857-poster-00001.jpg"
-                                autoPlay={true}
-                                loop={true} /></_Builtin.Block><_Builtin.Image
+                                tag="div" /></Block><Image
+                            alt=""
                             className="iphone-shape"
-                            width="auto"
                             height="auto"
                             loading="lazy"
-                            alt=""
-                            src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672a2dc0f6fd11983155f9cc_iPhone14-space-black-min.svg" /></_Builtin.Block></_Builtin.Block><_Builtin.BlockContainer
+                            src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672a2dc0f6fd11983155f9cc_iPhone14-space-black-min.svg"
+                            width="auto" /></Block></Block><BlockContainer
                     className="container-111 w-clearfix"
                     grid={{
                         type: "container"
                     }}
-                    tag="div"><_Builtin.Heading className="heading-69" tag="h1"><_Builtin.Strong className="bold-text-10">{"Inkijkje"}</_Builtin.Strong>{" in "}<br />{"eerdere feestavonden"}</_Builtin.Heading><_Builtin.Block className="text-block-67" tag="div">{"Bij De Ambivent Groep maken we van elke feestavond een bijzondere belevenis. Neem een kijkje in onze galerij en laat u inspireren door de sfeer en het plezier van eerdere feestavonden."}</_Builtin.Block><_Builtin.Link
-                        className="button-4 inkijkje"
-                        button={true}
+                    tag="div"><Heading className="heading-69" tag="h1"><Strong className="bold-text-10">{"Inkijkje"}</Strong>{" in "}<br />{"eerdere feestavonden"}</Heading><Block className="text-block-67" tag="div">{"Bij De Ambivent Groep maken we van elke feestavond een bijzondere belevenis. Neem een kijkje in onze galerij en laat u inspireren door de sfeer en het plezier van eerdere feestavonden."}</Block><Link
                         block=""
+                        button={true}
+                        className="button-4 inkijkje"
                         options={{
                             href: "https://deambiventgroep.webflow.io/feesten-partijen"
-                        }}>{"Zie meer!"}</_Builtin.Link></_Builtin.BlockContainer></_Builtin.Block></_Component>
+                        }}>{"Zie meer!"}</Link></BlockContainer></Block></_Component>
     );
 }

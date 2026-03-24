@@ -1,21 +1,41 @@
 import type { APIRoute } from 'astro';
 import { getPool } from '../../lib/db-config';
-import { validateDatabaseConfig, getDatabaseConfig } from '../../lib/config';
+import { validateDatabaseConfig } from '../../lib/config';
+import { requireAuth } from '../../lib/api-auth';
 
-export const GET: APIRoute = async ({ locals }) => {
-  const dbConfig = getDatabaseConfig(locals);
+export const GET: APIRoute = async (context) => {
+  const { locals, request } = context;
+  
+  // SECURITY: Only allow in development, and only with authentication
+  const isDevelopment = import.meta.env.DEV || 
+                       import.meta.env.MODE === 'development';
+  
+  if (!isDevelopment) {
+    return new Response(JSON.stringify({ 
+      error: 'This endpoint is only available in development mode' 
+    }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Require authentication even in development
+  const authResponse = await requireAuth(context);
+  if (authResponse) return authResponse;
+
   const validation = validateDatabaseConfig(locals);
   
   const results: any = {
     timestamp: new Date().toISOString(),
+    environment: import.meta.env.MODE,
     configValidation: validation,
-    configValues: {
-      server: dbConfig.server,
-      database: dbConfig.database,
-      user: dbConfig.user,
-      hasPassword: !!dbConfig.password,
-      passwordLength: dbConfig.password?.length || 0,
-      port: dbConfig.port,
+    // SECURITY: Never expose actual config values
+    configStatus: {
+      hasServer: validation.valid && validation.config.server !== '',
+      hasDatabase: validation.valid && validation.config.database !== '',
+      hasUser: validation.valid && validation.config.user !== '',
+      hasPassword: validation.valid && validation.config.password !== '',
+      // DO NOT expose password length - removed
     },
     connection: {
       status: 'unknown',
@@ -24,7 +44,8 @@ export const GET: APIRoute = async ({ locals }) => {
     query: {
       status: 'unknown',
       error: null as string | null,
-      data: null as any,
+      // SECURITY: Never expose actual data
+      tableExists: false,
     },
   };
 
@@ -33,16 +54,17 @@ export const GET: APIRoute = async ({ locals }) => {
     const pool = await getPool(locals);
     results.connection.status = pool.connected ? 'connected' : 'disconnected';
     
-    // Test query
-    const result = await pool.request().query('SELECT TOP 1 * FROM kennisitems ORDER BY id DESC');
+    // Test if table exists (without exposing data)
+    const result = await pool.request().query('SELECT COUNT(*) as count FROM kennisitems');
     results.query.status = 'success';
-    results.query.data = {
-      rowCount: result.recordset.length,
-      sample: result.recordset[0] || null,
-    };
+    results.query.tableExists = true;
+    results.query.rowCount = result.recordset[0]?.count || 0;
+    // SECURITY: NO sample data returned
   } catch (error) {
     results.connection.status = 'failed';
-    results.connection.error = error instanceof Error ? error.message : String(error);
+    results.connection.error = error instanceof Error 
+      ? 'Connection failed (details hidden for security)' 
+      : 'Unknown error';
     
     return new Response(JSON.stringify(results, null, 2), {
       status: 500,

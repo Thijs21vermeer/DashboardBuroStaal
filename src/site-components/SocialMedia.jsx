@@ -1,6 +1,13 @@
 "use client";
 import React from "react";
-import * as _Builtin from "./_Builtin";
+import BackgroundVideoWrapper from "./_Builtin/BackgroundVideoWrapper";
+import Block from "./_Builtin/Block";
+import Container from "./_Builtin/Container";
+import Heading from "./_Builtin/Heading";
+import Image from "./_Builtin/Image";
+import Link from "./_Builtin/Link";
+import Section from "./_Builtin/Section";
+import Video from "./_Builtin/Video";
 import * as _interactions from "./interactions";
 
 const _interactionsData = JSON.parse(
@@ -9,7 +16,7 @@ const _interactionsData = JSON.parse(
 
 export function SocialMedia(
     {
-        as: _Component = _Builtin.Section
+        as: _Component = Section
     }
 ) {
     _interactions.useInteractions(_interactionsData);
@@ -17,152 +24,152 @@ export function SocialMedia(
     return (
         <_Component
             className="section-106"
-            tag="section"
             grid={{
                 type: "section"
-            }}><_Builtin.Block
+            }}
+            tag="section"><Block
                 className="bg road"
                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf30"
-                tag="div" /><_Builtin.Block className="bg" data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf31" tag="div" /><_Builtin.Block
+                tag="div" /><Block className="bg" data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf31" tag="div" /><Block
                 className="bg waterfall"
                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf32"
-                tag="div" /><_Builtin.Block className="hero-section" tag="div"><_Builtin.Block className="video-blog-wrap" tag="div"><_Builtin.Block tag="div"><_Builtin.Heading className="heading-70" tag="h3"><_Builtin.Link
+                tag="div" /><Block className="hero-section" tag="div"><Block className="video-blog-wrap" tag="div"><Block tag="div"><Heading className="heading-70" tag="h3"><Link
+                                block=""
+                                button={false}
                                 className="link-17"
-                                button={false}
-                                block=""
                                 options={{
                                     href: "#"
-                                }}>{"@deambiventgroep"}</_Builtin.Link>{" & "}<_Builtin.Link
+                                }}>{"@deambiventgroep"}</Link>{" & "}<Link
+                                block=""
+                                button={false}
                                 className="link-16"
-                                button={false}
-                                block=""
                                 options={{
                                     href: "#"
-                                }}>{"@dezwethburch"}</_Builtin.Link></_Builtin.Heading></_Builtin.Block><_Builtin.Block className="video-blog-block" tag="div"><_Builtin.Block className="blog-block" tag="div"><_Builtin.Block
+                                }}>{"@dezwethburch"}</Link></Heading></Block><Block className="video-blog-block" tag="div"><Block className="blog-block" tag="div"><Block
                                 className="video-blog road"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf3e"
-                                tag="div" /><_Builtin.Block
+                                tag="div" /><Block
                                 className="active-blog"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf41"
-                                tag="div" /></_Builtin.Block><_Builtin.Block className="blog-block" tag="div"><_Builtin.Block
+                                tag="div" /></Block><Block className="blog-block" tag="div"><Block
                                 className="active-blog"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf43"
-                                tag="div" /><_Builtin.Block
+                                tag="div" /><Block
                                 className="video-blog"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf44"
-                                tag="div" /></_Builtin.Block><_Builtin.Block className="blog-block" tag="div"><_Builtin.Block
+                                tag="div" /></Block><Block className="blog-block" tag="div"><Block
                                 className="video-blog laos"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf48"
-                                tag="div" /><_Builtin.Block
+                                tag="div" /><Block
                                 className="active-blog"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf4b"
-                                tag="div" /></_Builtin.Block></_Builtin.Block></_Builtin.Block><_Builtin.Block className="text-block-68" tag="div"><_Builtin.Heading className="cc-junbo-h1" tag="h1">{"Bekijk onze social media voor leuke foto's & video's! "}</_Builtin.Heading></_Builtin.Block><_Builtin.Block className="video-mock-up" tag="div"><_Builtin.Block className="story front _3" tag="div"><_Builtin.Block
+                                tag="div" /></Block></Block></Block><Block className="text-block-68" tag="div"><Heading className="cc-junbo-h1" tag="h1">{"Bekijk onze social media voor leuke foto's & video's! "}</Heading></Block><Block className="video-mock-up" tag="div"><Block className="story front _3" tag="div"><Block
                             className="like"
                             data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf51"
-                            tag="div" /></_Builtin.Block><_Builtin.Block className="story front _2" tag="div"><_Builtin.Block
+                            tag="div" /></Block><Block className="story front _2" tag="div"><Block
                             className="like"
                             data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf53"
-                            tag="div" /></_Builtin.Block><_Builtin.Block className="story front _1" tag="div"><_Builtin.Block
+                            tag="div" /></Block><Block className="story front _1" tag="div"><Block
                             className="like"
                             data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf55"
-                            tag="div" /></_Builtin.Block><_Builtin.Block className="story front" tag="div"><_Builtin.Block className="like" tag="div" /><_Builtin.Block className="time-line" tag="div"><_Builtin.Block
+                            tag="div" /></Block><Block className="story front" tag="div"><Block className="like" tag="div" /><Block className="time-line" tag="div"><Block
                                 className="dot-top"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf59"
-                                tag="div" /><_Builtin.Block
+                                tag="div" /><Block
                                 className="dot-top"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf5a"
-                                tag="div" /><_Builtin.Block
+                                tag="div" /><Block
                                 className="dot-top last"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf5b"
-                                tag="div" /></_Builtin.Block></_Builtin.Block><_Builtin.Block className="device" tag="div" /><_Builtin.Block className="video-block" tag="div"><_Builtin.Block className="video-wrap" tag="div"><_Builtin.Block
+                                tag="div" /></Block></Block><Block className="device" tag="div" /><Block className="video-block" tag="div"><Block className="video-wrap" tag="div"><Block
                                 className="video-3 front"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf5f"
-                                tag="div"><_Builtin.Block className="story" tag="div"><_Builtin.Block className="user-wrap" tag="div"><_Builtin.Block className="user-block" tag="div"><_Builtin.Block className="user-photo small" tag="div" /><_Builtin.Block className="user-text" tag="div"><_Builtin.Heading className="heading-74" tag="h6">{"De Ambivent Groep"}</_Builtin.Heading><_Builtin.Heading className="cc-small" tag="h4">{"3 maanden geleden"}</_Builtin.Heading></_Builtin.Block></_Builtin.Block><_Builtin.Block className="like-wrap" tag="div"><_Builtin.Block className="like-line" tag="div"><_Builtin.Image
-                                                    width="auto"
+                                tag="div"><Block className="story" tag="div"><Block className="user-wrap" tag="div"><Block className="user-block" tag="div"><Block className="user-photo small" tag="div" /><Block className="user-text" tag="div"><Heading className="heading-74" tag="h6">{"De Ambivent Groep"}</Heading><Heading className="cc-small" tag="h4">{"3 maanden geleden"}</Heading></Block></Block><Block className="like-wrap" tag="div"><Block className="like-line" tag="div"><Image
+                                                    alt=""
                                                     height="auto"
                                                     loading="lazy"
-                                                    alt=""
-                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db20_Line.svg" /></_Builtin.Block><_Builtin.Block
+                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db20_Line.svg"
+                                                    width="auto" /></Block><Block
                                                 className="like-full"
                                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf6c"
-                                                tag="div"><_Builtin.Image
-                                                    width="auto"
+                                                tag="div"><Image
+                                                    alt=""
                                                     height="auto"
                                                     loading="lazy"
-                                                    alt=""
-                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db15_Fill.svg" /></_Builtin.Block></_Builtin.Block></_Builtin.Block><_Builtin.Block className="time-line" tag="div"><_Builtin.Block className="dot-time active" tag="div" /><_Builtin.Block className="dot-time" tag="div" /><_Builtin.Block className="dot-time last" tag="div" /></_Builtin.Block></_Builtin.Block><_Builtin.BackgroundVideoWrapper
+                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db15_Fill.svg"
+                                                    width="auto" /></Block></Block></Block><Block className="time-line" tag="div"><Block className="dot-time active" tag="div" /><Block className="dot-time" tag="div" /><Block className="dot-time last" tag="div" /></Block></Block><BackgroundVideoWrapper
+                                    autoPlay={true}
                                     className="background-video-6"
-                                    tag="div"
+                                    loop={true}
+                                    posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b72b0618f0a0d36be3b51_2022-12-13%EF%BF%BD20Robbert%EF%BF%BD20%26%EF%BF%BD20Elise%EF%BF%BD20Zwethburg%EF%BF%BD20%281%29-poster-00001.jpg"
                                     sources={[
                                         "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b72b0618f0a0d36be3b51_2022-12-13%EF%BF%BD20Robbert%EF%BF%BD20%26%EF%BF%BD20Elise%EF%BF%BD20Zwethburg%EF%BF%BD20%281%29-transcode.webm",
                                         "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b72b0618f0a0d36be3b51_2022-12-13%EF%BF%BD20Robbert%EF%BF%BD20%26%EF%BF%BD20Elise%EF%BF%BD20Zwethburg%EF%BF%BD20%281%29-transcode.mp4"
                                     ]}
-                                    posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b72b0618f0a0d36be3b51_2022-12-13%EF%BF%BD20Robbert%EF%BF%BD20%26%EF%BF%BD20Elise%EF%BF%BD20Zwethburg%EF%BF%BD20%281%29-poster-00001.jpg"
-                                    autoPlay={true}
-                                    loop={true} /></_Builtin.Block><_Builtin.Block
+                                    tag="div" /></Block><Block
                                 className="video-3 road"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf73"
-                                tag="div"><_Builtin.Block className="story" tag="div"><_Builtin.Block className="user-wrap" tag="div"><_Builtin.Block className="user-block" tag="div"><_Builtin.Block className="user-photo small" tag="div" /><_Builtin.Block className="user-text" tag="div"><_Builtin.Heading className="heading-75" tag="h6">{"De Ambivent groep"}</_Builtin.Heading><_Builtin.Heading className="cc-small" tag="h4">{"1 week geleden"}</_Builtin.Heading></_Builtin.Block></_Builtin.Block><_Builtin.Block className="like-wrap" tag="div"><_Builtin.Block className="like-line" tag="div"><_Builtin.Image
-                                                    width="auto"
+                                tag="div"><Block className="story" tag="div"><Block className="user-wrap" tag="div"><Block className="user-block" tag="div"><Block className="user-photo small" tag="div" /><Block className="user-text" tag="div"><Heading className="heading-75" tag="h6">{"De Ambivent groep"}</Heading><Heading className="cc-small" tag="h4">{"1 week geleden"}</Heading></Block></Block><Block className="like-wrap" tag="div"><Block className="like-line" tag="div"><Image
+                                                    alt=""
                                                     height="auto"
                                                     loading="lazy"
-                                                    alt=""
-                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db20_Line.svg" /></_Builtin.Block><_Builtin.Block
+                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db20_Line.svg"
+                                                    width="auto" /></Block><Block
                                                 className="like-full"
                                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf80"
-                                                tag="div"><_Builtin.Image
-                                                    width="auto"
+                                                tag="div"><Image
+                                                    alt=""
                                                     height="auto"
                                                     loading="lazy"
-                                                    alt=""
-                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db15_Fill.svg" /></_Builtin.Block></_Builtin.Block></_Builtin.Block><_Builtin.Block className="time-line" tag="div"><_Builtin.Block className="dot-time" tag="div" /><_Builtin.Block className="dot-time active" tag="div" /><_Builtin.Block className="dot-time last" tag="div" /></_Builtin.Block></_Builtin.Block><_Builtin.BackgroundVideoWrapper
+                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db15_Fill.svg"
+                                                    width="auto" /></Block></Block></Block><Block className="time-line" tag="div"><Block className="dot-time" tag="div" /><Block className="dot-time active" tag="div" /><Block className="dot-time last" tag="div" /></Block></Block><BackgroundVideoWrapper
+                                    autoPlay={true}
                                     className="background-video-6"
-                                    tag="div"
+                                    loop={true}
+                                    posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b5305e6fc4e6f9d5b5422_IMG_8683-poster-00001.jpg"
                                     sources={[
                                         "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b5305e6fc4e6f9d5b5422_IMG_8683-transcode.webm",
                                         "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b5305e6fc4e6f9d5b5422_IMG_8683-transcode.mp4"
                                     ]}
-                                    posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b5305e6fc4e6f9d5b5422_IMG_8683-poster-00001.jpg"
-                                    autoPlay={true}
-                                    loop={true} /></_Builtin.Block><_Builtin.Block
+                                    tag="div" /></Block><Block
                                 className="video-3 water-fall"
                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf87"
-                                tag="div"><_Builtin.Block className="story" tag="div"><_Builtin.Block className="user-wrap" tag="div"><_Builtin.Block className="user-block" tag="div"><_Builtin.Block className="user-photo small" tag="div" /><_Builtin.Block className="user-text" tag="div"><_Builtin.Heading className="heading-76" tag="h6">{"De Ambivent Groep"}</_Builtin.Heading><_Builtin.Heading className="cc-small" tag="h4">{"1 maand geleden"}</_Builtin.Heading></_Builtin.Block></_Builtin.Block><_Builtin.Block className="like-wrap" tag="div"><_Builtin.Block className="like-line" tag="div"><_Builtin.Image
-                                                    width="auto"
+                                tag="div"><Block className="story" tag="div"><Block className="user-wrap" tag="div"><Block className="user-block" tag="div"><Block className="user-photo small" tag="div" /><Block className="user-text" tag="div"><Heading className="heading-76" tag="h6">{"De Ambivent Groep"}</Heading><Heading className="cc-small" tag="h4">{"1 maand geleden"}</Heading></Block></Block><Block className="like-wrap" tag="div"><Block className="like-line" tag="div"><Image
+                                                    alt=""
                                                     height="auto"
                                                     loading="lazy"
-                                                    alt=""
-                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db20_Line.svg" /></_Builtin.Block><_Builtin.Block
+                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db20_Line.svg"
+                                                    width="auto" /></Block><Block
                                                 className="like-full"
                                                 data-w-id="ec291f10-a3c9-fc80-689e-eae55887cf94"
-                                                tag="div"><_Builtin.Image
-                                                    width="auto"
+                                                tag="div"><Image
+                                                    alt=""
                                                     height="auto"
                                                     loading="lazy"
-                                                    alt=""
-                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db15_Fill.svg" /></_Builtin.Block></_Builtin.Block></_Builtin.Block><_Builtin.Block className="time-line" tag="div"><_Builtin.Block className="dot-time" tag="div" /><_Builtin.Block className="dot-time" tag="div" /><_Builtin.Block className="dot-time active last" tag="div" /></_Builtin.Block></_Builtin.Block><_Builtin.BackgroundVideoWrapper
+                                                    src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/672b49c8ad3699d77834db15_Fill.svg"
+                                                    width="auto" /></Block></Block></Block><Block className="time-line" tag="div"><Block className="dot-time" tag="div" /><Block className="dot-time" tag="div" /><Block className="dot-time active last" tag="div" /></Block></Block><BackgroundVideoWrapper
+                                    autoPlay={true}
                                     className="background-video-6"
-                                    tag="div"
+                                    loop={true}
+                                    posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b55f8fbb01b1ebbc6ec3f_223C1FE4-10B3-47BE-81B1-B44859723D58%20%281%29-poster-00001.jpg"
                                     sources={[
                                         "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b55f8fbb01b1ebbc6ec3f_223C1FE4-10B3-47BE-81B1-B44859723D58%20%281%29-transcode.webm",
                                         "https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b55f8fbb01b1ebbc6ec3f_223C1FE4-10B3-47BE-81B1-B44859723D58%20%281%29-transcode.mp4"
                                     ]}
-                                    posterImage="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57%2F672b55f8fbb01b1ebbc6ec3f_223C1FE4-10B3-47BE-81B1-B44859723D58%20%281%29-poster-00001.jpg"
-                                    autoPlay={true}
-                                    loop={true} /></_Builtin.Block></_Builtin.Block></_Builtin.Block><_Builtin.Block className="device-blur" tag="div" /></_Builtin.Block></_Builtin.Block><_Builtin.Block className="pop-up-2" tag="div"><_Builtin.Container tag="div"><_Builtin.Block className="video-container-02" tag="div"><_Builtin.Video
+                                    tag="div" /></Block></Block></Block><Block className="device-blur" tag="div" /></Block></Block><Block className="pop-up-2" tag="div"><Container tag="div"><Block className="video-container-02" tag="div"><Video
                             options={{
                                 width: 940,
                                 height: 528,
                                 title: "How to make gradient effect on hover",
                                 url: "//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fwww.youtube.com%2Fembed%2FFJOCymGOqPw%3Ffeature%3Doembed&display_name=YouTube&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DFJOCymGOqPw&image=https%3A%2F%2Fi.ytimg.com%2Fvi%2FFJOCymGOqPw%2Fhqdefault.jpg&key=96f1f04c5f4143bcb0f2e68c87d65feb&type=text%2Fhtml&schema=youtube"
-                            }} /><_Builtin.Block
+                            }} /><Block
                             className="close-2"
                             data-w-id="ec291f10-a3c9-fc80-689e-eae55887cfa0"
-                            tag="div"><_Builtin.Image
-                                width="32"
+                            tag="div"><Image
+                                alt=""
                                 height="auto"
                                 loading="lazy"
-                                alt=""
-                                src="https://cdn.prod.website-files.com/672b4801533ee573b5ae88c4/672b4801533ee573b5ae89f2_Close%20Circle.svg" /></_Builtin.Block></_Builtin.Block></_Builtin.Container></_Builtin.Block></_Component>
+                                src="https://cdn.prod.website-files.com/672b4801533ee573b5ae88c4/672b4801533ee573b5ae89f2_Close%20Circle.svg"
+                                width="32" /></Block></Block></Container></Block></_Component>
     );
 }

@@ -1,6 +1,11 @@
 "use client";
 import React from "react";
-import * as _Builtin from "./_Builtin";
+import BlockContainer from "./_Builtin/BlockContainer";
+import Heading from "./_Builtin/Heading";
+import Image from "./_Builtin/Image";
+import Link from "./_Builtin/Link";
+import Paragraph from "./_Builtin/Paragraph";
+import Section from "./_Builtin/Section";
 import * as _interactions from "./interactions";
 
 const _interactionsData = JSON.parse(
@@ -9,7 +14,7 @@ const _interactionsData = JSON.parse(
 
 export function UnknownComponent3DeligeHeader(
     {
-        as: _Component = _Builtin.Section
+        as: _Component = Section
     }
 ) {
     _interactions.useInteractions(_interactionsData);
@@ -20,65 +25,65 @@ export function UnknownComponent3DeligeHeader(
             grid={{
                 type: "section"
             }}
-            tag="section"><_Builtin.Section
+            tag="section"><Section
                 className="section-53"
                 grid={{
                     type: "section"
                 }}
-                tag="section"><_Builtin.BlockContainer
+                tag="section"><BlockContainer
                     className="container-69 w-clearfix"
                     data-w-id="2c35c231-e99b-e028-697a-a389def97e17"
                     grid={{
                         type: "container"
                     }}
-                    tag="div"><_Builtin.Heading className="heading-46" tag="h1">{"Bruiloften"}</_Builtin.Heading><_Builtin.Image
-                        className="image-15"
-                        loading="lazy"
-                        width="auto"
-                        height="auto"
+                    tag="div"><Heading className="heading-46" tag="h1">{"Bruiloften"}</Heading><Image
                         alt=""
-                        src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/66d983f11b48f369ccaccf46_IMG_9297.JPG" /><_Builtin.Paragraph className="paragraph-3">{"De Ambivent Groep beheert twee prachtige locaties, gelegen in de Lier (westland), voor uw bruiloftsfeest. Makkelijk bereikbaar en met voldoende parkeergelegenheid."}<br />{"‍"}</_Builtin.Paragraph><_Builtin.Link
-                        className="button-4 home"
-                        button={true}
+                        className="image-15"
+                        height="auto"
+                        loading="lazy"
+                        src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/66d983f11b48f369ccaccf46_IMG_9297.JPG"
+                        width="auto" /><Paragraph className="paragraph-3">{"De Ambivent Groep beheert twee prachtige locaties, gelegen in de Lier (westland), voor uw bruiloftsfeest. Makkelijk bereikbaar en met voldoende parkeergelegenheid."}<br />{"‍"}</Paragraph><Link
                         block=""
+                        button={true}
+                        className="button-4 home"
                         options={{
                             href: "https://deambiventgroep.webflow.io/bruiloft"
-                        }}>{"Meer informatie"}</_Builtin.Link></_Builtin.BlockContainer><_Builtin.BlockContainer
+                        }}>{"Meer informatie"}</Link></BlockContainer><BlockContainer
                     className="container-69 w-clearfix"
                     data-w-id="2c35c231-e99b-e028-697a-a389def97e21"
                     grid={{
                         type: "container"
                     }}
-                    tag="div"><_Builtin.Heading className="heading-44" tag="h1">{"Feesten & partijen"}</_Builtin.Heading><_Builtin.Image
-                        className="image-16"
-                        loading="lazy"
-                        width="auto"
-                        height="auto"
+                    tag="div"><Heading className="heading-44" tag="h1">{"Feesten & partijen"}</Heading><Image
                         alt=""
-                        src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/66d970bd66e95159f75edbf8_feestavond%20zwethburch.jpeg" /><_Builtin.Paragraph className="paragraph-3">{"Heeft u reden voor een feestje? Een verjaardag, pensionering of jubileum? Bij de Ambivent Groep maken wij er samen met u en uw gasten een fantastisch verzorgd feest van."}</_Builtin.Paragraph><_Builtin.Link
-                        className="button-4 home"
-                        button={true}
+                        className="image-16"
+                        height="auto"
+                        loading="lazy"
+                        src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/66d970bd66e95159f75edbf8_feestavond%20zwethburch.jpeg"
+                        width="auto" /><Paragraph className="paragraph-3">{"Heeft u reden voor een feestje? Een verjaardag, pensionering of jubileum? Bij de Ambivent Groep maken wij er samen met u en uw gasten een fantastisch verzorgd feest van."}</Paragraph><Link
                         block=""
+                        button={true}
+                        className="button-4 home"
                         options={{
                             href: "#"
-                        }}>{"Meer informatie"}</_Builtin.Link></_Builtin.BlockContainer><_Builtin.BlockContainer
+                        }}>{"Meer informatie"}</Link></BlockContainer><BlockContainer
                     className="container-69 w-clearfix"
                     data-w-id="2c35c231-e99b-e028-697a-a389def97e29"
                     grid={{
                         type: "container"
                     }}
-                    tag="div"><_Builtin.Heading className="heading-45" tag="h1">{"Zakelijk"}</_Builtin.Heading><_Builtin.Image
-                        className="image-17"
-                        loading="lazy"
-                        width="auto"
-                        height="auto"
+                    tag="div"><Heading className="heading-45" tag="h1">{"Zakelijk"}</Heading><Image
                         alt=""
-                        src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/67042af7b85706bbd9e921f2_IV%20Fotografie-43.jpg" /><_Builtin.Paragraph className="paragraph-4">{"Vergadering, bedrijfsuitje, teambuilding? In één onze zalen vindt u alles wat u nodig heeft. Tot maximaal 110 personen."}<br /><br />{"‍"}</_Builtin.Paragraph><_Builtin.Link
-                        className="button-4 home"
-                        button={true}
+                        className="image-17"
+                        height="auto"
+                        loading="lazy"
+                        src="https://cdn.prod.website-files.com/642c7738f0b9eb1000d18a57/67042af7b85706bbd9e921f2_IV%20Fotografie-43.jpg"
+                        width="auto" /><Paragraph className="paragraph-4">{"Vergadering, bedrijfsuitje, teambuilding? In één onze zalen vindt u alles wat u nodig heeft. Tot maximaal 110 personen."}<br /><br />{"‍"}</Paragraph><Link
                         block=""
+                        button={true}
+                        className="button-4 home"
                         options={{
                             href: "https://deambiventgroep.webflow.io/zakelijk"
-                        }}>{"Meer informatie"}</_Builtin.Link></_Builtin.BlockContainer></_Builtin.Section></_Component>
+                        }}>{"Meer informatie"}</Link></BlockContainer></Section></_Component>
     );
 }

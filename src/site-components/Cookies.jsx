@@ -1,10 +1,12 @@
 "use client";
 import React from "react";
-import * as _Builtin from "./_Builtin";
+import Block from "./_Builtin/Block";
+import HtmlEmbed from "./_Builtin/HtmlEmbed";
+import Link from "./_Builtin/Link";
 
 export function Cookies(
     {
-        as: _Component = _Builtin.Block
+        as: _Component = Block
     }
 ) {
     return;

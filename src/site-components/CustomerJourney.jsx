@@ -1,6 +1,10 @@
 "use client";
 import React from "react";
-import * as _Builtin from "./_Builtin";
+import Block from "./_Builtin/Block";
+import BlockContainer from "./_Builtin/BlockContainer";
+import Heading from "./_Builtin/Heading";
+import Link from "./_Builtin/Link";
+import Section from "./_Builtin/Section";
 import * as _interactions from "./interactions";
 
 const _interactionsData = JSON.parse(
@@ -9,7 +13,7 @@ const _interactionsData = JSON.parse(
 
 export function CustomerJourney(
     {
-        as: _Component = _Builtin.Section
+        as: _Component = Section
     }
 ) {
     _interactions.useInteractions(_interactionsData);
@@ -19,53 +23,53 @@ export function CustomerJourney(
             grid={{
                 type: "section"
             }}
-            tag="section"><_Builtin.Section
+            tag="section"><Section
                 className="section-21"
                 grid={{
                     type: "section"
                 }}
-                tag="section"><_Builtin.BlockContainer
+                tag="section"><BlockContainer
                     className="container-21"
                     grid={{
                         type: "container"
                     }}
-                    tag="div"><_Builtin.Block
+                    tag="div"><Block
                         className="div-block-18"
                         data-w-id="90eba905-ecc4-33af-8f28-ccc779bc4b1f"
-                        tag="div"><_Builtin.Heading className="heading-25" tag="h1">{"Kies uit vele mogelijkheden"}</_Builtin.Heading><_Builtin.Block className="text-block-26" tag="div">{"Stel uw dag zorgvuldig samen door te kiezen uit ons uitgebreide assortiment van heerlijke hapjes, verfrissende drankjes en stijlvolle decoratie. Krijg direct een prijsindicatie! "}</_Builtin.Block></_Builtin.Block></_Builtin.BlockContainer><_Builtin.BlockContainer
+                        tag="div"><Heading className="heading-25" tag="h1">{"Kies uit vele mogelijkheden"}</Heading><Block className="text-block-26" tag="div">{"Stel uw dag zorgvuldig samen door te kiezen uit ons uitgebreide assortiment van heerlijke hapjes, verfrissende drankjes en stijlvolle decoratie. Krijg direct een prijsindicatie! "}</Block></Block></BlockContainer><BlockContainer
                     className="container-22"
                     grid={{
                         type: "container"
                     }}
-                    tag="div"><_Builtin.Block
+                    tag="div"><Block
                         className="div-block-17"
                         data-w-id="90eba905-ecc4-33af-8f28-ccc779bc4b25"
-                        tag="div"><_Builtin.Heading className="heading-23" tag="h1">{"Start een offerte"}</_Builtin.Heading><_Builtin.Block className="text-block-25" tag="div">{"Stel eenvoudig en snel een gedetailleerde "}<_Builtin.Link
-                                className="link-9"
-                                button={false}
+                        tag="div"><Heading className="heading-23" tag="h1">{"Start een offerte"}</Heading><Block className="text-block-25" tag="div">{"Stel eenvoudig en snel een gedetailleerde "}<Link
                                 block=""
+                                button={false}
+                                className="link-9"
                                 options={{
                                     href: "#"
-                                }}>{"offerte "}</_Builtin.Link>{"op. Met ons gebruiks-vriendelijke systeem krijgt u de mogelijkheid om al uw wensen overzichtelijk te bekijken entoe te voegen. "}</_Builtin.Block></_Builtin.Block></_Builtin.BlockContainer><_Builtin.BlockContainer
+                                }}>{"offerte "}</Link>{"op. Met ons gebruiks-vriendelijke systeem krijgt u de mogelijkheid om al uw wensen overzichtelijk te bekijken entoe te voegen. "}</Block></Block></BlockContainer><BlockContainer
                     className="container-20"
                     grid={{
                         type: "container"
                     }}
-                    tag="div"><_Builtin.Block
+                    tag="div"><Block
                         className="div-block-16"
                         data-w-id="90eba905-ecc4-33af-8f28-ccc779bc4b2e"
-                        tag="div"><_Builtin.Heading className="heading-24" tag="h1">{"Kies een locatie"}</_Builtin.Heading><_Builtin.Block className="text-block-24" tag="div">{"Maak een keuze uit onze twee unieke locaties: het moderne "}<_Builtin.Link
+                        tag="div"><Heading className="heading-24" tag="h1">{"Kies een locatie"}</Heading><Block className="text-block-24" tag="div">{"Maak een keuze uit onze twee unieke locaties: het moderne "}<Link
+                                block=""
+                                button={false}
                                 className="link-8"
-                                button={false}
-                                block=""
                                 options={{
                                     href: "#"
-                                }}>{"partycentrum"}</_Builtin.Link>{" voor feesten en bij-eenkomsten, en de romantische "}<_Builtin.Link
+                                }}>{"partycentrum"}</Link>{" voor feesten en bij-eenkomsten, en de romantische "}<Link
+                                block=""
+                                button={false}
                                 className="link-7"
-                                button={false}
-                                block=""
                                 options={{
                                     href: "#"
-                                }}>{"trouwboerderij"}</_Builtin.Link>{" voor een intieme bruiloft."}</_Builtin.Block></_Builtin.Block></_Builtin.BlockContainer></_Builtin.Section></_Component>
+                                }}>{"trouwboerderij"}</Link>{" voor een intieme bruiloft."}</Block></Block></BlockContainer></Section></_Component>
     );
 }

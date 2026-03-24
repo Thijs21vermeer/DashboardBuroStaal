@@ -1,3 +1,4 @@
+
 # 🔐 Secure Authentication Setup
 
 ## Wat is er veranderd?
@@ -28,7 +29,7 @@ Voeg deze toe aan je `.env` bestand en **Netlify Environment Variables**:
 DASHBOARD_PASSWORD=jouw-veilige-wachtwoord-hier
 
 # JWT signing secret (verplicht - maak dit een lange random string!)
-AUTH_SECRET=een-zeer-lange-random-string-minimaal-32-karakters
+AUTH_SECRET=<YOUR_SECURE_RANDOM_STRING_MIN_32_CHARS>
 ```
 
 ### AUTH_SECRET genereren:
@@ -70,7 +71,7 @@ Zorg dat deze environment variables in Netlify staan:
 1. Ga naar: **Site settings → Environment variables**
 2. Voeg toe:
    ```
-   AUTH_SECRET = [jouw-random-string]
+   AUTH_SECRET = <YOUR_SECURE_RANDOM_STRING_MIN_32_CHARS>
    DASHBOARD_PASSWORD = [jouw-wachtwoord]
    ```
 3. **Redeploy** de site
@@ -144,3 +145,4 @@ localStorage.setItem('auth_token', 'fake-token');
 - **AUTH_SECRET moet minimaal 32 karakters zijn**
 - **Verander AUTH_SECRET niet nadat users ingelogd zijn** (alle tokens worden ongeldig)
 - **Gebruik verschillende secrets voor staging en productie**
+

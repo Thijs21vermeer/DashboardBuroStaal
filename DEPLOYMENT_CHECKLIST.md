@@ -24,7 +24,7 @@ Zorg dat je deze variabelen hebt:
 AZURE_SQL_SERVER=dashboardbs.database.windows.net
 AZURE_SQL_DATABASE=dashboarddb
 AZURE_SQL_USER=databasedashboard
-AZURE_SQL_PASSWORD=Knolpower05!
+AZURE_SQL_PASSWORD=<YOUR_SECURE_PASSWORD>
 AZURE_SQL_PORT=1433
 ```
 

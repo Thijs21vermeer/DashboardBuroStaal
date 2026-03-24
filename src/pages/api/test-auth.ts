@@ -1,30 +1,45 @@
 import type { APIRoute } from 'astro';
 import { getAuthSecret } from '../../lib/config';
+import { requireAuth } from '../../lib/api-auth';
 
-export const GET: APIRoute = async ({ locals }) => {
+export const GET: APIRoute = async (context) => {
+  const { locals } = context;
+  
+  // SECURITY: Only allow in development, and only with authentication
+  const isDevelopment = import.meta.env.DEV || 
+                       import.meta.env.MODE === 'development';
+  
+  if (!isDevelopment) {
+    return new Response(JSON.stringify({ 
+      error: 'This endpoint is only available in development mode' 
+    }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Require authentication even in development
+  const authResponse = await requireAuth(context);
+  if (authResponse) return authResponse;
+
   const authSecret = getAuthSecret(locals);
   
   const diagnostics = {
     timestamp: new Date().toISOString(),
+    environment: import.meta.env.MODE,
     authSecret: {
       exists: !!authSecret,
       length: authSecret ? authSecret.length : 0,
-      isDefault: authSecret === 'burostaal-secret-key-change-in-production',
-      source: 'from getAuthSecret(locals)'
+      // SECURITY: Don't expose if using default (removed isDefault check)
     },
     envVars: {
       JWT_SECRET: {
-        fromImportMeta: !!import.meta.env.JWT_SECRET,
-        fromLocals: !!locals?.runtime?.env?.JWT_SECRET,
         exists: !!(import.meta.env.JWT_SECRET || locals?.runtime?.env?.JWT_SECRET)
       },
       AUTH_SECRET: {
-        fromImportMeta: !!import.meta.env.AUTH_SECRET,
-        fromLocals: !!locals?.runtime?.env?.AUTH_SECRET,
         exists: !!(import.meta.env.AUTH_SECRET || locals?.runtime?.env?.AUTH_SECRET)
       }
-    },
-    platform: import.meta.env.PROD ? 'production' : 'development'
+    }
   };
 
   return new Response(JSON.stringify(diagnostics, null, 2), {
@@ -32,4 +47,3 @@ export const GET: APIRoute = async ({ locals }) => {
     headers: { 'Content-Type': 'application/json' }
   });
 };
-

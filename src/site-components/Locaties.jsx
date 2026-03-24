@@ -1,31 +1,36 @@
 "use client";
 import React from "react";
-import * as _Builtin from "./_Builtin";
+import Block from "./_Builtin/Block";
+import Cell from "./_Builtin/Cell";
+import Heading from "./_Builtin/Heading";
+import Layout from "./_Builtin/Layout";
+import Link from "./_Builtin/Link";
+import Strong from "./_Builtin/Strong";
 
 export function Locaties(
     {
-        as: _Component = _Builtin.Layout
+        as: _Component = Layout
     }
 ) {
     return (
         <_Component
             className="quick-stack"
-            id="w-node-_4e5badbc-dd3e-1d0a-dd6c-092b47f769e7-47f769e7"><_Builtin.Cell
+            id="w-node-_4e5badbc-dd3e-1d0a-dd6c-092b47f769e7-47f769e7"><Cell
                 className="cell"
-                id="w-node-_4e5badbc-dd3e-1d0a-dd6c-092b47f769e8-47f769e7"><_Builtin.Heading className="heading-22" tag="h1">{"Onze"}<_Builtin.Strong className="bold-text-4 evenementen">{"evenementen"}</_Builtin.Strong>{"locaties"}</_Builtin.Heading></_Builtin.Cell><_Builtin.Cell
+                id="w-node-_4e5badbc-dd3e-1d0a-dd6c-092b47f769e8-47f769e7"><Heading className="heading-22" tag="h1">{"Onze"}<Strong className="bold-text-4 evenementen">{"evenementen"}</Strong>{"locaties"}</Heading></Cell><Cell
                 className="cell-3"
-                id="w-node-_4e5badbc-dd3e-1d0a-dd6c-092b47f769ee-47f769e7"><_Builtin.Block className="div-block-15" tag="div"><_Builtin.Link
-                        className="button-11"
-                        button={true}
+                id="w-node-_4e5badbc-dd3e-1d0a-dd6c-092b47f769ee-47f769e7"><Block className="div-block-15" tag="div"><Link
                         block=""
+                        button={true}
+                        className="button-11"
                         options={{
                             href: "https://deambiventgroep.webflow.io/de-zwethburch"
-                        }}>{"De Zwethburch"}</_Builtin.Link></_Builtin.Block><_Builtin.Block className="div-block-14" tag="div"><_Builtin.Link
-                        className="button-10"
-                        button={true}
+                        }}>{"De Zwethburch"}</Link></Block><Block className="div-block-14" tag="div"><Link
                         block=""
+                        button={true}
+                        className="button-10"
                         options={{
                             href: "https://deambiventgroep.webflow.io/t-centrum"
-                        }}>{"'t Centrum"}</_Builtin.Link></_Builtin.Block></_Builtin.Cell></_Component>
+                        }}>{"'t Centrum"}</Link></Block></Cell></_Component>
     );
 }

@@ -69,7 +69,7 @@ az functionapp config appsettings set \
     AZURE_SQL_SERVER="dashboardbs.database.windows.net" \
     AZURE_SQL_DATABASE="dashboarddb" \
     AZURE_SQL_USER="databasedashboard" \
-    AZURE_SQL_PASSWORD="Knolpower05!"
+    AZURE_SQL_PASSWORD="<YOUR_SECURE_PASSWORD>"
 ```
 
 ✅ Dit configureert de database credentials in je Function App
@@ -294,7 +294,7 @@ az functionapp config appsettings set \
     AZURE_SQL_SERVER="dashboardbs.database.windows.net" \
     AZURE_SQL_DATABASE="dashboarddb" \
     AZURE_SQL_USER="databasedashboard" \
-    AZURE_SQL_PASSWORD="Knolpower05!"
+    AZURE_SQL_PASSWORD="<YOUR_SECURE_PASSWORD>"
 
 # 3. Configureer CORS
 az functionapp cors add \
