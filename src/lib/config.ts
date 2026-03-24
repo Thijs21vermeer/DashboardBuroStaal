@@ -3,6 +3,7 @@
 
 
 
+
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -174,6 +175,16 @@ export function getSlackWebhook(locals?: any): string | undefined {
 
 export function getDashboardPassword(locals?: any): string | undefined {
   return locals?.runtime?.env?.DASHBOARD_PASSWORD || getEnv('DASHBOARD_PASSWORD');
+}
+
+/**
+ * Get ADMIN_SECRET for debug/diagnostic endpoints
+ * These endpoints should ONLY be accessible with both authentication AND this secret
+ * 
+ * SECURITY: Never expose this in logs or responses
+ */
+export function getAdminSecret(locals?: any): string | undefined {
+  return locals?.runtime?.env?.ADMIN_SECRET || getEnv('ADMIN_SECRET');
 }
 
 // ============================================================================
@@ -384,6 +395,7 @@ export function formatDateShort(date: string | Date | undefined | null): string 
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
 
 
 

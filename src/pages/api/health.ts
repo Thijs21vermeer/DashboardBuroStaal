@@ -36,14 +36,7 @@ export const GET: APIRoute = async ({ locals }) => {
       services: {
         database: dbStatus,
         authentication: hasAuthConfig ? 'configured' : 'not_configured',
-      },
-      // Only in development: show more details
-      ...(import.meta.env.DEV && {
-        debug: {
-          databaseConfig: hasAllDbConfig ? 'complete' : 'incomplete',
-          environment: import.meta.env.MODE,
-        }
-      })
+      }
     }),
     {
       status: dbStatus === 'connected' && hasAuthConfig ? 200 : 503,
@@ -54,3 +47,4 @@ export const GET: APIRoute = async ({ locals }) => {
     }
   );
 };
+

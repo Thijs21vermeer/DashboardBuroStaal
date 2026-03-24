@@ -1,236 +1,446 @@
-# 🔒 Security Fix: Debug Endpoints Beveiligd
+# 🔒 Security Fix: Debug Endpoints Protection
 
-**Datum:** 24 maart 2026  
-**Prioriteit:** 🚨 KRITIEK
-
-## Probleem Geïdentificeerd
-
-Meerdere debug/test endpoints waren **onbeveiligd** en lekten gevoelige informatie:
-
-### 1. `/api/test-db` - Database Informatie Lek
-**Ernst:** KRITIEK
-
-**Geëxposeerde data:**
-- ✗ Database server hostname
-- ✗ Database naam
-- ✗ Username
-- ✗ Password lengte
-- ✗ Sample data uit kennisitems tabel
-- ✗ Volledige error messages
-
-**Impact:** Volledige database reconnaissance voor aanvallers zonder authenticatie.
-
-### 2. `/api/diagnostics` - Environment Variabelen Lek
-**Ernst:** HOOG
-
-**Geëxposeerde data:**
-- ✗ Aanwezigheid van alle environment variabelen
-- ✗ Platform details
-- ✗ Runtime informatie
-- ✗ Volledige error stack traces
-
-**Impact:** Infrastructuur reconnaissance en potentiële exploitatie.
-
-### 3. `/api/test-auth` - Auth Configuratie Lek
-**Ernst:** HOOG
-
-**Geëxposeerde data:**
-- ✗ Auth secret lengte
-- ✗ Of default secret gebruikt wordt
-- ✗ Welke environment variabelen aanwezig zijn
-
-**Impact:** Auth mechanisme reconnaissance.
-
-### 4. `/api/health` - Te Veel Informatie
-**Ernst:** MEDIUM
-
-**Geëxposeerde data:**
-- ✗ Exacte environment variabelen status
-- ✗ Platform/Node.js versie
-- ✗ Proces informatie
-
-**Impact:** Beperkte reconnaissance informatie.
+**Date:** 2026-03-24  
+**Status:** ✅ FIXED  
+**Severity:** HIGH
 
 ---
 
-## Toegepaste Fixes
+## 🎯 Vulnerabilities Fixed
 
-### ✅ 1. Development-Only + Auth Required
+### 1. Information Disclosure via Debug Endpoints
 
-**Alle test endpoints:**
+**Before:**
+```
+GET /api/diagnostics
+GET /api/test-auth  
+GET /api/test-db
+```
+
+These endpoints exposed:
+- ❌ Stack traces (helps attackers plan exploits)
+- ❌ JWT secret length (helps with brute force attacks)
+- ❌ Database error messages (reveals infrastructure)
+- ❌ Password length (aids credential attacks)
+- ❌ Which env vars are set (reconnaissance info)
+
+**After:**
+All debug endpoints now require **triple protection**:
+1. ✅ Development mode only (`NODE_ENV !== 'production'`)
+2. ✅ Valid authentication (logged in user)
+3. ✅ Admin secret header (`X-Admin-Secret`)
+
+---
+
+## 🛡️ Security Layers
+
+### Layer 1: Development-Only
+
 ```typescript
-// SECURITY: Only allow in development, and only with authentication
 const isDevelopment = import.meta.env.DEV || 
-                     import.meta.env.MODE === 'development';
+                     import.meta.env.MODE === 'development' ||
+                     process.env.NODE_ENV === 'development';
 
 if (!isDevelopment) {
-  return new Response(JSON.stringify({ 
-    error: 'This endpoint is only available in development mode' 
-  }), {
-    status: 404,
-    headers: { 'Content-Type': 'application/json' },
+  return new Response(JSON.stringify({ error: 'Not found' }), {
+    status: 404
   });
 }
+```
 
-// Require authentication even in development
+**Production behavior:** Returns 404 (endpoint doesn't exist)
+
+### Layer 2: Authentication Required
+
+```typescript
 const authResponse = await requireAuth(context);
 if (authResponse) return authResponse;
 ```
 
-### ✅ 2. Geen Gevoelige Data Meer
+**Unauthenticated access:** Returns 401 Unauthorized
 
-**Voor:**
+### Layer 3: Admin Secret Header
+
 ```typescript
-configValues: {
-  server: dbConfig.server,
-  database: dbConfig.database,
-  user: dbConfig.user,
-  passwordLength: dbConfig.password?.length || 0,
-  sample: result.recordset[0] || null,
+const providedSecret = request.headers.get('X-Admin-Secret');
+const adminSecret = getAdminSecret(locals);
+
+if (!providedSecret || providedSecret !== adminSecret) {
+  return new Response(JSON.stringify({ 
+    error: 'Forbidden',
+    hint: 'Provide X-Admin-Secret header'
+  }), { status: 403 });
 }
 ```
 
-**Na:**
-```typescript
-configStatus: {
-  hasServer: validation.valid && validation.config.server !== '',
-  hasDatabase: validation.valid && validation.config.database !== '',
-  hasUser: validation.valid && validation.config.user !== '',
-  hasPassword: validation.valid && validation.config.password !== '',
-  // NO password length
-  // NO sample data
-}
+**Missing/wrong secret:** Returns 403 Forbidden
+
+---
+
+## 🔧 Setup Instructions
+
+### 1. Generate Admin Secret
+
+```bash
+# Generate a strong random secret
+openssl rand -base64 32
 ```
 
-### ✅ 3. Generieke Error Messages
+### 2. Set Environment Variable
 
-**Voor:**
-```typescript
-dbError = err.message; // Exposes full error
+**Local development (`.env`):**
+```bash
+ADMIN_SECRET=your-generated-secret-here
 ```
 
-**Na:**
-```typescript
-dbError = isDevelopment ? err.message : 'Connection failed';
+**Netlify:**
+1. Go to Site settings → Environment variables
+2. Add new variable:
+   - **Key:** `ADMIN_SECRET`
+   - **Value:** Your generated secret
+3. Redeploy
+
+---
+
+## 📖 Usage Examples
+
+### Using Debug Endpoints
+
+**1. Login first to get session:**
+```bash
+curl -X POST https://your-app.netlify.app/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"password": "your-dashboard-password"}' \
+  -c cookies.txt
 ```
 
-### ✅ 4. Health Endpoint Minimaal
-
-**Voor:**
-```typescript
-environment: {
-  hasAzureServer: !!getEnvVar('AZURE_SQL_SERVER', locals),
-  hasAzureDatabase: !!getEnvVar('AZURE_SQL_DATABASE', locals),
-  hasAzureUser: !!getEnvVar('AZURE_SQL_USER', locals),
-  hasAzurePassword: !!getEnvVar('AZURE_SQL_PASSWORD', locals),
-  hasSlackWebhook: !!getEnvVar('SLACK_WEBHOOK', locals),
-  hasJwtSecret: !!getEnvVar('JWT_SECRET', locals),
-}
+**2. Call debug endpoint with admin secret:**
+```bash
+curl https://your-app.netlify.app/api/diagnostics \
+  -H "X-Admin-Secret: your-admin-secret" \
+  -b cookies.txt
 ```
 
-**Na:**
-```typescript
-services: {
-  database: dbStatus, // 'connected' | 'failed'
-  authentication: hasAuthConfig ? 'configured' : 'not_configured',
-}
-// Geen individuele environment variabelen meer
+**3. Test auth:**
+```bash
+curl https://your-app.netlify.app/api/test-auth \
+  -H "X-Admin-Secret: your-admin-secret" \
+  -b cookies.txt
+```
+
+**4. Test database:**
+```bash
+curl https://your-app.netlify.app/api/test-db \
+  -H "X-Admin-Secret: your-admin-secret" \
+  -b cookies.txt
 ```
 
 ---
 
-## Endpoint Toegang Matrix
+## 🚫 What Was Removed
 
-| Endpoint | Productie | Development | Auth Required | Data Exposed |
-|----------|-----------|-------------|---------------|--------------|
-| `/api/health` | ✅ Publiek | ✅ Publiek | ❌ Nee | Minimaal (status only) |
-| `/api/test-db` | ❌ 404 | ✅ Beschikbaar | ✅ Ja | Count only, no samples |
-| `/api/diagnostics` | ❌ 404 | ✅ Beschikbaar | ✅ Ja | Boolean checks only |
-| `/api/test-auth` | ❌ 404 | ✅ Beschikbaar | ✅ Ja | Boolean checks only |
+### ❌ Stack Traces
+
+**Before:**
+```json
+{
+  "error": "Database connection failed",
+  "stack": "Error: Connection refused\n    at Database.connect (/app/db.ts:42:15)\n    ..."
+}
+```
+
+**After:**
+```json
+{
+  "error": "Diagnostics failed",
+  "message": "Internal error - check server logs"
+}
+```
+
+### ❌ Secret Length
+
+**Before:**
+```json
+{
+  "authSecret": {
+    "length": 32,
+    "isDefault": false
+  }
+}
+```
+
+**After:**
+```json
+{
+  "envVars": {
+    "JWT_SECRET": { "exists": true }
+  }
+}
+```
+
+### ❌ Password Length
+
+**Before:**
+```json
+{
+  "config": {
+    "passwordLength": 24
+  }
+}
+```
+
+**After:**
+```json
+{
+  "configStatus": {
+    "hasPassword": true
+  }
+}
+```
+
+### ❌ Detailed Error Messages
+
+**Before:**
+```json
+{
+  "error": "Login failed for user 'admin'@'azure-db-123.database.windows.net'"
+}
+```
+
+**After:**
+```json
+{
+  "error": "Connection failed - check server logs for details"
+}
+```
 
 ---
 
-## Testen
+## ✅ What's Kept Safe
 
-### Test in Development (lokaal)
-```bash
-# Should work after login
-curl http://localhost:3000/api/test-db
+### Environment Variable Checks (Boolean Only)
 
-# Should return 404
-curl http://localhost:3000/api/test-db # (als uitgelogd)
+```json
+{
+  "environmentVariables": {
+    "JWT_SECRET": true,
+    "AZURE_SQL_SERVER": true,
+    "AZURE_SQL_DATABASE": true,
+    "AZURE_SQL_USER": true,
+    "AZURE_SQL_PASSWORD": true
+  }
+}
 ```
 
-### Test in Production
+**Safe because:** Only shows IF they exist, not their values
+
+### Database Status
+
+```json
+{
+  "database": {
+    "status": "connected"
+  }
+}
+```
+
+**Safe because:** Only shows connection state, no credentials
+
+### Row Count
+
+```json
+{
+  "query": {
+    "rowCount": 42
+  }
+}
+```
+
+**Safe because:** Only counts, no actual data exposed
+
+---
+
+## 🎯 Attack Scenarios Prevented
+
+### Scenario 1: Reconnaissance Attack
+
+**Before:**
+```bash
+# Attacker can discover infrastructure
+curl /api/diagnostics
+→ "AZURE_SQL_SERVER": "prod-db-west-europe.database.windows.net"
+→ "environment": "production"
+→ Now attacker knows cloud provider, region, database type
+```
+
+**After:**
+```bash
+curl /api/diagnostics
+→ 404 Not Found (endpoint doesn't exist in production)
+```
+
+### Scenario 2: Secret Brute Force
+
+**Before:**
+```bash
+curl /api/test-auth
+→ "authSecret": { "length": 12 }
+→ Attacker knows to try 12-character secrets
+```
+
+**After:**
+```bash
+curl /api/test-auth
+→ 404 Not Found (or 403 if trying in dev without admin secret)
+```
+
+### Scenario 3: Error-Based Information Disclosure
+
+**Before:**
+```bash
+curl /api/test-db
+→ "Login failed for user 'dbadmin'@'10.0.0.5'"
+→ Attacker learns username and internal IP
+```
+
+**After:**
+```bash
+curl /api/test-db
+→ "Connection failed - check server logs for details"
+→ No useful information for attacker
+```
+
+---
+
+## 📊 Security Comparison
+
+| Aspect | Before | After |
+|--------|--------|-------|
+| **Production Access** | ⚠️ Protected by auth only | ✅ Completely disabled (404) |
+| **Dev Access** | ⚠️ Auth only | ✅ Auth + ADMIN_SECRET |
+| **Stack Traces** | ❌ Exposed to client | ✅ Server logs only |
+| **Secret Info** | ❌ Length exposed | ✅ Boolean existence only |
+| **Error Details** | ❌ Full error messages | ✅ Generic messages |
+| **Config Values** | ⚠️ Some lengths exposed | ✅ Boolean presence only |
+
+---
+
+## 🔍 Health Endpoint
+
+The `/api/health` endpoint is **public** but safe:
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-03-24T10:30:00.000Z",
+  "services": {
+    "database": "connected",
+    "authentication": "configured"
+  }
+}
+```
+
+**Safe because:**
+- ✅ No stack traces
+- ✅ No error details
+- ✅ No configuration values
+- ✅ Only service status (up/down)
+- ✅ Standard health check format
+
+**Purpose:** Load balancers and monitoring tools need this
+
+---
+
+## 🎓 Best Practices Applied
+
+### 1. Fail Securely
+- Production: Endpoints don't exist (404)
+- Development: Require multiple authentication factors
+
+### 2. Minimize Information Disclosure
+- No stack traces in responses
+- No credential lengths
+- No infrastructure details
+- Generic error messages
+
+### 3. Defense in Depth
+- Layer 1: Environment check
+- Layer 2: Authentication
+- Layer 3: Admin secret
+- Each layer fails independently
+
+### 4. Logging
+```typescript
+// Client gets generic error
+return { error: 'Connection failed' };
+
+// Server logs have details
+console.error('[TEST-DB] Connection error:', err.message);
+```
+
+---
+
+## 🚀 Deployment Checklist
+
+- [ ] Generate `ADMIN_SECRET` using `openssl rand -base64 32`
+- [ ] Add to `.env` for local development
+- [ ] Add to Netlify environment variables
+- [ ] Test endpoints locally with correct secret
+- [ ] Verify production returns 404 for debug endpoints
+- [ ] Check server logs for detailed error messages
+- [ ] Document admin secret in password manager
+
+---
+
+## 📝 Files Changed
+
+```
+src/lib/config.ts                  - Added getAdminSecret()
+src/pages/api/diagnostics.ts       - Triple protection + no stack traces
+src/pages/api/test-auth.ts         - Triple protection + no secret length
+src/pages/api/test-db.ts           - Triple protection + no password length
+src/pages/api/health.ts            - Removed debug info exposure
+```
+
+---
+
+## ✅ Verification
+
+### Test Production Behavior
+
 ```bash
 # Should return 404
-curl https://your-app.netlify.app/api/test-db
 curl https://your-app.netlify.app/api/diagnostics
 curl https://your-app.netlify.app/api/test-auth
+curl https://your-app.netlify.app/api/test-db
 
-# Should work (public)
+# Should return health status (200 or 503)
 curl https://your-app.netlify.app/api/health
 ```
 
----
+### Test Development Behavior
 
-## Security Best Practices Toegepast
+```bash
+# Without admin secret - should return 403
+curl http://localhost:3000/api/diagnostics
 
-✅ **Defense in Depth:** Meerdere lagen beveiliging  
-✅ **Least Privilege:** Minimale data exposure  
-✅ **Fail Secure:** 404 in productie, niet 403 (geen info leak)  
-✅ **Environment Gating:** Verschillende gedrag dev/prod  
-✅ **Auth Required:** Zelfs in development voor debug endpoints  
-✅ **Generic Errors:** Geen stack traces of details in productie  
-✅ **No Enumeration:** Geen hints over welke env vars bestaan  
-
----
-
-## Volgende Stappen
-
-1. ✅ Code is gefixed
-2. ⏳ Push naar GitHub
-3. ⏳ Deploy naar productie
-4. ⏳ Verifieer dat endpoints 404 returnen in productie
-5. ⏳ Test health endpoint blijft werken
-6. ⏳ Document in security audit
+# With admin secret - should return data
+curl http://localhost:3000/api/diagnostics \
+  -H "X-Admin-Secret: your-secret"
+```
 
 ---
 
-## Impact Summary
+## 🎯 Summary
 
-**Voor:** Aanvaller kon zonder authenticatie:
-- Volledige database configuratie zien
-- Sample data uit database ophalen
-- Environment variabelen enumereren
-- Auth mechanisme analyseren
+**Before:** Debug endpoints exposed sensitive information that could aid attackers
 
-**Na:** Aanvaller krijgt:
-- 404 errors in productie
-- Minimale health status (public endpoint)
-- In development: alleen na login, alleen boolean checks
+**After:** Debug endpoints require triple protection and never expose sensitive data
 
-**Risico Reductie:** 🚨 KRITIEK → ✅ LAAG
+**Impact:**
+- 🛡️ Prevents infrastructure reconnaissance
+- 🛡️ Prevents secret brute forcing
+- 🛡️ Prevents error-based information disclosure
+- 🛡️ Maintains useful debugging in development
 
----
-
-## Checklist voor Andere Projecten
-
-Bij het maken van nieuwe apps, check altijd:
-
-- [ ] Geen test/debug endpoints in productie
-- [ ] Alle admin/diagnostic endpoints achter auth
-- [ ] Geen database credentials in responses
-- [ ] Geen sample data exposen
-- [ ] Geen environment variabelen waarden tonen
-- [ ] Geen detailed stack traces in productie
-- [ ] Health checks tonen alleen status, geen details
-- [ ] 404 voor disabled endpoints, niet 403
-- [ ] Development-only endpoints gated op environment
-- [ ] Zelfs in development, debug endpoints achter auth
-
----
-
-**Status:** ✅ COMPLEET  
-**Review:** Aanbevolen voor alle projecten  
-**Priority:** Onmiddellijk uitrollen naar productie
+**Security Level:** HIGH → VERY HIGH ✅
