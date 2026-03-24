@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -10,13 +11,13 @@ import { Plus, Edit, Trash2, Search, RefreshCw, Calendar, Newspaper, Save, X, Im
 import { apiClient } from '../../lib/api-client';
 import { formatDateShort, truncateText } from '../../lib/config';
 import { getBaseUrl } from '../../lib/base-url';
-import type { NieuwsItem } from '../../types';
+import type { NewsItem } from '../../types';
 import { ConnectionStatusBanner, type ConnectionStatus } from '../../hooks/useConnectionStatus';
 
 export default function NewsManager() {
-  const [items, setItems] = useState<NieuwsItem[]>([]);
+  const [items, setItems] = useState<NewsItem[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<NieuwsItem | null>(null);
+  const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
   const [formData, setFormData] = useState({
     titel: '',
     categorie: 'Bedrijfsnieuws' as 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen',
@@ -38,7 +39,7 @@ export default function NewsManager() {
       
       if (data.length === 0) {
         setItems([]);
-        setConnectionStatus('empty');
+        setConnectionStatus('mock');
       } else {
         setItems(data);
         setConnectionStatus('connected');
@@ -76,7 +77,7 @@ export default function NewsManager() {
     }
   };
 
-  const handleEdit = (item: NieuwsItem) => {
+  const handleEdit = (item: NewsItem) => {
     setEditingItem(item);
     const tagsString = Array.isArray(item.tags) 
       ? item.tags.join(', ') 
@@ -256,11 +257,11 @@ export default function NewsManager() {
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-500">
-                      {new Date(item.datum).toLocaleDateString('nl-NL', { 
+                      {item.datum ? new Date(item.datum).toLocaleDateString('nl-NL', { 
                         year: 'numeric', 
                         month: 'long', 
                         day: 'numeric' 
-                      })}
+                      }) : 'Geen datum'}
                     </span>
                     <span className="text-xs px-2 py-1 bg-gray-100 rounded">
                       {item.categorie}
@@ -300,6 +301,11 @@ export default function NewsManager() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

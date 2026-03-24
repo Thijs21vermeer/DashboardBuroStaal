@@ -328,8 +328,8 @@ export function getRelevantieLevel(relevantie: string | number) {
 /**
  * Truncate text to max length
  */
-export function truncateText(text: string, maxLength: number): string {
-  if (!text || text.length <= maxLength) return text;
+export function truncateText(text: string | undefined | null, maxLength: number): string {
+  if (!text || text.length <= maxLength) return text || '';
   return text.substring(0, maxLength).trim() + '...';
 }
 
@@ -348,9 +348,12 @@ export function formatDate(date: string | Date): string {
 /**
  * Format date to short Dutch format
  */
-export function formatDateShort(date: string | Date): string {
+export function formatDateShort(date: string | Date | undefined | null): string {
+  if (!date) return 'Geen datum';
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   return dateObj.toLocaleDateString('nl-NL');
 }
+
+
 
 

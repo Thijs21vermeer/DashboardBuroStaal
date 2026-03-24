@@ -326,7 +326,7 @@ export default function VideosManager() {
                             <Badge variant="outline">{video.categorie}</Badge>
                             {video.eigenaar && <span>• {video.eigenaar}</span>}
                             <span>• {video.views} views</span>
-                            <span>• {new Date(video.datum_toegevoegd).toLocaleDateString('nl-NL')}</span>
+                            <span>• {video.datum_toegevoegd ? new Date(video.datum_toegevoegd).toLocaleDateString('nl-NL') : 'Geen datum'}</span>
                           </div>
                           {video.tags && (
                             <div className="flex flex-wrap gap-1 mt-2">
@@ -377,6 +377,8 @@ export default function VideosManager() {
     </div>
   );
 }
+
+
 
 
 

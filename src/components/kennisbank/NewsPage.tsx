@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { NewsDetail } from './NewsDetail';
 import { apiClient } from '../../lib/api-client';
+import { truncateText } from '../../lib/config';
 import { formatDate } from '../../lib/config';
 
 export function NewsPage() {
@@ -31,12 +32,6 @@ export function NewsPage() {
   useEffect(() => {
     loadNews();
   }, []);
-
-  // Helper function
-  const truncateText = (text: string, maxLength: number): string => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
 
   // Filter nieuws op categorie
   const filteredNews = selectedCategorie === 'alle' 
@@ -291,6 +286,7 @@ export function NewsPage() {
     </div>
   );
 }
+
 
 
 

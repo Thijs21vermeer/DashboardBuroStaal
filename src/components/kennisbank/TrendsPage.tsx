@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Search, TrendingUp, Calendar, AlertCircle, Filter, Lightbulb, RefreshCw, ArrowRight } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import { formatDate } from '../../lib/config';
+import { formatDateShort, truncateText } from '../../lib/config';
 import { TrendDetail } from './TrendDetail';
 
 interface Trend {
@@ -47,20 +47,6 @@ export function TrendsPage() {
   }, []);
 
   // Helper functions
-  const truncateText = (text: string, maxLength: number): string => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-
-  const formatDateShort = (dateString?: string): string => {
-    if (!dateString) return 'Onbekend';
-    try {
-      return formatDate(dateString);
-    } catch {
-      return 'Onbekend';
-    }
-  };
-
   const getRelevantieLevel = (relevantie: string) => {
     switch (relevantie) {
       case 'Hoog':
@@ -387,3 +373,6 @@ export function TrendsPage() {
     </div>
   );
 }
+
+
+

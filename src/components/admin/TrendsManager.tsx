@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -44,7 +45,7 @@ export default function TrendsManager() {
       
       if (data.length === 0) {
         setItems([]);
-        setConnectionStatus('empty');
+        setConnectionStatus('mock');
       } else {
         setItems(data);
         setConnectionStatus('connected');
@@ -322,6 +323,7 @@ export default function TrendsManager() {
     </div>
   );
 }
+
 
 
 

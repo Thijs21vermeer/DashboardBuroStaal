@@ -1,6 +1,3 @@
-
-
-
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Code, Search, Save, X, Wrench } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -58,7 +55,7 @@ export default function ToolsManager() {
     if (!editingTool) return;
 
     try {
-      if (editingTool.id === 0) {
+      if (editingTool.id === 0 || !editingTool.id) {
         await apiClient.tools.create(editingTool);
       } else {
         await apiClient.tools.update(editingTool.id, editingTool);
@@ -290,6 +287,7 @@ export default function ToolsManager() {
     </div>
   );
 }
+
 
 
 

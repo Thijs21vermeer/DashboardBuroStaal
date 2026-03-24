@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -47,7 +48,7 @@ export default function CasesManager() {
       
       if (data.length === 0) {
         setCases([]);
-        setConnectionStatus('empty');
+        setConnectionStatus('mock');
       } else {
         setCases(data);
         setConnectionStatus('connected');
@@ -333,6 +334,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

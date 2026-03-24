@@ -3,10 +3,11 @@
 
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Calendar, User, Tag, ArrowRight, BookOpen, RefreshCw } from 'lucide-react';
-import { KENNISBANK_CATEGORIES, MEDIA_TYPES } from '../../lib/config';
+import { KENNISBANK_CATEGORIES, MEDIA_TYPES, formatDateShort } from '../../lib/config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -355,6 +356,7 @@ export function KennisbankPage() {
     </div>
   );
 }
+
 
 
 
