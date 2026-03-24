@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
 import { truncateText } from '../../lib/config';
+import { formatDate } from '../../lib/config';
 
 interface Tool {
   id: number;
@@ -333,6 +334,7 @@ export default function ToolsPage() {
     </div>
   );
 }
+
 
 
 

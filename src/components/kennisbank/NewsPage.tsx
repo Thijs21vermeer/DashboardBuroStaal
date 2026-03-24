@@ -51,16 +51,23 @@ export function NewsPage() {
   }, {} as Record<string, number>);
 
   // Sorteer op datum (nieuwste eerst)
-  const sortedNews = [...filteredNews].sort((a, b) => 
-    new Date(b.datum).getTime() - new Date(a.datum).getTime()
-  );
+  const sortedNews = [...filteredNews].sort((a, b) => {
+    const dateA = a.datum ? new Date(a.datum).getTime() : 0;
+    const dateB = b.datum ? new Date(b.datum).getTime() : 0;
+    return dateB - dateA;
+  });
 
   // Recent nieuws (laatste 7 dagen)
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
-  const recentCount = newsItems.filter(item => 
-    new Date(item.datum) > weekAgo
-  ).length;
+  const recentCount = newsItems.filter(item => {
+    if (!item.datum) return false;
+    try {
+      return new Date(item.datum) > weekAgo;
+    } catch {
+      return false;
+    }
+  }).length;
 
   // Icon per categorie
   const getCategoryIcon = (categorie: string) => {
@@ -286,6 +293,8 @@ export function NewsPage() {
     </div>
   );
 }
+
+
 
 
 
