@@ -378,13 +378,20 @@ export function truncateText(text: string | undefined | null, maxLength: number)
 /**
  * Format date to Dutch locale
  */
-export function formatDate(date: string | Date): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return dateObj.toLocaleDateString('nl-NL', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+export function formatDate(date: string | Date | undefined | null): string {
+  if (!date) return 'Geen datum';
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) return 'Geen datum';
+    return dateObj.toLocaleDateString('nl-NL', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch {
+    return 'Geen datum';
+  }
 }
 
 /**
@@ -392,9 +399,17 @@ export function formatDate(date: string | Date): string {
  */
 export function formatDateShort(date: string | Date | undefined | null): string {
   if (!date) return 'Geen datum';
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return dateObj.toLocaleDateString('nl-NL');
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) return 'Geen datum';
+    return dateObj.toLocaleDateString('nl-NL');
+  } catch {
+    return 'Geen datum';
+  }
 }
+
+
 
 
 
