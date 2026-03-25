@@ -1,23 +1,18 @@
 import type { APIRoute } from 'astro';
-import { getPool, handleDbError } from '../../../lib/db-config';
-import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { Case, CaseRequest } from '../../../types';
+import { getAll, insert } from '../../../lib/turso-db';
 
 // GET - Haal alle cases op
 export const GET: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request().query('SELECT * FROM Cases ORDER BY datum_toegevoegd DESC');
-    
-    // Map database records to TypeScript types
-    const cases = result.recordset.map(mapDbToCaseStudy);
+    const rows = await getAll('Cases', {
+      orderBy: 'createdAt DESC'
+    }, locals);
 
-    return new Response(JSON.stringify(cases), {
+    return new Response(JSON.stringify(rows), {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
@@ -25,126 +20,54 @@ export const GET: APIRoute = async ({ request, locals }) => {
       }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch cases');
+    console.error('Error fetching cases:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij ophalen cases',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
 // POST - Voeg een nieuwe case toe
 export const POST: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
-    const data = (await request.json()) as CaseRequest;
-    const dbPool = await getPool(locals);
+    const data = await request.json();
     
-    const result = await dbPool.request()
-      .input('titel', sql.NVarChar, data.titel)
-      .input('klant', sql.NVarChar, data.klant)
-      .input('industrie', sql.NVarChar, data.industrie || null)
-      .input('uitdaging', sql.NVarChar(sql.MAX), data.uitdaging || null)
-      .input('oplossing', sql.NVarChar(sql.MAX), data.oplossing || null)
-      .input('resultaten', sql.NVarChar(sql.MAX), JSON.stringify(data.resultaten || []))
-      .input('referenties', sql.NVarChar(sql.MAX), JSON.stringify(data.referenties || []))
-      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
-      .input('project_duur', sql.NVarChar, data.project_duur || null)
-      .input('team_size', sql.NVarChar, data.team_size || null)
-      .input('image_url', sql.NVarChar, data.image_url || null)
-      .query(`
-        INSERT INTO Cases 
-        (titel, klant, industrie, uitdaging, oplossing, resultaten, referenties, tags, eigenaar, project_duur, team_size, datum_toegevoegd, laatst_bijgewerkt, featured, image_url)
-        OUTPUT INSERTED.*
-        VALUES 
-        (@titel, @klant, @industrie, @uitdaging, @oplossing, @resultaten, @referenties, @tags, @eigenaar, @project_duur, @team_size, GETDATE(), GETDATE(), 0, @image_url)
-      `);
+    const newId = await insert('Cases', {
+      titel: data.titel,
+      beschrijving: data.beschrijving || '',
+      klant: data.klant || '',
+      resultaat: data.resultaat || '',
+      afbeelding: data.afbeelding || null,
+      tags: JSON.stringify(data.tags || []),
+    }, locals);
 
-    const newCase = mapDbToCaseStudy(result.recordset[0]);
+    const newCase = {
+      id: newId,
+      ...data,
+      tags: data.tags || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
     return new Response(JSON.stringify(newCase), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'create case');
+    console.error('Error creating case:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij aanmaken case',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
-
-// Helper functie om database records te mappen naar TypeScript types
-function mapDbToCaseStudy(dbRecord: any): Case {
-  // Parse resultaten - handle string (JSON) or already parsed array
-  let resultaten: string[] = [];
-  if (dbRecord.resultaten) {
-    if (typeof dbRecord.resultaten === 'string') {
-      try {
-        resultaten = JSON.parse(dbRecord.resultaten);
-      } catch {
-        // If it's not valid JSON, split by newlines
-        resultaten = dbRecord.resultaten.split('\n').filter(Boolean);
-      }
-    } else if (Array.isArray(dbRecord.resultaten)) {
-      resultaten = dbRecord.resultaten;
-    }
-  }
-
-  // Parse tags safely
-  let tags: string[] = [];
-  if (dbRecord.tags) {
-    if (typeof dbRecord.tags === 'string') {
-      try {
-        tags = JSON.parse(dbRecord.tags);
-      } catch {
-        tags = [];
-      }
-    } else if (Array.isArray(dbRecord.tags)) {
-      tags = dbRecord.tags;
-    }
-  }
-
-  // Parse referenties safely
-  let referenties: string[] = [];
-  if (dbRecord.referenties) {
-    if (typeof dbRecord.referenties === 'string') {
-      try {
-        referenties = JSON.parse(dbRecord.referenties);
-      } catch {
-        referenties = [];
-      }
-    } else if (Array.isArray(dbRecord.referenties)) {
-      referenties = dbRecord.referenties;
-    }
-  }
-
-  return {
-    id: dbRecord.id,
-    titel: dbRecord.titel,
-    klant: dbRecord.klant,
-    industrie: dbRecord.industrie,
-    uitdaging: dbRecord.uitdaging,
-    oplossing: dbRecord.oplossing,
-    resultaten,
-    tags,
-    eigenaar: dbRecord.eigenaar,
-    datum: dbRecord.datum_toegevoegd,
-    imageUrl: dbRecord.image_url || undefined,
-    featured: dbRecord.featured || false,
-    referenties,
-  };
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

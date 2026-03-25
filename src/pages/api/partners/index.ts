@@ -1,46 +1,29 @@
 import type { APIRoute } from 'astro';
-import type { Partner, PartnerRequest } from '../../../types';
-import sql from 'mssql';
-import { getPool } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
+import { getAll, insert } from '../../../lib/turso-db';
 
 export const GET: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
-
+  
   try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request().query(`
-      SELECT 
-        id,
-        naam,
-        bedrijf,
-        specialisatie,
-        email,
-        telefoon,
-        website,
-        beschrijving,
-        expertise_gebieden as expertiseGebieden,
-        volgorde,
-        created_at as createdAt,
-        updated_at as updatedAt
-      FROM externe_partners
-      ORDER BY volgorde ASC, id ASC
-    `);
+    const rows = await getAll('Partners', {
+      orderBy: 'createdAt DESC'
+    }, locals);
 
-    const partners = result.recordset.map((row: any) => ({
-      ...row,
-      expertiseGebieden: row.expertiseGebieden ? JSON.parse(row.expertiseGebieden) : []
-    }));
-
-    return new Response(JSON.stringify(partners), {
+    return new Response(JSON.stringify(rows), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
     });
   } catch (error) {
     console.error('Error fetching partners:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch partners' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij ophalen partners',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -48,53 +31,36 @@ export const GET: APIRoute = async ({ request, locals }) => {
 };
 
 export const POST: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
-    const data = (await request.json()) as PartnerRequest;
-    const dbPool = await getPool(locals);
-    const { naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertiseGebieden, volgorde } = data;
-
-    if (!naam || !specialisatie || !email) {
-      return new Response(JSON.stringify({ error: 'Naam, specialisatie en email zijn verplicht' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-    const expertiseJson = JSON.stringify(expertiseGebieden || []);
+    const data = await request.json();
     
-    const dbRequest = dbPool.request();
-    dbRequest.input('naam', sql.NVarChar, naam);
-    dbRequest.input('bedrijf', sql.NVarChar, bedrijf || null);
-    dbRequest.input('specialisatie', sql.NVarChar, specialisatie);
-    dbRequest.input('email', sql.NVarChar, email);
-    dbRequest.input('telefoon', sql.NVarChar, telefoon || null);
-    dbRequest.input('website', sql.NVarChar, website || null);
-    dbRequest.input('beschrijving', sql.NVarChar, beschrijving || '');
-    dbRequest.input('expertiseGebieden', sql.NVarChar, expertiseJson);
-    dbRequest.input('volgorde', sql.Int, volgorde || 0);
+    const newId = await insert('Partners', {
+      naam: data.naam,
+      beschrijving: data.beschrijving || '',
+      website: data.website || null,
+      logo: data.logo || null,
+    }, locals);
 
-    const result = await dbRequest.query(`
-      INSERT INTO externe_partners (naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertise_gebieden, volgorde)
-      OUTPUT INSERTED.*
-      VALUES (@naam, @bedrijf, @specialisatie, @email, @telefoon, @website, @beschrijving, @expertiseGebieden, @volgorde)
-    `);
-
-    const newPartner = result.recordset[0];
-
-    return new Response(JSON.stringify({
-      ...newPartner,
-      expertiseGebieden: JSON.parse(newPartner.expertise_gebieden || '[]')
-    }), {
+    const newPartner = {
+      id: newId,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    return new Response(JSON.stringify(newPartner), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error creating partner:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create partner' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij aanmaken partner',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

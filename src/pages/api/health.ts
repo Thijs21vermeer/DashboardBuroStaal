@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../lib/db-config';
+import { testConnection } from '../../lib/turso-db';
 
 /**
  * SECURITY: Minimal health check endpoint
@@ -27,9 +27,7 @@ export const GET: APIRoute = async ({ locals }) => {
   try {
     // Test critical dependencies (database)
     // If this fails, the app cannot function
-    const dbPool = await getPool(locals);
-    await dbPool.request().query('SELECT 1');
-    isHealthy = true;
+    isHealthy = await testConnection(locals);
   } catch (error) {
     // Log detailed error server-side only
     console.error('[HEALTH] Critical dependency check failed:', error);
@@ -54,3 +52,4 @@ export const GET: APIRoute = async ({ locals }) => {
     }
   );
 };
+

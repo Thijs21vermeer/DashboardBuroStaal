@@ -1,71 +1,44 @@
 import type { APIRoute } from 'astro';
-import { getPool, handleDbError } from '../../../lib/db-config';
-import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { NewsItem, NewsRequest } from '../../../types';
+import { getById, update, deleteById } from '../../../lib/turso-db';
 
-// Helper functie om database records te mappen naar TypeScript types
-function mapDbToNewsItem(dbRecord: any): NewsItem {
-  let tags: string[] = [];
-  
-  if (dbRecord.tags) {
-    try {
-      // Probeer te parsen als JSON
-      const parsed = JSON.parse(dbRecord.tags);
-      tags = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      // Als het geen JSON is, splits de string op komma's
-      if (typeof dbRecord.tags === 'string') {
-        tags = dbRecord.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag);
-      }
-    }
-  }
-  
-  return {
-    id: String(dbRecord.id),
-    titel: dbRecord.titel,
-    categorie: dbRecord.categorie as 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen',
-    inhoud: dbRecord.inhoud,
-    auteur: dbRecord.auteur,
-    datum: dbRecord.datum,
-    tags,
-  };
-}
-
-// GET - Haal een specifiek nieuwsbericht op
 export const GET: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
-
+  
   const { id } = params;
   
   try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request()
-      .input('id', sql.Int, Number(id))
-      .query('SELECT * FROM Nieuws WHERE id = @id');
+    const item = await getById('Nieuws', Number(id), locals);
 
-    if (result.recordset.length === 0) {
-      return new Response(JSON.stringify({ error: 'Nieuws not found' }), {
+    if (!item) {
+      return new Response(JSON.stringify({ error: 'Nieuws item not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const nieuws = mapDbToNewsItem(result.recordset[0]);
-    return new Response(JSON.stringify(nieuws), {
+    if (typeof item.tags === 'string') {
+      try { item.tags = JSON.parse(item.tags); } catch { item.tags = []; }
+    }
+
+    return new Response(JSON.stringify(item), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch nieuws by id');
+    console.error('Error fetching nieuws:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
-// PUT - Update een nieuwsitem
 export const PUT: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
@@ -78,48 +51,45 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const data = (await request.json()) as NewsRequest;
-    const dbPool = await getPool(locals);
+    const data = await request.json();
 
-    const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
-      .input('titel', sql.NVarChar, data.titel)
-      .input('categorie', sql.NVarChar, data.categorie)
-      .input('inhoud', sql.NVarChar(sql.MAX), data.inhoud || null)
-      .input('auteur', sql.NVarChar, data.auteur || null)
-      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .query(`
-        UPDATE Nieuws 
-        SET 
-          titel = @titel,
-          categorie = @categorie,
-          inhoud = @inhoud,
-          auteur = @auteur,
-          tags = @tags
-        OUTPUT INSERTED.*
-        WHERE id = @id
-      `);
+    const success = await update('Nieuws', Number(id), {
+      titel: data.titel,
+      beschrijving: data.beschrijving || '',
+      bron: data.bron || '',
+      tags: JSON.stringify(data.tags || []),
+      afbeelding: data.afbeelding || null,
+    }, locals);
 
-    if (result.recordset.length === 0) {
-      return new Response(JSON.stringify({ error: 'Nieuws not found' }), {
+    if (!success) {
+      return new Response(JSON.stringify({ error: 'Nieuws item not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const updatedNieuws = mapDbToNewsItem(result.recordset[0]);
-    return new Response(JSON.stringify(updatedNieuws), {
+    const updatedNieuwsItem = await getById('Nieuws', Number(id), locals);
+    if (typeof updatedNieuwsItem.tags === 'string') {
+      try { updatedNieuwsItem.tags = JSON.parse(updatedNieuwsItem.tags); } catch { updatedNieuwsItem.tags = []; }
+    }
+
+    return new Response(JSON.stringify(updatedNieuwsItem), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'update nieuws');
+    console.error('Error updating nieuws:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
-// DELETE - Verwijder een nieuwsitem
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
@@ -132,32 +102,27 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
-      .query('DELETE FROM Nieuws WHERE id = @id');
+    const success = await deleteById('Nieuws', Number(id), locals);
 
-    if (result.rowsAffected[0] === 0) {
-      return new Response(JSON.stringify({ error: 'Nieuws not found' }), {
+    if (!success) {
+      return new Response(JSON.stringify({ error: 'Nieuws item not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    return new Response(JSON.stringify({ message: 'Nieuws deleted successfully' }), {
+    return new Response(JSON.stringify({ message: 'Nieuws item deleted successfully' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'delete nieuws');
+    console.error('Error deleting nieuws:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
-
-
-
-
-
-
-
-
-

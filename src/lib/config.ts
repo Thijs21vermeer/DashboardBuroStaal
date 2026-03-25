@@ -3,9 +3,27 @@
 
 
 
-
 // Load environment variables from .env in development
 import './load-env.cjs';
+
+/**
+ * Environment variable configuration
+ */
+const ENV_VARS = {
+  // Authentication
+  JWT_SECRET: 'JWT_SECRET',
+  AUTH_SECRET: 'AUTH_SECRET', // Fallback
+  
+  // Azure SQL (legacy - will be replaced by Turso)
+  AZURE_SQL_SERVER: 'AZURE_SQL_SERVER',
+  AZURE_SQL_DATABASE: 'AZURE_SQL_DATABASE',
+  AZURE_SQL_USER: 'AZURE_SQL_USER',
+  AZURE_SQL_PASSWORD: 'AZURE_SQL_PASSWORD',
+  
+  // Turso Database (new)
+  TURSO_DATABASE_URL: 'TURSO_DATABASE_URL',
+  TURSO_AUTH_TOKEN: 'TURSO_AUTH_TOKEN',
+} as const;
 
 /**
  * Application Configuration
@@ -408,6 +426,7 @@ export function formatDateShort(date: string | Date | undefined | null): string 
     return 'Geen datum';
   }
 }
+
 
 
 

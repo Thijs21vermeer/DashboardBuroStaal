@@ -1,58 +1,33 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/db-config';
-import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { TeamMember, TeamMemberRequest } from '../../../types';
+import { getById, update, deleteById } from '../../../lib/turso-db';
 
-// GET - Haal een specifiek teamlid op
 export const GET: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
-
+  
+  const { id } = params;
+  
   try {
-    const { id } = params;
-    const dbPool = await getPool(locals);
-    
-    const dbRequest = dbPool.request();
-    dbRequest.input('id', sql.Int, parseInt(id!));
+    const item = await getById('Team', Number(id), locals);
 
-    const result = await dbRequest.query(`
-      SELECT 
-        id,
-        naam,
-        rol,
-        email,
-        bio,
-        expertise_gebieden as expertiseGebieden,
-        is_eigenaar as isEigenaar,
-        volgorde,
-        created_at as createdAt,
-        updated_at as updatedAt
-      FROM team_members
-      WHERE id = @id
-    `);
-
-    if (result.recordset.length === 0) {
+    if (!item) {
       return new Response(JSON.stringify({ error: 'Team member not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const member = result.recordset[0];
-
-    return new Response(JSON.stringify({
-      ...member,
-      expertiseGebieden: member.expertiseGebieden ? JSON.parse(member.expertiseGebieden) : [],
-      isEigenaar: !!member.isEigenaar
-    }), {
+    return new Response(JSON.stringify(item), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error fetching team member:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch team member' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -60,79 +35,48 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
     const { id } = params;
-    const body = (await request.json()) as TeamMemberRequest;
-    const { naam, rol, email, bio, expertiseGebieden, isEigenaar, volgorde } = body;
-    const dbPool = await getPool(locals);
-
-    if (!naam || !rol || !email) {
-      return new Response(JSON.stringify({ error: 'Naam, rol en email zijn verplicht' }), {
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const expertiseJson = JSON.stringify(expertiseGebieden || []);
+    const data = await request.json();
 
-    const dbRequest = dbPool.request();
-    dbRequest.input('id', sql.Int, parseInt(id!));
-    dbRequest.input('naam', sql.NVarChar, naam);
-    dbRequest.input('rol', sql.NVarChar, rol);
-    dbRequest.input('email', sql.NVarChar, email);
-    dbRequest.input('bio', sql.NVarChar, bio || '');
-    dbRequest.input('expertiseGebieden', sql.NVarChar, expertiseJson);
-    dbRequest.input('isEigenaar', sql.Bit, isEigenaar ? 1 : 0);
-    dbRequest.input('volgorde', sql.Int, volgorde || 0);
+    const success = await update('Team', Number(id), {
+      naam: data.naam,
+      rol: data.rol || '',
+      email: data.email || '',
+      telefoon: data.telefoon || null,
+      beschrijving: data.beschrijving || null,
+      foto: data.foto || null,
+    }, locals);
 
-    await dbRequest.query(`
-      UPDATE team_members
-      SET naam = @naam,
-          rol = @rol,
-          email = @email,
-          bio = @bio,
-          expertise_gebieden = @expertiseGebieden,
-          is_eigenaar = @isEigenaar,
-          volgorde = @volgorde,
-          updated_at = GETDATE()
-      WHERE id = @id
-    `);
+    if (!success) {
+      return new Response(JSON.stringify({ error: 'Team member not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    const dbRequest2 = dbPool.request();
-    dbRequest2.input('id', sql.Int, parseInt(id!));
-    const result = await dbRequest2.query(`
-      SELECT 
-        id,
-        naam,
-        rol,
-        email,
-        bio,
-        expertise_gebieden as expertiseGebieden,
-        is_eigenaar as isEigenaar,
-        volgorde,
-        created_at as createdAt,
-        updated_at as updatedAt
-      FROM team_members
-      WHERE id = @id
-    `);
+    const updatedTeamMember = await getById('Team', Number(id), locals);
 
-    const updatedMember = result.recordset[0];
-
-    return new Response(JSON.stringify({
-      ...updatedMember,
-      expertiseGebieden: JSON.parse(updatedMember.expertiseGebieden || '[]'),
-      isEigenaar: !!updatedMember.isEigenaar
-    }), {
+    return new Response(JSON.stringify(updatedTeamMember), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error updating team member:', error);
-    return new Response(JSON.stringify({ error: 'Failed to update team member' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -140,25 +84,37 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
     const { id } = params;
-    const dbPool = await getPool(locals);
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    const dbRequest = dbPool.request();
-    dbRequest.input('id', sql.Int, parseInt(id!));
-    await dbRequest.query(`DELETE FROM team_members WHERE id = @id`);
+    const success = await deleteById('Team', Number(id), locals);
 
-    return new Response(JSON.stringify({ success: true }), {
+    if (!success) {
+      return new Response(JSON.stringify({ error: 'Team member not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({ message: 'Team member deleted successfully' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error deleting team member:', error);
-    return new Response(JSON.stringify({ error: 'Failed to delete team member' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

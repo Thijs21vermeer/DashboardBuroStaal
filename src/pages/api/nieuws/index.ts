@@ -1,23 +1,17 @@
 import type { APIRoute } from 'astro';
-import { getPool, handleDbError } from '../../../lib/db-config';
-import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { NewsItem, NewsRequest } from '../../../types';
+import { getAll, insert } from '../../../lib/turso-db';
 
-// GET - Haal alle nieuwsberichten op
 export const GET: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
-
+  
   try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request().query('SELECT * FROM Nieuws ORDER BY datum DESC');
-    
-    // Map database records to TypeScript types
-    const news = result.recordset.map(mapDbToNewsItem);
+    const rows = await getAll('Nieuws', {
+      orderBy: 'createdAt DESC'
+    }, locals);
 
-    return new Response(JSON.stringify(news), {
+    return new Response(JSON.stringify(rows), {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
@@ -25,78 +19,52 @@ export const GET: APIRoute = async ({ request, locals }) => {
       }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch nieuws');
+    console.error('Error fetching nieuws:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij ophalen nieuws',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
-// POST - Voeg een nieuw nieuwsitem toe
 export const POST: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
-    const data = (await request.json()) as NewsRequest;
-    const dbPool = await getPool(locals);
+    const data = await request.json();
     
-    const result = await dbPool.request()
-      .input('titel', sql.NVarChar, data.titel)
-      .input('categorie', sql.NVarChar, data.categorie)
-      .input('inhoud', sql.NVarChar(sql.MAX), data.inhoud || null)
-      .input('auteur', sql.NVarChar, data.auteur || null)
-      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .query(`
-        INSERT INTO Nieuws 
-        (titel, categorie, inhoud, auteur, datum, featured, tags)
-        OUTPUT INSERTED.*
-        VALUES 
-        (@titel, @categorie, @inhoud, @auteur, GETDATE(), 0, @tags)
-      `);
+    const newId = await insert('Nieuws', {
+      titel: data.titel,
+      beschrijving: data.beschrijving || '',
+      bron: data.bron || '',
+      tags: JSON.stringify(data.tags || []),
+      afbeelding: data.afbeelding || null,
+    }, locals);
 
-    const newNieuws = mapDbToNewsItem(result.recordset[0]);
-    return new Response(JSON.stringify(newNieuws), {
+    const newNieuwsItem = {
+      id: newId,
+      ...data,
+      tags: data.tags || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    return new Response(JSON.stringify(newNieuwsItem), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'create nieuws');
+    console.error('Error creating nieuws:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij aanmaken nieuws',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
-
-// Helper functie om database records te mappen naar TypeScript types
-function mapDbToNewsItem(dbRecord: any): NewsItem {
-  let tags: string[] = [];
-  
-  if (dbRecord.tags) {
-    try {
-      // Probeer te parsen als JSON
-      const parsed = JSON.parse(dbRecord.tags);
-      tags = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      // Als het geen JSON is, splits de string op komma's
-      if (typeof dbRecord.tags === 'string') {
-        tags = dbRecord.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag);
-      }
-    }
-  }
-  
-  return {
-    id: String(dbRecord.id),
-    titel: dbRecord.titel,
-    categorie: dbRecord.categorie as 'Bedrijfsnieuws' | 'Team Update' | 'Project Lancering' | 'Prestatie' | 'Algemeen',
-    inhoud: dbRecord.inhoud,
-    auteur: dbRecord.auteur,
-    datum: dbRecord.datum,
-    tags,
-  };
-}
-
-
-
-
-
-
-
-
-
-

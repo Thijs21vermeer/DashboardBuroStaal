@@ -1,100 +1,68 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/db-config';
-import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { TeamMember, TeamMemberRequest } from '../../../types';
+import { getAll, insert } from '../../../lib/turso-db';
 
-// GET - Haal alle teamleden op
 export const GET: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
-
+  
   try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request().query(`
-      SELECT 
-        id,
-        naam,
-        rol,
-        email,
-        bio,
-        expertise_gebieden as expertiseGebieden,
-        is_eigenaar as isEigenaar,
-        volgorde,
-        created_at as createdAt,
-        updated_at as updatedAt
-      FROM team_members
-      ORDER BY volgorde ASC, id ASC
-    `);
+    const rows = await getAll('Team', {
+      orderBy: 'createdAt DESC'
+    }, locals);
 
-    const members = result.recordset.map((row: any) => ({
-      ...row,
-      expertiseGebieden: row.expertiseGebieden ? JSON.parse(row.expertiseGebieden) : [],
-      isEigenaar: !!row.isEigenaar
-    }));
-
-    return new Response(JSON.stringify(members), {
+    return new Response(JSON.stringify(rows), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
     });
   } catch (error) {
     console.error('Error fetching team members:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch team members' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij ophalen teamleden',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 };
 
-// POST - Voeg een nieuw teamlid toe
 export const POST: APIRoute = async ({ request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
-    const body = (await request.json()) as TeamMemberRequest;
-    const { naam, rol, email, bio, expertiseGebieden, isEigenaar, volgorde } = body;
-
-    if (!naam || !rol || !email) {
-      return new Response(JSON.stringify({ error: 'Naam, rol en email zijn verplicht' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-    const expertiseJson = JSON.stringify(expertiseGebieden || []);
-    const dbPool = await getPool(locals);
+    const data = await request.json();
     
-    const dbRequest = dbPool.request();
-    dbRequest.input('naam', sql.NVarChar, naam);
-    dbRequest.input('rol', sql.NVarChar, rol);
-    dbRequest.input('email', sql.NVarChar, email);
-    dbRequest.input('bio', sql.NVarChar, bio || '');
-    dbRequest.input('expertiseGebieden', sql.NVarChar, expertiseJson);
-    dbRequest.input('isEigenaar', sql.Bit, isEigenaar ? 1 : 0);
-    dbRequest.input('volgorde', sql.Int, volgorde || 0);
+    const newId = await insert('Team', {
+      naam: data.naam,
+      rol: data.rol || '',
+      email: data.email || '',
+      telefoon: data.telefoon || null,
+      beschrijving: data.beschrijving || null,
+      foto: data.foto || null,
+    }, locals);
 
-    const result = await dbRequest.query(`
-      INSERT INTO team_members (naam, rol, email, bio, expertise_gebieden, is_eigenaar, volgorde)
-      OUTPUT INSERTED.*
-      VALUES (@naam, @rol, @email, @bio, @expertiseGebieden, @isEigenaar, @volgorde)
-    `);
-
-    const newMember = result.recordset[0];
-
-    return new Response(JSON.stringify({
-      ...newMember,
-      expertiseGebieden: JSON.parse(newMember.expertise_gebieden || '[]'),
-      isEigenaar: !!newMember.is_eigenaar
-    }), {
+    const newTeamMember = {
+      id: newId,
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    return new Response(JSON.stringify(newTeamMember), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error creating team member:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create team member' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij aanmaken teamlid',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

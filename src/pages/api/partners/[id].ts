@@ -1,58 +1,33 @@
 import type { APIRoute } from 'astro';
-import type { Partner, PartnerRequest } from '../../../types';
-import sql from 'mssql';
-import { getPool } from '../../../lib/db-config';
 import { requireAuth } from '../../../lib/api-auth';
+import { getById, update, deleteById } from '../../../lib/turso-db';
 
 export const GET: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
-
+  
+  const { id } = params;
+  
   try {
-    const { id } = params;
-    const dbPool = await getPool(locals);
+    const item = await getById('Partners', Number(id), locals);
 
-    const dbRequest = dbPool.request();
-    dbRequest.input('id', sql.Int, parseInt(id!));
-
-    const result = await dbRequest.query(`
-      SELECT 
-        id,
-        naam,
-        bedrijf,
-        specialisatie,
-        email,
-        telefoon,
-        website,
-        beschrijving,
-        expertise_gebieden as expertiseGebieden,
-        volgorde,
-        created_at as createdAt,
-        updated_at as updatedAt
-      FROM externe_partners
-      WHERE id = @id
-    `);
-
-    if (result.recordset.length === 0) {
+    if (!item) {
       return new Response(JSON.stringify({ error: 'Partner not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const partner = result.recordset[0];
-
-    return new Response(JSON.stringify({
-      ...partner,
-      expertiseGebieden: partner.expertiseGebieden ? JSON.parse(partner.expertiseGebieden) : []
-    }), {
+    return new Response(JSON.stringify(item), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error fetching partner:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch partner' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -60,84 +35,46 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
     const { id } = params;
-    const body = (await request.json()) as PartnerRequest;
-    const { naam, bedrijf, specialisatie, email, telefoon, website, beschrijving, expertiseGebieden, volgorde } = body;
-    const dbPool = await getPool(locals);
-
-    if (!naam || !specialisatie || !email) {
-      return new Response(JSON.stringify({ error: 'Naam, specialisatie en email zijn verplicht' }), {
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const expertiseJson = JSON.stringify(expertiseGebieden || []);
+    const data = await request.json();
 
-    const dbRequest = dbPool.request();
-    dbRequest.input('id', sql.Int, parseInt(id!));
-    dbRequest.input('naam', sql.NVarChar, naam);
-    dbRequest.input('bedrijf', sql.NVarChar, bedrijf || null);
-    dbRequest.input('specialisatie', sql.NVarChar, specialisatie);
-    dbRequest.input('email', sql.NVarChar, email);
-    dbRequest.input('telefoon', sql.NVarChar, telefoon || null);
-    dbRequest.input('website', sql.NVarChar, website || null);
-    dbRequest.input('beschrijving', sql.NVarChar, beschrijving || '');
-    dbRequest.input('expertiseGebieden', sql.NVarChar, expertiseJson);
-    dbRequest.input('volgorde', sql.Int, volgorde || 0);
+    const success = await update('Partners', Number(id), {
+      naam: data.naam,
+      beschrijving: data.beschrijving || '',
+      website: data.website || null,
+      logo: data.logo || null,
+    }, locals);
 
-    await dbRequest.query(`
-      UPDATE externe_partners
-      SET naam = @naam,
-          bedrijf = @bedrijf,
-          specialisatie = @specialisatie,
-          email = @email,
-          telefoon = @telefoon,
-          website = @website,
-          beschrijving = @beschrijving,
-          expertise_gebieden = @expertiseGebieden,
-          volgorde = @volgorde,
-          updated_at = GETDATE()
-      WHERE id = @id
-    `);
+    if (!success) {
+      return new Response(JSON.stringify({ error: 'Partner not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    const dbRequest2 = dbPool.request();
-    dbRequest2.input('id', sql.Int, parseInt(id!));
-    const result = await dbRequest2.query(`
-      SELECT 
-        id,
-        naam,
-        bedrijf,
-        specialisatie,
-        email,
-        telefoon,
-        website,
-        beschrijving,
-        expertise_gebieden as expertiseGebieden,
-        volgorde,
-        created_at as createdAt,
-        updated_at as updatedAt
-      FROM externe_partners
-      WHERE id = @id
-    `);
+    const updatedPartner = await getById('Partners', Number(id), locals);
 
-    const updatedPartner = result.recordset[0];
-
-    return new Response(JSON.stringify({
-      ...updatedPartner,
-      expertiseGebieden: JSON.parse(updatedPartner.expertiseGebieden || '[]')
-    }), {
+    return new Response(JSON.stringify(updatedPartner), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error updating partner:', error);
-    return new Response(JSON.stringify({ error: 'Failed to update partner' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -145,25 +82,37 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
   try {
     const { id } = params;
-    const dbPool = await getPool(locals);
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    const dbRequest = dbPool.request();
-    dbRequest.input('id', sql.Int, parseInt(id!));
-    await dbRequest.query(`DELETE FROM externe_partners WHERE id = @id`);
+    const success = await deleteById('Partners', Number(id), locals);
 
-    return new Response(JSON.stringify({ success: true }), {
+    if (!success) {
+      return new Response(JSON.stringify({ error: 'Partner not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({ message: 'Partner deleted successfully' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error deleting partner:', error);
-    return new Response(JSON.stringify({ error: 'Failed to delete partner' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

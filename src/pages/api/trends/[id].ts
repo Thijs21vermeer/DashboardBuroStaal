@@ -1,43 +1,44 @@
 import type { APIRoute } from 'astro';
-import { getPool, handleDbError } from '../../../lib/db-config';
-import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
-import type { Trend, TrendRequest } from '../../../types';
+import { getById, update, deleteById } from '../../../lib/turso-db';
 
-// GET - Haal een specifieke trend op
 export const GET: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
-
+  
   const { id } = params;
   
   try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request()
-      .input('id', sql.Int, Number(id))
-      .query('SELECT * FROM Trends WHERE id = @id');
+    const item = await getById('Trends', Number(id), locals);
 
-    if (result.recordset.length === 0) {
+    if (!item) {
       return new Response(JSON.stringify({ error: 'Trend not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const trend = mapDbToTrend(result.recordset[0]);
-    return new Response(JSON.stringify(trend), {
+    if (typeof item.tags === 'string') {
+      try { item.tags = JSON.parse(item.tags); } catch { item.tags = []; }
+    }
+
+    return new Response(JSON.stringify(item), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch trend by id');
+    console.error('Error fetching trend:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
-// PUT - Update een trend
 export const PUT: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
@@ -50,55 +51,46 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const data = (await request.json()) as TrendRequest;
-    const dbPool = await getPool(locals);
+    const data = await request.json();
 
-    const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
-      .input('titel', sql.NVarChar, data.titel)
-      .input('categorie', sql.NVarChar, data.categorie)
-      .input('beschrijving', sql.NVarChar(sql.MAX), data.beschrijving || null)
-      .input('relevantie', sql.NVarChar, data.relevantie || null)
-      .input('impact', sql.NVarChar(sql.MAX), data.impact || null)
-      .input('bronnen', sql.NVarChar(sql.MAX), JSON.stringify(data.bronnen || []))
-      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .input('eigenaar', sql.NVarChar, data.eigenaar || null)
-      .query(`
-        UPDATE Trends 
-        SET 
-          titel = @titel,
-          categorie = @categorie,
-          beschrijving = @beschrijving,
-          relevantie = @relevantie,
-          impact = @impact,
-          bronnen = @bronnen,
-          tags = @tags,
-          eigenaar = @eigenaar,
-          laatst_bijgewerkt = GETDATE()
-        OUTPUT INSERTED.*
-        WHERE id = @id
-      `);
+    const success = await update('Trends', Number(id), {
+      titel: data.titel,
+      beschrijving: data.beschrijving || '',
+      categorie: data.categorie || 'Algemeen',
+      eigenaar: data.eigenaar || '',
+      tags: JSON.stringify(data.tags || []),
+      afbeelding: data.afbeelding || null,
+    }, locals);
 
-    if (result.recordset.length === 0) {
+    if (!success) {
       return new Response(JSON.stringify({ error: 'Trend not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const updatedTrend = mapDbToTrend(result.recordset[0]);
+    const updatedTrend = await getById('Trends', Number(id), locals);
+    if (typeof updatedTrend.tags === 'string') {
+      try { updatedTrend.tags = JSON.parse(updatedTrend.tags); } catch { updatedTrend.tags = []; }
+    }
+
     return new Response(JSON.stringify(updatedTrend), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'update trend');
+    console.error('Error updating trend:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
-// DELETE - Verwijder een trend
 export const DELETE: APIRoute = async ({ params, request, locals }) => {
-  // Check authentication
   const authError = await requireAuth({ request, locals });
   if (authError) return authError;
   
@@ -111,12 +103,9 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
-      .query('DELETE FROM Trends WHERE id = @id');
+    const success = await deleteById('Trends', Number(id), locals);
 
-    if (result.rowsAffected[0] === 0) {
+    if (!success) {
       return new Response(JSON.stringify({ error: 'Trend not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
@@ -128,35 +117,13 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'delete trend');
+    console.error('Error deleting trend:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
-
-// Helper functie om database records te mappen naar TypeScript types
-function mapDbToTrend(dbRecord: any): Trend {
-  return {
-    id: String(dbRecord.id),
-    titel: dbRecord.titel,
-    categorie: dbRecord.categorie,
-    beschrijving: dbRecord.beschrijving,
-    relevantie: dbRecord.relevantie as 'Hoog' | 'Middel' | 'Laag',
-    bronnen: dbRecord.bronnen ? JSON.parse(dbRecord.bronnen) : [],
-    datum: dbRecord.datum_toegevoegd,
-    tags: dbRecord.tags ? JSON.parse(dbRecord.tags) : [],
-    impact: dbRecord.impact || '',
-    eigenaar: dbRecord.eigenaar || 'Onbekend',
-  };
-}
-
-
-
-
-
-
-
-
-
-
-
-
-

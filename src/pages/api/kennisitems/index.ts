@@ -1,8 +1,8 @@
 import type { APIRoute } from 'astro';
-import { getPool, handleDbError } from '../../../lib/db-config';
-import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
 import type { KennisItem, KennisItemRequest } from '../../../types';
+import { getAll, insert } from '../../../lib/turso-db';
+import { getEnvVar } from '../../../lib/config';
 
 // Helper functie om database records te mappen naar TypeScript types
 function mapDbToKennisItem(dbRecord: any): KennisItem {
@@ -23,19 +23,19 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
   return {
     id: dbRecord.id,
     titel: dbRecord.titel,
-    type: dbRecord.type,
-    categorie: dbRecord.categorie || dbRecord.type || 'Algemeen',
+    type: dbRecord.categorie || 'Algemeen', // SQLite gebruikt 'categorie'
+    categorie: dbRecord.categorie || 'Algemeen',
     tags,
-    gekoppeldProject: dbRecord.gekoppeld_project || undefined,
-    eigenaar: dbRecord.eigenaar,
-    auteur: dbRecord.eigenaar, // Alias voor frontend compatibility
-    samenvatting: dbRecord.samenvatting,
-    inhoud: dbRecord.inhoud,
-    datumToegevoegd: dbRecord.datum_toegevoegd,
-    laatstBijgewerkt: dbRecord.laatst_bijgewerkt,
-    views: dbRecord.views || 0,
-    featured: dbRecord.featured || false,
-    videoLink: dbRecord.video_link || undefined,
+    gekoppeldProject: dbRecord.gekoppeldProject || undefined,
+    eigenaar: dbRecord.eigenaar || 'Onbekend',
+    auteur: dbRecord.eigenaar || 'Onbekend',
+    samenvatting: dbRecord.beschrijving || '',
+    inhoud: dbRecord.beschrijving || '',
+    datumToegevoegd: dbRecord.createdAt,
+    laatstBijgewerkt: dbRecord.updatedAt,
+    views: 0,
+    featured: false,
+    videoLink: undefined,
     afbeelding: dbRecord.afbeelding || undefined,
   };
 }
@@ -45,7 +45,6 @@ async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
   try {
     console.log('🔔 Attempting to send Slack notification...');
     console.log('📝 Item:', item.titel);
-    console.log('🔗 Webhook URL exists:', slackWebhook ? 'Yes' : 'No');
     
     const message = {
       text: `📚 Nieuw kennisitem: ${item.titel}`,
@@ -92,11 +91,9 @@ async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
       console.error('Response:', responseText);
     } else {
       console.log('✅ Slack notification sent successfully');
-      console.log('Response:', responseText);
     }
   } catch (error) {
     console.error('❌ Error sending Slack notification:', error);
-    // Don't throw - we don't want to fail the API request if Slack fails
   }
 }
 
@@ -107,11 +104,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request().query('SELECT * FROM KennisItems ORDER BY datum_toegevoegd DESC');
+    const rows = await getAll('KennisItems', {
+      orderBy: 'createdAt DESC'
+    }, locals);
     
-    // Map database records to TypeScript types
-    const items = result.recordset.map(mapDbToKennisItem);
+    const items = rows.map(mapDbToKennisItem);
 
     return new Response(JSON.stringify(items), {
       status: 200,
@@ -121,7 +118,14 @@ export const GET: APIRoute = async ({ request, locals }) => {
       }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch kennisitems');
+    console.error('Error fetching kennisitems:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij ophalen kennisitems',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
@@ -133,35 +137,37 @@ export const POST: APIRoute = async ({ request, locals }) => {
   
   try {
     const data = (await request.json()) as KennisItemRequest;
-    const dbPool = await getPool(locals);
     
-    const result = await dbPool.request()
-      .input('titel', sql.NVarChar, data.titel)
-      .input('type', sql.NVarChar, data.type)
-      .input('categorie', sql.NVarChar, data.categorie || data.type || 'Algemeen')
-      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .input('gekoppeld_project', sql.NVarChar, data.gekoppeldProject || null)
-      .input('eigenaar', sql.NVarChar, data.eigenaar)
-      .input('samenvatting', sql.NVarChar, data.samenvatting || null)
-      .input('inhoud', sql.NVarChar(sql.MAX), data.inhoud || null)
-      .input('media_type', sql.NVarChar, data.media_type || null)
-      .input('media_url', sql.NVarChar, data.media_url || null)
-      .input('video_link', sql.NVarChar, data.videoLink || null)
-      .input('afbeelding', sql.NVarChar(sql.MAX), data.afbeelding || null)
-      .query(`
-        INSERT INTO KennisItems 
-        (titel, type, categorie, tags, gekoppeld_project, eigenaar, samenvatting, inhoud, media_type, media_url, video_link, afbeelding, datum_toegevoegd, laatst_bijgewerkt, views, featured)
-        OUTPUT INSERTED.*
-        VALUES 
-        (@titel, @type, @categorie, @tags, @gekoppeld_project, @eigenaar, @samenvatting, @inhoud, @media_type, @media_url, @video_link, @afbeelding, GETDATE(), GETDATE(), 0, 0)
-      `);
+    const newId = await insert('KennisItems', {
+      titel: data.titel,
+      beschrijving: data.samenvatting || data.inhoud || '',
+      categorie: data.categorie || data.type || 'Algemeen',
+      tags: JSON.stringify(data.tags || []),
+      mediaType: data.media_type || null,
+      afbeelding: data.afbeelding || null,
+      referenties: null,
+    }, locals);
 
-    const newItem = mapDbToKennisItem(result.recordset[0]);
+    const newItem: KennisItem = {
+      id: newId,
+      titel: data.titel,
+      type: data.type || 'Algemeen',
+      categorie: data.categorie || data.type || 'Algemeen',
+      tags: data.tags || [],
+      eigenaar: data.eigenaar || 'Onbekend',
+      auteur: data.eigenaar || 'Onbekend',
+      samenvatting: data.samenvatting || '',
+      inhoud: data.inhoud || '',
+      datumToegevoegd: new Date().toISOString(),
+      laatstBijgewerkt: new Date().toISOString(),
+      views: 0,
+      featured: false,
+      afbeelding: data.afbeelding,
+    };
     
     // Stuur Slack notificatie
-    const slackWebhook = getSlackWebhook(locals);
+    const slackWebhook = getEnvVar('SLACK_WEBHOOK', locals, false);
     if (slackWebhook) {
-      // Don't await - send in background
       sendSlackNotification(newItem, slackWebhook);
     } else {
       console.warn('⚠️ SLACK_WEBHOOK not configured - skipping notification');
@@ -172,30 +178,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'create kennisitem');
+    console.error('Error creating kennisitem:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout bij aanmaken kennisitem',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

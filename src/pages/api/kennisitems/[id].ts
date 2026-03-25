@@ -1,23 +1,7 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../../lib/db-config';
-import sql from 'mssql';
 import { requireAuth } from '../../../lib/api-auth';
 import type { KennisItem, KennisItemRequest } from '../../../types';
-
-// Helper functie voor database errors
-function handleDbError(error: unknown, operation: string): Response {
-  console.error(`Database error during ${operation}:`, error);
-  return new Response(
-    JSON.stringify({ 
-      error: 'Database error', 
-      details: error instanceof Error ? error.message : 'Unknown error' 
-    }), 
-    {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    }
-  );
-}
+import { getById, update, deleteById } from '../../../lib/turso-db';
 
 // Helper functie om database records te mappen
 function mapDbToKennisItem(dbRecord: any): KennisItem {
@@ -37,19 +21,19 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
   return {
     id: dbRecord.id,
     titel: dbRecord.titel,
-    type: dbRecord.type,
-    categorie: dbRecord.categorie || dbRecord.type || 'Algemeen',
+    type: dbRecord.categorie || 'Algemeen',
+    categorie: dbRecord.categorie || 'Algemeen',
     tags,
-    gekoppeldProject: dbRecord.gekoppeld_project || undefined,
+    gekoppeldProject: dbRecord.gekoppeldProject || undefined,
     eigenaar: dbRecord.eigenaar || 'Onbekend',
-    datum: dbRecord.datum_toegevoegd,
-    samenvatting: dbRecord.samenvatting || undefined,
-    inhoud: dbRecord.inhoud || undefined,
+    datum: dbRecord.createdAt,
+    samenvatting: dbRecord.beschrijving || undefined,
+    inhoud: dbRecord.beschrijving || undefined,
     afbeelding: dbRecord.afbeelding || undefined,
-    featured: dbRecord.featured || false,
-    videoLink: dbRecord.video_link || undefined,
-    media_type: dbRecord.media_type || undefined,
-    media_url: dbRecord.media_url || undefined,
+    featured: false,
+    videoLink: undefined,
+    media_type: dbRecord.mediaType || undefined,
+    media_url: undefined,
   };
 }
 
@@ -62,25 +46,29 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
   const { id } = params;
   
   try {
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request()
-      .input('id', sql.Int, Number(id))
-      .query('SELECT * FROM KennisItems WHERE id = @id');
+    const item = await getById('KennisItems', Number(id), locals);
 
-    if (result.recordset.length === 0) {
+    if (!item) {
       return new Response(JSON.stringify({ error: 'Item not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const item = mapDbToKennisItem(result.recordset[0]);
-    return new Response(JSON.stringify(item), {
+    const mappedItem = mapDbToKennisItem(item);
+    return new Response(JSON.stringify(mappedItem), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'fetch kennisitem by id');
+    console.error('Error fetching kennisitem:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
@@ -100,56 +88,40 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
 
     const data = (await request.json()) as KennisItemRequest;
-    const dbPool = await getPool(locals);
 
-    const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
-      .input('titel', sql.NVarChar, data.titel)
-      .input('type', sql.NVarChar, data.type)
-      .input('categorie', sql.NVarChar, data.categorie || data.type || 'Algemeen')
-      .input('tags', sql.NVarChar, JSON.stringify(data.tags || []))
-      .input('gekoppeld_project', sql.NVarChar, data.gekoppeldProject || null)
-      .input('eigenaar', sql.NVarChar, data.eigenaar)
-      .input('samenvatting', sql.NVarChar, data.samenvatting || null)
-      .input('inhoud', sql.NVarChar(sql.MAX), data.inhoud || null)
-      .input('media_type', sql.NVarChar, data.media_type || null)
-      .input('media_url', sql.NVarChar, data.media_url || null)
-      .input('video_link', sql.NVarChar, data.videoLink || null)
-      .input('afbeelding', sql.NVarChar(sql.MAX), data.afbeelding || null)
-      .query(`
-        UPDATE KennisItems 
-        SET 
-          titel = @titel,
-          type = @type,
-          categorie = @categorie,
-          tags = @tags,
-          gekoppeld_project = @gekoppeld_project,
-          eigenaar = @eigenaar,
-          samenvatting = @samenvatting,
-          inhoud = @inhoud,
-          media_type = @media_type,
-          media_url = @media_url,
-          video_link = @video_link,
-          afbeelding = @afbeelding,
-          laatst_bijgewerkt = GETDATE()
-        OUTPUT INSERTED.*
-        WHERE id = @id
-      `);
+    const success = await update('KennisItems', Number(id), {
+      titel: data.titel,
+      beschrijving: data.samenvatting || data.inhoud || '',
+      categorie: data.categorie || data.type || 'Algemeen',
+      tags: JSON.stringify(data.tags || []),
+      mediaType: data.media_type || null,
+      afbeelding: data.afbeelding || null,
+    }, locals);
 
-    if (result.recordset.length === 0) {
+    if (!success) {
       return new Response(JSON.stringify({ error: 'Kennisitem not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const updatedItem = mapDbToKennisItem(result.recordset[0]);
-    return new Response(JSON.stringify(updatedItem), {
+    // Fetch updated item
+    const updatedItem = await getById('KennisItems', Number(id), locals);
+    const mappedItem = mapDbToKennisItem(updatedItem);
+
+    return new Response(JSON.stringify(mappedItem), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'update kennisitem');
+    console.error('Error updating kennisitem:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
@@ -168,12 +140,9 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const dbPool = await getPool(locals);
-    const result = await dbPool.request()
-      .input('id', sql.Int, parseInt(id))
-      .query('DELETE FROM KennisItems WHERE id = @id');
+    const success = await deleteById('KennisItems', Number(id), locals);
 
-    if (result.rowsAffected[0] === 0) {
+    if (!success) {
       return new Response(JSON.stringify({ error: 'Kennisitem not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
@@ -185,7 +154,13 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return handleDbError(error, 'delete kennisitem');
+    console.error('Error deleting kennisitem:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Database fout',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
-

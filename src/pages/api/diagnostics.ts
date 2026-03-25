@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { getPool } from '../../lib/db-config';
 import { requireAuth } from '../../lib/api-auth';
-import { getAdminSecret } from '../../lib/config';
+import { getDatabaseInfo } from '../../lib/turso-db';
+import { getConfig } from '../../lib/config';
 
 /**
  * SECURITY: Diagnostic endpoint - PROTECTED
@@ -79,20 +79,14 @@ export const GET: APIRoute = async (context) => {
       hasEnv: !!(runtime?.env),
     };
 
-    // Test database connection
-    let dbStatus = 'not_tested';
-    let dbError: string | null = null;
-    
+    // Test database connection and list tables (using Turso)
     try {
-      const dbPool = await getPool(locals);
-      const result = await dbPool.request().query('SELECT 1 as test');
-      dbStatus = 'connected';
+      diagnostics.database = await getDatabaseInfo(locals);
     } catch (error) {
-      const err = error as Error;
-      console.error('[DIAGNOSTICS] Database connection test failed:', err.message);
-      dbStatus = 'failed';
-      // SECURITY: Generic error message only (no stack trace)
-      dbError = 'Connection failed - check server logs for details';
+      diagnostics.database = {
+        connected: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
     }
 
     return new Response(
@@ -101,10 +95,7 @@ export const GET: APIRoute = async (context) => {
         environment: import.meta.env.MODE,
         nodeEnv: process.env.NODE_ENV,
         environmentVariables: envCheck,
-        database: {
-          status: dbStatus,
-          ...(dbError && { error: dbError })
-        },
+        database: diagnostics.database,
         security: {
           note: 'This endpoint requires auth + ADMIN_SECRET',
           layers: ['development-only', 'authentication', 'admin-secret']
@@ -133,3 +124,4 @@ export const GET: APIRoute = async (context) => {
     );
   }
 };
+
