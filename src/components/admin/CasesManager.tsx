@@ -76,8 +76,10 @@ export default function CasesManager() {
         const updated = await apiClient.cases.update(editingItem.id, caseData);
         setCases(prevCases => prevCases.map(i => i.id === editingItem.id ? updated : i));
       } else {
+        // Create new case
         const newCase = await apiClient.cases.create(caseData);
-        setCases([newCase, ...cases]);
+        setCases(prevCases => [newCase, ...prevCases]);
+        alert('✅ Case succesvol toegevoegd!');
       }
       
       resetForm();
@@ -111,7 +113,7 @@ export default function CasesManager() {
 
     try {
       await apiClient.cases.delete(id);
-      setCases(cases.filter(i => i.id !== id));
+      setCases(prevCases => prevCases.filter(i => i.id !== id));
       alert('✅ Case succesvol verwijderd');
     } catch (err) {
       console.error('Error deleting case:', err);
@@ -333,6 +335,8 @@ export default function CasesManager() {
     </div>
   );
 }
+
+
 
 
 

@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -77,7 +74,7 @@ export default function KennisItemsManager() {
       } else {
         // Create new item
         const newItem = await apiClient.kennisitems.create(itemData);
-        setItems([newItem, ...items]);
+        setItems(prevItems => [newItem, ...prevItems]);
         alert('✅ Item succesvol toegevoegd!');
       }
       
@@ -114,7 +111,7 @@ export default function KennisItemsManager() {
     
     try {
       await apiClient.kennisitems.delete(id);
-      setItems(items.filter(i => i.id !== id));
+      setItems(prevItems => prevItems.filter(i => i.id !== id));
     } catch (error) {
       console.error('Error deleting item:', error);
     }
@@ -436,6 +433,8 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
 
 
 

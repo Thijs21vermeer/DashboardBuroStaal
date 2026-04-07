@@ -71,8 +71,10 @@ export default function TrendsManager() {
         const updated = await apiClient.trends.update(editingItem.id, trendData);
         setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
       } else {
+        // Create new item
         const newItem = await apiClient.trends.create(trendData);
-        setItems([newItem, ...items]);
+        setItems(prevItems => [newItem, ...prevItems]);
+        alert('✅ Trend succesvol toegevoegd!');
       }
       
       resetForm();
@@ -105,7 +107,7 @@ export default function TrendsManager() {
 
     try {
       await apiClient.trends.delete(id);
-      setItems(items.filter(i => i.id !== id));
+      setItems(prevItems => prevItems.filter(i => i.id !== id));
     } catch (error) {
       console.error('Error deleting trend:', error);
     }
@@ -324,6 +326,8 @@ export default function TrendsManager() {
     </div>
   );
 }
+
+
 
 
 

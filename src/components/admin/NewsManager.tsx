@@ -64,8 +64,10 @@ export default function NewsManager() {
         const updated = await apiClient.nieuws.update(editingItem.id, newsData);
         setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
       } else {
+        // Create new item
         const newItem = await apiClient.nieuws.create(newsData);
-        setItems([newItem, ...items]);
+        setItems(prevItems => [newItem, ...prevItems]);
+        alert('✅ Nieuwsitem succesvol toegevoegd!');
       }
       
       resetForm();
@@ -102,7 +104,7 @@ export default function NewsManager() {
 
     try {
       await apiClient.nieuws.delete(id);
-      setItems(items.filter(i => i.id !== id));
+      setItems(prevItems => prevItems.filter(i => i.id !== id));
     } catch (error) {
       console.error('Error deleting news item:', error);
     }
@@ -304,6 +306,8 @@ export default function NewsManager() {
     </div>
   );
 }
+
+
 
 
 

@@ -95,13 +95,11 @@ export default function VideosManager() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Weet je zeker dat je deze video wilt verwijderen?')) {
-      return;
-    }
-
+    if (!confirm('Weet je zeker dat je deze video wilt verwijderen?')) return;
+    
     try {
       await apiClient.videos.delete(id);
-      setVideos(videos.filter(i => i.id !== id));
+      setVideos(prevVideos => prevVideos.filter(i => i.id !== id));
     } catch (error) {
       console.error('Error deleting video:', error);
     }
@@ -377,6 +375,7 @@ export default function VideosManager() {
     </div>
   );
 }
+
 
 
 
