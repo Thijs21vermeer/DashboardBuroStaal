@@ -1,3 +1,6 @@
+
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -106,6 +109,8 @@ export default function VideosManager() {
   };
 
   const extractVideoId = (url: string): string | null => {
+    if (!url) return null;
+    
     const patterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
       /^([a-zA-Z0-9_-]{11})$/
@@ -119,6 +124,8 @@ export default function VideosManager() {
   };
 
   const getThumbnail = (url: string): string => {
+    if (!url) return '/placeholder-video.jpg';
+    
     const videoId = extractVideoId(url);
     return videoId 
       ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
@@ -187,6 +194,7 @@ export default function VideosManager() {
                     src={getThumbnail(formData.youtube_url)} 
                     alt="Preview"
                     className="w-32 h-auto rounded mt-2"
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-video.jpg'; }}
                   />
                 )}
               </div>
@@ -302,9 +310,10 @@ export default function VideosManager() {
                   <div className="flex items-start gap-4">
                     {/* Thumbnail */}
                     <img 
-                      src={getThumbnail(video.youtube_url)} 
+                      src={getThumbnail(video.youtube_url || '')} 
                       alt={video.titel}
                       className="w-32 h-24 object-cover rounded flex-shrink-0"
+                      onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-video.jpg'; }}
                     />
                     
                     {/* Content */}
@@ -339,14 +348,16 @@ export default function VideosManager() {
                         
                         {/* Actions */}
                         <div className="flex gap-2 flex-shrink-0">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(video.youtube_url, '_blank')}
-                            title="Bekijk op YouTube"
-                          >
-                            <PlayCircle className="h-4 w-4" />
-                          </Button>
+                          {video.youtube_url && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(video.youtube_url, '_blank')}
+                              title="Bekijk op YouTube"
+                            >
+                              <PlayCircle className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
@@ -375,6 +386,9 @@ export default function VideosManager() {
     </div>
   );
 }
+
+
+
 
 
 
