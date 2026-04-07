@@ -7,21 +7,23 @@ export const GET: APIRoute = async ({ request, locals }) => {
   if (authError) return authError;
   
   try {
-    const rows = await getAll('Videos', {
-      orderBy: 'createdAt DESC'
-    }, locals);
-
-    return new Response(JSON.stringify(rows), {
+    const items = await getAll('Videos', locals);
+    
+    // Map database fields to frontend expected fields
+    const videos = items.map((item: any) => ({
+      ...item,
+      youtube_url: item.videolink || item.youtube_url || '',
+      tags: typeof item.tags === 'string' ? (item.tags ? item.tags.split(',') : []) : (item.tags || []),
+    }));
+    
+    return new Response(JSON.stringify(videos), {
       status: 200,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache'
-      }
+      headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     console.error('Error fetching videos:', error);
     return new Response(JSON.stringify({ 
-      error: 'Database fout bij ophalen videos',
+      error: 'Database fout',
       details: error instanceof Error ? error.message : 'Unknown error'
     }), {
       status: 500,
@@ -40,15 +42,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const newId = await insert('Videos', {
       titel: data.titel,
       beschrijving: data.beschrijving || '',
-      videoLink: data.videoLink || '',
+      videolink: data.videolink || data.youtube_url || '',
+      categorie: data.categorie || '',
+      afbeelding: data.afbeelding || data.thumbnail || null,
       tags: JSON.stringify(data.tags || []),
-      thumbnail: data.thumbnail || null,
     }, locals);
 
+    // Return with youtube_url for frontend compatibility
     const newVideo = {
       id: newId,
-      ...data,
+      titel: data.titel,
+      beschrijving: data.beschrijving || '',
+      youtube_url: data.videolink || data.youtube_url || '',
+      categorie: data.categorie || '',
       tags: data.tags || [],
+      eigenaar: data.eigenaar || '',
+      featured: data.featured || false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -68,3 +77,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
+
+

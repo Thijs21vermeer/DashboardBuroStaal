@@ -3,6 +3,7 @@
 
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Video, PlayCircle, Filter, RefreshCw, Eye, Calendar, Link2, Check, Sparkles, Search } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -110,7 +111,7 @@ export default function VideosPage() {
   const regularVideos = filteredVideos; // Show all videos including featured ones
 
   return (
-    <div className="flex-1 overflow-auto bg-gray-50 min-h-screen">
+    <div className="flex-1 overflow-auto bg-white min-h-screen">
       {/* Spacer */}
       <div className="h-4 sm:h-6"></div>
       
@@ -522,6 +523,7 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
 
 
 

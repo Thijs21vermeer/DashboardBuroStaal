@@ -18,11 +18,14 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    if (typeof item.tags === 'string') {
-      try { item.tags = JSON.parse(item.tags); } catch { item.tags = []; }
-    }
+    // Map database fields to frontend expected fields
+    const video = {
+      ...item,
+      youtube_url: item.videolink || item.youtube_url || '',
+      tags: typeof item.tags === 'string' ? (item.tags ? item.tags.split(',') : []) : (item.tags || []),
+    };
 
-    return new Response(JSON.stringify(item), {
+    return new Response(JSON.stringify(video), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -56,9 +59,10 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const success = await update('Videos', Number(id), {
       titel: data.titel,
       beschrijving: data.beschrijving || '',
-      videoLink: data.videoLink || '',
+      videolink: data.videolink || data.youtube_url || '',
+      categorie: data.categorie || '',
+      afbeelding: data.afbeelding || data.thumbnail || null,
       tags: JSON.stringify(data.tags || []),
-      thumbnail: data.thumbnail || null,
     }, locals);
 
     if (!success) {
@@ -68,10 +72,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    const updatedVideo = await getById('Videos', Number(id), locals);
-    if (typeof updatedVideo.tags === 'string') {
-      try { updatedVideo.tags = JSON.parse(updatedVideo.tags); } catch { updatedVideo.tags = []; }
-    }
+    const updatedItem = await getById('Videos', Number(id), locals);
+    
+    // Map database fields to frontend expected fields
+    const updatedVideo = {
+      ...updatedItem,
+      youtube_url: updatedItem.videolink || updatedItem.youtube_url || '',
+      tags: typeof updatedItem.tags === 'string' ? (updatedItem.tags ? updatedItem.tags.split(',') : []) : (updatedItem.tags || []),
+    };
 
     return new Response(JSON.stringify(updatedVideo), {
       status: 200,
@@ -126,3 +134,6 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+
+
