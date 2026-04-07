@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -125,17 +125,17 @@ export default function VideosManager() {
       : '/placeholder-video.jpg';
   };
 
-  const filteredVideos = (videos || []).filter(video => {
-    if (!searchQuery) return true;
+  const filteredVideos = useMemo(() => {
+    if (!searchQuery) return videos;
     const query = searchQuery.toLowerCase();
-    return (
+    return (videos || []).filter(video => (
       video.titel.toLowerCase().includes(query) ||
       video.beschrijving?.toLowerCase().includes(query) ||
       video.categorie.toLowerCase().includes(query) ||
       video.tags?.toLowerCase().includes(query) ||
       video.eigenaar?.toLowerCase().includes(query)
-    );
-  });
+    ));
+  }, [searchQuery, videos]);
 
   return (
     <div className="space-y-6">
@@ -375,6 +375,8 @@ export default function VideosManager() {
     </div>
   );
 }
+
+
 
 
 

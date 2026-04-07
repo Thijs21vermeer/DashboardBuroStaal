@@ -3,7 +3,7 @@
 
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -127,10 +127,12 @@ export default function TrendsManager() {
     });
   };
 
-  const filteredItems = (items || []).filter(item =>
-    item.titel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.samenvatting.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredItems = useMemo(() => {
+    return (items || []).filter(item =>
+      item.titel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.samenvatting?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [items, searchTerm]);
 
   return (
     <div>
@@ -326,6 +328,8 @@ export default function TrendsManager() {
     </div>
   );
 }
+
+
 
 
 

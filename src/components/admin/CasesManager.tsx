@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -136,10 +136,12 @@ export default function CasesManager() {
     });
   };
 
-  const filteredItems = (items || []).filter(item =>
-    item.titel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.klant.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredItems = useMemo(() => {
+    return (cases || []).filter(item =>
+      item.titel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.samenvatting?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [cases, searchTerm]);
 
   return (
     <div>
@@ -335,6 +337,8 @@ export default function CasesManager() {
     </div>
   );
 }
+
+
 
 
 

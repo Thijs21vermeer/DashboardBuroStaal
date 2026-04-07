@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -212,6 +211,13 @@ export default function TeamManager() {
       </Card>
     );
   }
+
+  const filteredItems = useMemo(() => {
+    return (items || []).filter(item =>
+      item.naam?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.functie?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [items, searchTerm]);
 
   return (
     <div className="space-y-6">
@@ -630,6 +636,8 @@ export default function TeamManager() {
     </div>
   );
 }
+
+
 
 
 

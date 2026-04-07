@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Edit, Trash2, Code, Search, Save, X, Wrench } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -94,16 +94,12 @@ export default function ToolsManager() {
     setEditingTool({});
   };
 
-  const filteredTools = (tools || []).filter((tool) => {
-    if (!searchTerm) return true;
-    const search = searchTerm.toLowerCase();
-    return (
-      tool.naam.toLowerCase().includes(search) ||
-      tool.beschrijving?.toLowerCase().includes(search) ||
-      tool.tags?.toLowerCase().includes(search) ||
-      tool.categorie.toLowerCase().includes(search)
+  const filteredItems = useMemo(() => {
+    return (items || []).filter(item =>
+      item.naam?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.beschrijving?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  });
+  }, [items, searchTerm]);
 
   if (loading) {
     return <div className="text-center py-8">Laden...</div>;
@@ -232,7 +228,7 @@ export default function ToolsManager() {
       )}
 
       <div className="grid gap-3 sm:gap-4">
-        {(filteredTools || []).map((tool) => (
+        {(filteredItems || []).map((tool) => (
           <Card key={tool.id} className="p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
@@ -287,6 +283,8 @@ export default function ToolsManager() {
     </div>
   );
 }
+
+
 
 
 
