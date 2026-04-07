@@ -3,6 +3,7 @@
 
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -75,7 +76,7 @@ export default function VideosManager() {
       beschrijving: video.beschrijving || '',
       youtube_url: video.youtube_url,
       categorie: video.categorie,
-      tags: video.tags || '',
+      tags: Array.isArray(video.tags) ? video.tags.join(',') : (video.tags || ''),
       eigenaar: video.eigenaar || '',
       featured: video.featured
     });
@@ -86,10 +87,15 @@ export default function VideosManager() {
     e.preventDefault();
     
     try {
+      const submitData = {
+        ...formData,
+        tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+      };
+      
       if (editingId) {
-        await apiClient.videos.update(editingId, formData);
+        await apiClient.videos.update(editingId, submitData);
       } else {
-        await apiClient.videos.create(formData);
+        await apiClient.videos.create(submitData);
       }
       
       await loadVideos();
@@ -341,9 +347,9 @@ export default function VideosManager() {
                           </div>
                           {video.tags && (
                             <div className="flex flex-wrap gap-1 mt-2">
-                              {(video.tags || '').split(',').map((tag, idx) => (
+                              {(Array.isArray(video.tags) ? video.tags : (video.tags || '').split(',')).map((tag, idx) => (
                                 <Badge key={idx} variant="secondary" className="text-xs">
-                                  {tag.trim()}
+                                  {typeof tag === 'string' ? tag.trim() : tag}
                                 </Badge>
                               ))}
                             </div>
@@ -390,6 +396,9 @@ export default function VideosManager() {
     </div>
   );
 }
+
+
+
 
 
 

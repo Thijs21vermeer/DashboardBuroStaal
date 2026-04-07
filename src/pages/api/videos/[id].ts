@@ -18,11 +18,22 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
+    // Parse tags properly
+    let tags = [];
+    if (item.tags) {
+      try {
+        tags = typeof item.tags === 'string' ? JSON.parse(item.tags) : item.tags;
+      } catch {
+        // Fallback for comma-separated strings
+        tags = typeof item.tags === 'string' ? item.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [];
+      }
+    }
+
     // Map database fields to frontend expected fields
     const video = {
       ...item,
       youtube_url: item.videolink || item.youtube_url || '',
-      tags: typeof item.tags === 'string' ? (item.tags ? item.tags.split(',') : []) : (item.tags || []),
+      tags: Array.isArray(tags) ? tags : [],
     };
 
     return new Response(JSON.stringify(video), {
@@ -55,6 +66,10 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
 
     const data = await request.json();
+    
+    // Ensure tags is an array before stringifying
+    const tagsArray = Array.isArray(data.tags) ? data.tags : 
+                     (typeof data.tags === 'string' ? data.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : []);
 
     const success = await update('Videos', Number(id), {
       titel: data.titel,
@@ -62,7 +77,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       videolink: data.videolink || data.youtube_url || '',
       categorie: data.categorie || '',
       afbeelding: data.afbeelding || data.thumbnail || null,
-      tags: JSON.stringify(data.tags || []),
+      tags: JSON.stringify(tagsArray),
     }, locals);
 
     if (!success) {
@@ -74,11 +89,22 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const updatedItem = await getById('Videos', Number(id), locals);
     
+    // Parse tags properly
+    let tags = [];
+    if (updatedItem.tags) {
+      try {
+        tags = typeof updatedItem.tags === 'string' ? JSON.parse(updatedItem.tags) : updatedItem.tags;
+      } catch {
+        // Fallback for comma-separated strings
+        tags = typeof updatedItem.tags === 'string' ? updatedItem.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [];
+      }
+    }
+    
     // Map database fields to frontend expected fields
     const updatedVideo = {
       ...updatedItem,
       youtube_url: updatedItem.videolink || updatedItem.youtube_url || '',
-      tags: typeof updatedItem.tags === 'string' ? (updatedItem.tags ? updatedItem.tags.split(',') : []) : (updatedItem.tags || []),
+      tags: Array.isArray(tags) ? tags : [],
     };
 
     return new Response(JSON.stringify(updatedVideo), {
@@ -134,6 +160,8 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+
 
 
 
