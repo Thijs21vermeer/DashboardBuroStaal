@@ -55,10 +55,11 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const success = await update('Tools', Number(id), {
       naam: data.naam,
+      categorie: data.categorie,
       beschrijving: data.beschrijving || '',
-      url: data.url || '',
+      link: data.url || '',
       code: data.code || '',
-      tags: JSON.stringify(data.tags || []),
+      tags: data.tags || '',
       afbeelding: data.afbeelding || null,
     }, locals);
 
@@ -127,4 +128,6 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+
 

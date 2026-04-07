@@ -37,19 +37,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const data = await request.json();
     
+    // Validate required fields
+    if (!data.naam || !data.categorie || !data.beschrijving) {
+      return new Response(JSON.stringify({ 
+        error: 'Naam, categorie en beschrijving zijn verplicht'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
     const newId = await insert('Tools', {
       naam: data.naam,
+      categorie: data.categorie,
       beschrijving: data.beschrijving || '',
-      url: data.url || '',
+      link: data.url || '',
       code: data.code || '',
-      tags: JSON.stringify(data.tags || []),
+      tags: data.tags || '',
       afbeelding: data.afbeelding || null,
     }, locals);
 
     const newTool = {
       id: newId,
       ...data,
-      tags: data.tags || [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -69,4 +79,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
+
 
