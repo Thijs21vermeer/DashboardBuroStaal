@@ -3,7 +3,6 @@
 
 
 
-
 // Types voor het project
 
 export interface KennisItem {
@@ -124,7 +123,7 @@ export interface Video {
   id: number;
   titel: string;
   beschrijving?: string;
-  youtube_url: string;
+  youtube_url?: string;
   thumbnail_url?: string;
   categorie: string;
   tags?: string;
@@ -273,6 +272,7 @@ export interface PartnerRequest {
   expertise?: string;
   volgorde?: number;
 }
+
 
 
 

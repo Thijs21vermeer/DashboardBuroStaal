@@ -1,5 +1,8 @@
 
 
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Video, PlayCircle, Filter, RefreshCw, Eye, Calendar, Link2, Check, Sparkles, Search } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -68,6 +71,9 @@ export default function VideosPage() {
   }, [selectedCategory, searchQuery, videos]);
 
   const extractVideoId = (url: string): string | null => {
+    // Safety check: return null if url is empty or undefined
+    if (!url || typeof url !== 'string') return null;
+    
     const patterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
       /^([a-zA-Z0-9_-]{11})$/
@@ -82,6 +88,10 @@ export default function VideosPage() {
 
   const getThumbnail = (video: VideoType): string => {
     if (video.thumbnail_url) return video.thumbnail_url;
+    
+    // Safety check: only extract video ID if youtube_url exists
+    if (!video.youtube_url) return '/placeholder-video.jpg';
+    
     const videoId = extractVideoId(video.youtube_url);
     return videoId 
       ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
@@ -299,6 +309,7 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
 
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!video.youtube_url) return; // Safety check
     navigator.clipboard.writeText(video.youtube_url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -380,9 +391,12 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
           <Button
             onClick={handleCopyLink}
             size="sm"
+            disabled={!video.youtube_url}
             className={`w-full transition-all duration-200 shadow-sm text-[10px] sm:text-xs md:text-sm h-7 sm:h-8 md:h-9 ${
               copied 
                 ? 'bg-[#6de659] hover:bg-[#5dd548] text-black font-semibold border-0' 
+                : !video.youtube_url
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed border-0'
                 : 'bg-[#7ef769] hover:bg-[#6de659] text-black font-semibold border-0'
             }`}
           >
@@ -391,6 +405,12 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
                 <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4 mr-0.5 sm:mr-1 md:mr-2" />
                 <span className="hidden sm:inline">Gekopieerd!</span>
                 <span className="sm:hidden">✓</span>
+              </>
+            ) : !video.youtube_url ? (
+              <>
+                <Link2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4 mr-0.5 sm:mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Geen Link</span>
+                <span className="sm:hidden">-</span>
               </>
             ) : (
               <>
@@ -413,7 +433,7 @@ interface VideoModalProps {
 }
 
 function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
-  const videoId = extractVideoId(video.youtube_url);
+  const videoId = video.youtube_url ? extractVideoId(video.youtube_url) : null;
   
   return (
     <div 
@@ -484,15 +504,17 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
             )}
 
             <div className="pt-3 sm:pt-4 border-t">
-              <a 
-                href={video.youtube_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#280bc4] hover:text-[#7f56d9] font-medium inline-flex items-center gap-2 transition-colors text-sm sm:text-base"
-              >
-                <PlayCircle className="h-4 w-4" />
-                Bekijk op YouTube
-              </a>
+              {video.youtube_url && (
+                <a 
+                  href={video.youtube_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#280bc4] hover:text-[#7f56d9] font-medium inline-flex items-center gap-2 transition-colors text-sm sm:text-base"
+                >
+                  <PlayCircle className="h-4 w-4" />
+                  Bekijk op YouTube
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -500,6 +522,11 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
+
+
+
+
 
 
 
