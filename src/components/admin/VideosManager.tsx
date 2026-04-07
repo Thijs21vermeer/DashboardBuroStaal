@@ -1,6 +1,8 @@
 
 
 
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -123,13 +125,15 @@ export default function VideosManager() {
     return null;
   };
 
+  const PLACEHOLDER_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180"%3E%3Crect width="320" height="180" fill="%23e5e7eb"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="16" fill="%239ca3af"%3EGeen video%3C/text%3E%3C/svg%3E';
+
   const getThumbnail = (url: string): string => {
-    if (!url) return '/placeholder-video.jpg';
+    if (!url) return PLACEHOLDER_IMAGE;
     
     const videoId = extractVideoId(url);
     return videoId 
       ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
-      : '/placeholder-video.jpg';
+      : PLACEHOLDER_IMAGE;
   };
 
   const filteredVideos = useMemo(() => {
@@ -194,7 +198,7 @@ export default function VideosManager() {
                     src={getThumbnail(formData.youtube_url)} 
                     alt="Preview"
                     className="w-32 h-auto rounded mt-2"
-                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-video.jpg'; }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE; }}
                   />
                 )}
               </div>
@@ -313,7 +317,7 @@ export default function VideosManager() {
                       src={getThumbnail(video.youtube_url || '')} 
                       alt={video.titel}
                       className="w-32 h-24 object-cover rounded flex-shrink-0"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-video.jpg'; }}
+                      onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE; }}
                     />
                     
                     {/* Content */}
@@ -386,6 +390,8 @@ export default function VideosManager() {
     </div>
   );
 }
+
+
 
 
 

@@ -54,9 +54,12 @@ export default function NewsManager() {
     e.preventDefault();
     
     const newsData = {
-      ...formData,
-      tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
-      datum: new Date().toISOString().split('T')[0],
+      titel: formData.titel,
+      beschrijving: formData.inhoud.substring(0, 200), // Use first 200 chars as description
+      inhoud: formData.inhoud,
+      auteur: formData.auteur || '',
+      tags: formData.tags,
+      afbeelding: null,
     };
 
     try {
@@ -307,6 +310,7 @@ export default function NewsManager() {
     </div>
   );
 }
+
 
 
 
