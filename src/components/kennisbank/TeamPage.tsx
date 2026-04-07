@@ -1,4 +1,7 @@
 
+
+
+
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -34,12 +37,18 @@ export function TeamPage() {
 
   // Groepeer team: eigenaresses eerst, dan anderen
   const eigenaresses = useMemo(() => 
-    teamMembers.filter(member => member.rol?.toLowerCase().includes('eigenaar') || member.rol?.toLowerCase().includes('owner')),
+    teamMembers.filter(member => {
+      const rol = member.rol?.toLowerCase() || '';
+      return rol.includes('eigenaar') || rol.includes('owner');
+    }),
     [teamMembers]
   );
   
   const teamleden = useMemo(() => 
-    teamMembers.filter(member => !member.rol?.toLowerCase().includes('eigenaar') && !member.rol?.toLowerCase().includes('owner')),
+    teamMembers.filter(member => {
+      const rol = member.rol?.toLowerCase() || '';
+      return !rol.includes('eigenaar') && !rol.includes('owner');
+    }),
     [teamMembers]
   );
 
@@ -47,7 +56,7 @@ export function TeamPage() {
     Array.from(new Set(teamMembers
       .map(m => m.expertise)
       .filter(Boolean)
-      .flatMap(e => e.split(',').map(x => x.trim()))
+      .flatMap(e => typeof e === 'string' ? e.split(',').map(x => x.trim()) : [])
     )).sort(),
     [teamMembers]
   );
@@ -142,13 +151,13 @@ export function TeamPage() {
                     Expertisegebieden
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {member.expertise?.split(',').map((expertise, idx) => (
+                    {member.expertise && (typeof member.expertise === 'string' ? member.expertise.split(',') : []).map((expertise, idx) => (
                       <Badge 
                         key={idx} 
                         variant="secondary"
                         className="bg-[#280bc4]/10 text-[#280bc4] border border-[#280bc4]/20"
                       >
-                        {expertise.trim()}
+                        {typeof expertise === 'string' ? expertise.trim() : expertise}
                       </Badge>
                     ))}
                   </div>
@@ -209,13 +218,13 @@ export function TeamPage() {
                     Expertise
                   </h3>
                   <div className="flex flex-wrap gap-2 justify-center">
-                    {member.expertise?.split(',').map((expertise, idx) => (
+                    {member.expertise && (typeof member.expertise === 'string' ? member.expertise.split(',') : []).map((expertise, idx) => (
                       <Badge 
                         key={idx} 
                         variant="secondary"
                         className="text-xs"
                       >
-                        {expertise.trim()}
+                        {typeof expertise === 'string' ? expertise.trim() : expertise}
                       </Badge>
                     ))}
                   </div>
@@ -358,6 +367,9 @@ export function TeamPage() {
     </div>
   );
 }
+
+
+
 
 
 

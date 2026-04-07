@@ -1,4 +1,6 @@
 
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { BookOpen, Briefcase, TrendingUp, Wrench, Eye, ArrowRight, RefreshCw, AlertCircle, CheckCircle, Search, X } from 'lucide-react';
@@ -8,6 +10,8 @@ import { formatDate } from '../../lib/config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
+import { apiClient } from '../../lib/api-client';
+import { truncateText, formatDateShort, normalizeTags } from '../../lib/config';
 
 interface OverviewProps {
   onNavigate: (page: string) => void;
@@ -423,9 +427,14 @@ export function Overview({ onNavigate }: OverviewProps) {
                     <span>{item.views}</span>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1">
-                  {item.tags.slice(0, 3).map((tag: string) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                  {normalizeTags(item.tags).slice(0, 3).map((tag: string, idx: number) => (
+                    <Badge 
+                      key={`${tag}-${idx}`}
+                      variant="secondary" 
+                      className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                    >
                       {tag}
                     </Badge>
                   ))}
@@ -554,6 +563,8 @@ export function Overview({ onNavigate }: OverviewProps) {
     </div>
   );
 }
+
+
 
 
 

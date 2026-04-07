@@ -3,11 +3,10 @@
 
 
 
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Calendar, User, Tag, ArrowRight, BookOpen, RefreshCw } from 'lucide-react';
-import { KENNISBANK_CATEGORIES, MEDIA_TYPES, formatDateShort } from '../../lib/config';
+import { KENNISBANK_CATEGORIES, MEDIA_TYPES, formatDateShort, normalizeTags } from '../../lib/config';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -52,20 +51,23 @@ export function KennisbankPage() {
 
   // Verzamel alle unieke tags
   const allTags = Array.from(
-    new Set(items.flatMap(item => item.tags || []))
+    new Set(
+      items.flatMap(item => normalizeTags(item.tags))
+    )
   ).sort();
 
   // Filter en sorteer items
   const filteredItems = items
     .filter(item => {
+      const tags = normalizeTags(item.tags);
       const matchesSearch = 
-        item.titel.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.samenvatting.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        (item.titel?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (item.samenvatting?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        tags.some(tag => (tag?.toLowerCase() || '').includes(searchQuery.toLowerCase()));
       
-      const matchesCategorie = selectedCategorie === 'alle' || item.categorie.toLowerCase() === selectedCategorie.toLowerCase();
+      const matchesCategorie = selectedCategorie === 'alle' || (item.categorie?.toLowerCase() || '') === selectedCategorie.toLowerCase();
       const matchesType = selectedType === 'alle' || item.type === selectedType;
-      const matchesTag = selectedTag === 'alle' || (item.tags || []).includes(selectedTag);
+      const matchesTag = selectedTag === 'alle' || tags.includes(selectedTag);
 
       return matchesSearch && matchesCategorie && matchesType && matchesTag;
     })
@@ -311,28 +313,21 @@ export function KennisbankPage() {
                     {formatDateShort(item.createdAt)}
                   </div>
                   {/* Tags */}
-                  <div className="flex items-start gap-1.5 sm:gap-3 pt-1">
-                    <Tag className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 mt-0.5" />
-                    <div className="flex flex-wrap gap-1 sm:gap-1.5 flex-1">
-                      {item.tags.slice(0, 3).map((tag) => (
-                        <Badge 
-                          key={tag} 
-                          variant="secondary" 
-                          className="text-[10px] sm:text-xs cursor-pointer hover:bg-gray-300 px-1.5 sm:px-2 py-0.5"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTag(tag);
-                          }}
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                      {item.tags.length > 3 && (
-                        <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
-                          +{item.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
+                  <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                    {normalizeTags(item.tags).slice(0, 3).map((tag, idx) => (
+                      <Badge 
+                        key={`${tag}-${idx}`}
+                        variant="secondary" 
+                        className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                    {normalizeTags(item.tags).length > 3 && (
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                        +{normalizeTags(item.tags).length - 3}
+                      </Badge>
+                    )}
                   </div>
                 </div>
 
@@ -356,6 +351,11 @@ export function KennisbankPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

@@ -427,6 +427,45 @@ export function formatDateShort(date: string | Date | undefined | null): string 
   }
 }
 
+/**
+ * Format date to long Dutch format (e.g., "15 maart 2024")
+ */
+export function formatDateLong(date: string | Date | undefined | null): string {
+  if (!date) return 'Geen datum';
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) return 'Geen datum';
+    return dateObj.toLocaleDateString('nl-NL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return 'Geen datum';
+  }
+}
+
+// Helper function to normalize tags to always be an array
+// Tags can be stored as: string, JSON string array, comma-separated, or already an array
+export const normalizeTags = (tags: string | string[] | null | undefined): string[] => {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags;
+  if (typeof tags === 'string') {
+    // Check if it's a JSON string
+    try {
+      const parsed = JSON.parse(tags);
+      return Array.isArray(parsed) ? parsed : [tags];
+    } catch {
+      // If not JSON, treat as comma-separated or single tag
+      return tags.includes(',') ? tags.split(',').map(t => t.trim()).filter(Boolean) : [tags];
+    }
+  }
+  return [];
+};
+
+
+
 
 
 

@@ -12,7 +12,7 @@ import { Badge } from '../ui/badge';
 import { Input } from '../ui/input';
 import type { Video as VideoType } from '../../types';
 import { apiClient } from '../../lib/api-client';
-import { formatDate } from '../../lib/config';
+import { truncateText, formatDateShort, normalizeTags } from '../../lib/config';
 
 const CATEGORIES = [
   'Alle Categorieën',
@@ -61,10 +61,10 @@ export default function VideosPage() {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(v => {
-        const tags = Array.isArray(v.tags) ? v.tags.join(',') : (v.tags || '');
+        const tags = normalizeTags(v.tags);
         return v.titel.toLowerCase().includes(query) ||
           (v.beschrijving && v.beschrijving.toLowerCase().includes(query)) ||
-          (tags && tags.toLowerCase().includes(query));
+          tags.some(tag => tag.toLowerCase().includes(query));
       });
     }
     
@@ -249,7 +249,7 @@ export default function VideosPage() {
                       video={video} 
                       onClick={() => handleVideoClick(video)}
                       getThumbnail={getThumbnail}
-                      formatDate={formatDate}
+                      formatDate={formatDateShort}
                     />
                   ))}
                 </div>
@@ -276,7 +276,7 @@ export default function VideosPage() {
                       video={video} 
                       onClick={() => handleVideoClick(video)}
                       getThumbnail={getThumbnail}
-                      formatDate={formatDate}
+                      formatDate={formatDateShort}
                     />
                   ))}
                 </div>
@@ -363,12 +363,12 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
           
           {video.tags && (
             <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-3 md:mb-4">
-              {(Array.isArray(video.tags) ? video.tags : video.tags.split(',')).slice(0, 2).map((tag, idx) => (
+              {normalizeTags(video.tags).slice(0, 2).map((tag, idx) => (
                 <span 
                   key={idx}
                   className="text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md"
                 >
-                  {typeof tag === 'string' ? tag.trim() : tag}
+                  {tag}
                 </span>
               ))}
             </div>
@@ -383,8 +383,8 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
             </div>
             <div className="flex items-center gap-0.5 sm:gap-1">
               <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5" />
-              <span className="hidden sm:inline">{formatDate(video.datum_toegevoegd)}</span>
-              <span className="sm:hidden">{formatDate(video.datum_toegevoegd)}</span>
+              <span className="hidden sm:inline">{formatDateShort(video.datum_toegevoegd)}</span>
+              <span className="sm:hidden">{formatDateShort(video.datum_toegevoegd)}</span>
             </div>
           </div>
           
@@ -495,9 +495,9 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Tags</h3>
                 <div className="flex flex-wrap gap-2">
-                  {(Array.isArray(video.tags) ? video.tags : video.tags.split(',')).map((tag, idx) => (
+                  {normalizeTags(video.tags).map((tag, idx) => (
                     <Badge key={idx} variant="secondary" className="bg-purple-50 text-[#280bc4] text-xs">
-                      {typeof tag === 'string' ? tag.trim() : tag}
+                      {tag}
                     </Badge>
                   ))}
                 </div>
@@ -523,6 +523,10 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
+
+
+
 
 
 

@@ -4,7 +4,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ArrowLeft, Calendar, Tag, Newspaper, ExternalLink, Image as ImageIcon, Eye, User } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import { formatDate } from '../../lib/config';
+import { formatDateLong, normalizeTags } from '../../lib/config';
 
 interface NewsDetailProps {
   newsId: number;
@@ -148,7 +148,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
           <CardContent className="pt-4 sm:pt-6">
             <div className="text-sm text-muted-foreground mb-6">
               <Calendar className="inline h-4 w-4 mr-2" />
-              {formatDate(newsItem.publicatieDatum)}
+              {formatDateLong(newsItem.publicatieDatum)}
             </div>
           </CardContent>
         </Card>
@@ -178,7 +178,7 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
       </Card>
 
       {/* Tags */}
-      {newsItem.tags && newsItem.tags.length > 0 && (
+      {newsItem.tags && normalizeTags(newsItem.tags).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base sm:text-lg flex items-center gap-2">
@@ -188,11 +188,11 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {(Array.isArray(newsItem.tags) ? newsItem.tags : []).map((tag: string) => (
+              {normalizeTags(newsItem.tags).map((tag: string, idx: number) => (
                 <Badge 
-                  key={tag} 
+                  key={idx}
                   variant="secondary"
-                  className="text-xs sm:text-sm px-2 sm:px-3 py-1"
+                  className="bg-purple-50 text-[#280bc4] text-sm"
                 >
                   {tag}
                 </Badge>
@@ -217,6 +217,8 @@ export function NewsDetail({ newsId, onBack }: NewsDetailProps) {
     </div>
   );
 }
+
+
 
 
 

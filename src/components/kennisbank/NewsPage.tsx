@@ -6,8 +6,7 @@ import { Input } from '../ui/input';
 import { Search, Newspaper, Calendar, Tag, ArrowRight, Award, Briefcase, User, Users, TrendingUp, Rocket, PartyPopper, RefreshCw } from 'lucide-react';
 import { NewsDetail } from './NewsDetail';
 import { apiClient } from '../../lib/api-client';
-import { truncateText } from '../../lib/config';
-import { formatDate } from '../../lib/config';
+import { truncateText, formatDateShort, normalizeTags } from '../../lib/config';
 
 export function NewsPage() {
   const [newsItems, setNewsItems] = useState<any[]>([]);
@@ -34,13 +33,16 @@ export function NewsPage() {
   // Filter nieuws op categorie
   const filteredNews = selectedCategorie === 'alle' 
     ? newsItems 
-    : newsItems.filter(item => item.categorie.toLowerCase() === selectedCategorie.toLowerCase());
+    : newsItems.filter(item => {
+        const categorie = item.categorie?.toLowerCase() || '';
+        return categorie === selectedCategorie.toLowerCase();
+      });
 
   // Bereken statistieken
   const totalItems = filteredNews.length;
 
   // Groepeer nieuws per categorie
-  const categorieën = Array.from(new Set(newsItems.map(item => item.categorie)));
+  const categorieën = Array.from(new Set(newsItems.map(item => item.categorie).filter(Boolean)));
   
   // Tel items per categorie
   const categoryCounts = categorieën.reduce((acc, cat) => {
@@ -69,7 +71,8 @@ export function NewsPage() {
 
   // Icon per categorie
   const getCategoryIcon = (categorie: string) => {
-    switch (categorie.toLowerCase()) {
+    const cat = categorie?.toLowerCase() || '';
+    switch (cat) {
       case 'succes':
         return <Award className="w-5 h-5" />;
       case 'team':
@@ -87,7 +90,8 @@ export function NewsPage() {
 
   // Kleur per categorie
   const getCategoryColor = (categorie: string) => {
-    switch (categorie.toLowerCase()) {
+    const cat = categorie?.toLowerCase() || '';
+    switch (cat) {
       case 'succes':
         return 'bg-[#7ef769] text-black';
       case 'team':
@@ -212,11 +216,11 @@ export function NewsPage() {
               className="hover:shadow-lg transition-all border-l-4 hover:border-l-[#280bc4] cursor-pointer group"
               onClick={() => setSelectedNewsId(item.id)}
               style={{ 
-                borderLeftColor: item.categorie.toLowerCase() === 'succes' ? '#7ef769' : 
-                                item.categorie.toLowerCase() === 'team' ? '#280bc4' : 
-                                item.categorie.toLowerCase() === 'project' ? '#3b82f6' :
-                                item.categorie.toLowerCase() === 'event' ? '#a855f7' :
-                                item.categorie.toLowerCase() === 'milestone' ? '#f97316' : '#6b7280'
+                borderLeftColor: (item.categorie?.toLowerCase() || '') === 'succes' ? '#7ef769' : 
+                                (item.categorie?.toLowerCase() || '') === 'team' ? '#280bc4' : 
+                                (item.categorie?.toLowerCase() || '') === 'project' ? '#3b82f6' :
+                                (item.categorie?.toLowerCase() || '') === 'event' ? '#a855f7' :
+                                (item.categorie?.toLowerCase() || '') === 'milestone' ? '#f97316' : '#6b7280'
               }}
             >
               <CardHeader className="pb-3">
@@ -229,7 +233,7 @@ export function NewsPage() {
                       </Badge>
                       <span className="text-sm text-gray-500 flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {formatDate(item.datum)}
+                        {formatDateShort(item.datum)}
                       </span>
                     </div>
                     <CardTitle className="text-xl mb-1">{item.titel}</CardTitle>
@@ -253,20 +257,18 @@ export function NewsPage() {
                   </div>
                 )}
 
-                {/* Tags (indien aanwezig) */}
-                {item.tags && Array.isArray(item.tags) && item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-2 border-t">
-                    {item.tags.map((tag: string) => (
-                      <Badge 
-                        key={tag}
-                        variant="outline"
-                        className="text-xs"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                  {normalizeTags(item.tags).map((tag: string, idx: number) => (
+                    <Badge 
+                      key={`${tag}-${idx}`}
+                      variant="secondary" 
+                      className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -291,6 +293,12 @@ export function NewsPage() {
     </div>
   );
 }
+
+
+
+
+
+
 
 
 

@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { apiClient } from '../../lib/api-client';
-import { truncateText, formatDateShort } from '../../lib/config';
+import { truncateText, formatDateShort, normalizeTags } from '../../lib/config';
 import { CaseDetail } from './CaseDetail';
 
 export function CasesPage() {
@@ -52,11 +52,12 @@ export function CasesPage() {
   // Filter en sorteer cases
   const filteredCases = cases
     .filter(caseItem => {
+      const tags = normalizeTags(caseItem.tags);
       const matchesSearch = 
-        caseItem.titel.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        caseItem.klant.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        caseItem.uitdaging.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (caseItem.tags || []).some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        (caseItem.titel?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (caseItem.klant?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (caseItem.uitdaging?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        tags.some((tag: string) => (tag?.toLowerCase() || '').includes(searchQuery.toLowerCase()));
       
       const matchesIndustrie = selectedIndustrie === 'alle' || caseItem.industrie === selectedIndustrie;
 
@@ -296,18 +297,18 @@ export function CasesPage() {
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                    {(caseItem.tags || []).slice(0, 2).map((tag: string) => (
+                    {normalizeTags(caseItem.tags).slice(0, 2).map((tag: string, idx: number) => (
                       <Badge 
-                        key={tag} 
+                        key={`${tag}-${idx}`} 
                         variant="secondary" 
                         className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
                       >
                         {tag}
                       </Badge>
                     ))}
-                    {caseItem.tags && caseItem.tags.length > 2 && (
+                    {normalizeTags(caseItem.tags).length > 2 && (
                       <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
-                        +{caseItem.tags.length - 2}
+                        +{normalizeTags(caseItem.tags).length - 2}
                       </Badge>
                     )}
                   </div>
@@ -333,6 +334,13 @@ export function CasesPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
 
 

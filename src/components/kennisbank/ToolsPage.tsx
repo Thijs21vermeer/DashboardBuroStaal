@@ -19,8 +19,7 @@ import {
   Tag
 } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import { truncateText } from '../../lib/config';
-import { formatDate } from '../../lib/config';
+import { truncateText, formatDateShort, normalizeTags } from '../../lib/config';
 
 interface Tool {
   id: number;
@@ -102,9 +101,10 @@ export default function ToolsPage() {
       const search = searchTerm.toLowerCase();
       result = result.filter(tool =>
         tool.naam.toLowerCase().includes(search) ||
-        tool.beschrijving.toLowerCase().includes(search) ||
-        tool.tags?.toLowerCase().includes(search) ||
-        tool.eigenaar.toLowerCase().includes(search)
+        tool.beschrijving?.toLowerCase().includes(search) ||
+        tool.categorie?.toLowerCase().includes(search) ||
+        normalizeTags(tool.tags).some(tag => tag.toLowerCase().includes(search)) ||
+        tool.link?.toLowerCase().includes(search)
       );
     }
 
@@ -281,11 +281,18 @@ export default function ToolsPage() {
                       <Badge variant="outline" className="bg-[#280bc4] text-white border-[#280bc4] text-xs">
                         {tool.categorie}
                       </Badge>
-                      {tool.tags && (Array.isArray(tool.tags) ? tool.tags : tool.tags.split(',')).map((tag, idx) => (
-                        <Badge key={idx} variant="outline" className="bg-gray-100 text-xs">
-                          {typeof tag === 'string' ? tag.trim() : tag}
-                        </Badge>
-                      ))}
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                        {tool.tags && normalizeTags(tool.tags).map((tag, idx) => (
+                          <Badge 
+                            key={idx}
+                            variant="secondary" 
+                            className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Code Block - Only show if code exists */}
@@ -333,7 +340,7 @@ export default function ToolsPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm text-gray-500 gap-2">
                       <span>Door: <span className="font-semibold text-black">{tool.eigenaar}</span></span>
                       <span>
-                        {formatDate(tool.datum_toegevoegd)}
+                        {formatDateShort(tool.datum_toegevoegd)}
                       </span>
                     </div>
                   </div>
@@ -346,6 +353,9 @@ export default function ToolsPage() {
     </div>
   );
 }
+
+
+
 
 
 

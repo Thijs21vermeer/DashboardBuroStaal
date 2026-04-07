@@ -4,7 +4,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ArrowLeft, Calendar, Tag, TrendingUp, AlertCircle, Image as ImageIcon, Eye, Lightbulb, Target, User } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import { formatDate } from '../../lib/config';
+import { formatDateLong, normalizeTags } from '../../lib/config';
 
 interface TrendDetailProps {
   trendId: number;
@@ -127,7 +127,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
             )}
             <div className="text-sm text-muted-foreground">
               <Calendar className="inline h-4 w-4 mr-2" />
-              {formatDate(trend.createdAt)}
+              {formatDateLong(trend.createdAt)}
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
@@ -144,7 +144,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
               <div>
                 <p className="text-xs text-gray-500">Datum</p>
                 <p className="font-medium text-gray-900 text-sm sm:text-base">
-                  {trend.datum ? formatDate(trend.datum) : 'Geen datum'}
+                  {trend.datum ? formatDateLong(trend.datum) : 'Geen datum'}
                 </p>
               </div>
             </div>
@@ -231,7 +231,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {trend.tags.map((tag: string) => (
+              {normalizeTags(trend.tags).map((tag: string) => (
                 <Badge 
                   key={tag} 
                   variant="secondary"
@@ -260,6 +260,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+
 
 
 

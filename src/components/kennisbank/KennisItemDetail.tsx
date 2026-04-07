@@ -4,7 +4,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ArrowLeft, Calendar, Tag, ExternalLink, FileText, Image as ImageIcon, BookOpen, Eye, User, Video } from 'lucide-react';
 import { apiClient } from '../../lib/api-client';
-import { formatDate } from '../../lib/config';
+import { formatDateLong, normalizeTags } from '../../lib/config';
 
 interface KennisItemDetailProps {
   itemId: number;
@@ -139,7 +139,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
           <div>
             <p className="text-xs text-gray-500">Datum</p>
             <p className="font-medium text-gray-900">
-              {item.datumToegevoegd ? formatDate(item.datumToegevoegd) : 'Geen datum'}
+              {item.datumToegevoegd ? formatDateLong(item.datumToegevoegd) : 'Geen datum'}
             </p>
           </div>
         </div>
@@ -242,7 +242,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {item.tags.map((tag: string) => (
+              {normalizeTags(item.tags).map((tag: string) => (
                 <Badge 
                   key={tag} 
                   variant="secondary"
@@ -293,6 +293,7 @@ export function KennisItemDetail({ itemId, onBack }: KennisItemDetailProps) {
     </div>
   );
 }
+
 
 
 
