@@ -243,7 +243,7 @@ export default function TeamManager() {
           </div>
 
           <div className="grid gap-4">
-            {teamMembers.map((member) => (
+            {(teamMembers || []).map((member) => (
               <Card key={member.id}>
                 <CardContent className="pt-3">
                   <div className="flex justify-between items-start">
@@ -261,7 +261,7 @@ export default function TeamManager() {
                       </p>
                       <p className="text-sm mb-3">{member.bio}</p>
                       <div className="flex flex-wrap gap-2">
-                        {member.expertiseGebieden.map((expertise, idx) => (
+                        {(member.expertiseGebieden || []).map((expertise, idx) => (
                           <Badge key={idx} variant="outline">{expertise}</Badge>
                         ))}
                       </div>
@@ -305,7 +305,7 @@ export default function TeamManager() {
           </div>
 
           <div className="grid gap-4">
-            {partners.map((partner) => (
+            {(partners || []).map((partner) => (
               <Card key={partner.id}>
                 <CardContent className="pt-3">
                   <div className="flex justify-between items-start">
@@ -335,7 +335,7 @@ export default function TeamManager() {
                       </div>
                       <p className="text-sm mb-3">{partner.beschrijving}</p>
                       <div className="flex flex-wrap gap-2">
-                        {partner.expertiseGebieden.map((expertise, idx) => (
+                        {(partner.expertiseGebieden || []).map((expertise, idx) => (
                           <Badge key={idx} variant="outline">{expertise}</Badge>
                         ))}
                       </div>
@@ -440,7 +440,7 @@ export default function TeamManager() {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {editingMember.expertiseGebieden.map((expertise, idx) => (
+                  {(editingMember.expertiseGebieden || []).map((expertise, idx) => (
                     <Badge key={idx} variant="secondary" className="cursor-pointer">
                       {expertise}
                       <X
@@ -592,7 +592,7 @@ export default function TeamManager() {
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {editingPartner.expertiseGebieden.map((expertise, idx) => (
+                  {(editingPartner.expertiseGebieden || []).map((expertise, idx) => (
                     <Badge key={idx} variant="secondary" className="cursor-pointer">
                       {expertise}
                       <X
@@ -630,6 +630,7 @@ export default function TeamManager() {
     </div>
   );
 }
+
 
 
 

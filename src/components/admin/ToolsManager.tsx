@@ -94,7 +94,7 @@ export default function ToolsManager() {
     setEditingTool({});
   };
 
-  const filteredTools = tools.filter((tool) => {
+  const filteredTools = (tools || []).filter((tool) => {
     if (!searchTerm) return true;
     const search = searchTerm.toLowerCase();
     return (
@@ -232,7 +232,7 @@ export default function ToolsManager() {
       )}
 
       <div className="grid gap-3 sm:gap-4">
-        {filteredTools.map((tool) => (
+        {(filteredTools || []).map((tool) => (
           <Card key={tool.id} className="p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
@@ -287,6 +287,7 @@ export default function ToolsManager() {
     </div>
   );
 }
+
 
 
 

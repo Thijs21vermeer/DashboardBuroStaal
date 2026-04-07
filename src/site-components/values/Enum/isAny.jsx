@@ -1,1 +1,1 @@
-export const isAny = (allowList) => (value) => allowList.includes(value);
+export const isAny = (allowList) => (value) => value != null && allowList.includes(value);

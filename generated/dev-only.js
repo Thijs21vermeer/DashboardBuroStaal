@@ -2,7 +2,7 @@
 // @ts-nocheck
 
 // This will be replaced at runtime with the Designer app's origin
-window.TRUSTED_PREVIEW_HOSTS = ['https://deambiventgroep.design.webflow.com'];
+window.TRUSTED_PREVIEW_HOSTS = ['https://thijsapps.design.webflow.com'];
 
 /**
  * Gets the Designer app origin from the list of trusted hosts

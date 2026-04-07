@@ -67,7 +67,7 @@ export function VideosFeesten(
                         button={true}
                         className="button-4 inkijkje"
                         options={{
-                            href: "https://deambiventgroep.webflow.io/feesten-partijen"
+                            href: "https://thijsapps.webflow.io/feesten-partijen"
                         }}>{"Zie meer!"}</Link></BlockContainer></Block></_Component>
     );
 }

@@ -1,1 +1,1 @@
-export const isGreaterThanOrEqual = (threshold) => (value) => value >= threshold;
+export const isGreaterThanOrEqual = (threshold) => (value) => value != null && value >= threshold;

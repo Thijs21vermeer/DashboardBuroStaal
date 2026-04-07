@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -122,7 +120,11 @@ export default function NewsManager() {
     });
   };
 
-  const filteredItems = items;
+  const filteredItems = (items || []).filter(item =>
+    searchTerm.trim() === ''
+      ? true
+      : item.titel?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getCategoryColor = (categorie: string) => {
     switch (categorie) {
@@ -250,7 +252,7 @@ export default function NewsManager() {
       </div>
 
       <div className="space-y-4">
-        {filteredItems.map((item) => (
+        {filteredItems?.map((item) => (
           <Card key={item.id} className={`border-l-4 ${getCategoryColor(item.categorie)}`}>
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -302,6 +304,8 @@ export default function NewsManager() {
     </div>
   );
 }
+
+
 
 
 

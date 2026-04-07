@@ -24,13 +24,13 @@ export function Locaties(
                         button={true}
                         className="button-11"
                         options={{
-                            href: "https://deambiventgroep.webflow.io/de-zwethburch"
+                            href: "https://thijsapps.webflow.io/de-zwethburch"
                         }}>{"De Zwethburch"}</Link></Block><Block className="div-block-14" tag="div"><Link
                         block=""
                         button={true}
                         className="button-10"
                         options={{
-                            href: "https://deambiventgroep.webflow.io/t-centrum"
+                            href: "https://thijsapps.webflow.io/t-centrum"
                         }}>{"'t Centrum"}</Link></Block></Cell></_Component>
     );
 }

@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -133,7 +135,7 @@ export default function KennisItemsManager() {
     });
   };
 
-  const filteredItems = items.filter(item =>
+  const filteredItems = (items || []).filter(item =>
     item.titel.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.samenvatting.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -392,7 +394,7 @@ export default function KennisItemsManager() {
       </div>
 
       <div className="grid gap-4">
-        {filteredItems.map((item) => (
+        {filteredItems?.map((item) => (
           <Card key={item.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -433,6 +435,8 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
 
 
 

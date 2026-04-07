@@ -1,1 +1,1 @@
-export declare const isGreaterThan: (threshold: number) => (value: number) => boolean;
+export declare const isGreaterThan: (threshold: number) => (value: number | undefined) => boolean;

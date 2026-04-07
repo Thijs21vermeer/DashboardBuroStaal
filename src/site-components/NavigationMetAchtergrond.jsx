@@ -71,31 +71,31 @@ export function NavigationMetAchtergrond(
                                     button={true}
                                     className="button-19"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/"
+                                        href: "https://thijsapps.webflow.io/"
                                     }}>{"De Ambivent Groep"}</Link></DropdownToggle><DropdownList className="dropdown-list-3" tag="nav"><DropdownLink
                                     className="dropdown-2"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/bruiloft"
+                                        href: "https://thijsapps.webflow.io/bruiloft"
                                     }}>{"Bruiloft"}</DropdownLink><DropdownLink
                                     className="dropdown-2 _1"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/feesten-partijen"
+                                        href: "https://thijsapps.webflow.io/feesten-partijen"
                                     }}>{"Feesten en partijen"}</DropdownLink><DropdownLink
                                     className="dropdown-link-9"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/zakelijk"
+                                        href: "https://thijsapps.webflow.io/zakelijk"
                                     }}>{"Zakelijk"}</DropdownLink><DropdownLink
                                     className="dropdown-2 onderste-button"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/meest-gestelde-vragen"
+                                        href: "https://thijsapps.webflow.io/meest-gestelde-vragen"
                                     }}>{"Meest gestelde vragen"}</DropdownLink></DropdownList></DropdownWrapper><NavbarLink
                             className="nav-link-2"
                             options={{
-                                href: "https://deambiventgroep.webflow.io/evenementen"
+                                href: "https://thijsapps.webflow.io/evenementen"
                             }}>{"Events"}</NavbarLink><NavbarLink
                             className="nav-link-2"
                             options={{
-                                href: "https://deambiventgroep.webflow.io/offerte"
+                                href: "https://thijsapps.webflow.io/offerte"
                             }}>{"Offerte"}</NavbarLink><DropdownWrapper className="dropdown-5" delay={0} hover={true} tag="div"><DropdownToggle className="dropdown-button dropdown _2" tag="div"><Icon
                                     className="icon-7"
                                     widget={{
@@ -106,23 +106,23 @@ export function NavigationMetAchtergrond(
                                     button={true}
                                     className="button-19 over-ons"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/over-ons"
+                                        href: "https://thijsapps.webflow.io/over-ons"
                                     }}>{"Over ons"}</Link></DropdownToggle><DropdownList className="dropdown-list-4" tag="nav"><DropdownLink
                                     className="dropdown-link-4 nav-ambivent"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/sfeerlocaties"
+                                        href: "https://thijsapps.webflow.io/sfeerlocaties"
                                     }}>{"Sfeerlocaties"}</DropdownLink><DropdownLink
                                     className="dropdown-link-4 nav-ambivent"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/werken-bij"
+                                        href: "https://thijsapps.webflow.io/werken-bij"
                                     }}>{"Werken bij"}</DropdownLink><DropdownLink
                                     className="dropdown-link-4 nav-ambivent onderste"
                                     options={{
-                                        href: "https://deambiventgroep.webflow.io/over-ons"
+                                        href: "https://thijsapps.webflow.io/over-ons"
                                     }}>{"Leer ons kennen"}</DropdownLink></DropdownList></DropdownWrapper><NavbarLink
                             className="nav-link-2"
                             options={{
-                                href: "https://deambiventgroep.webflow.io/contact"
+                                href: "https://thijsapps.webflow.io/contact"
                             }}>{"Contact"}</NavbarLink><Block className="bullet" tag="div" /><Link
                             block=""
                             button={true}

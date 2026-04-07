@@ -127,7 +127,7 @@ export default function VideosManager() {
       : '/placeholder-video.jpg';
   };
 
-  const filteredVideos = videos.filter(video => {
+  const filteredVideos = (videos || []).filter(video => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -298,7 +298,7 @@ export default function VideosManager() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {filteredVideos.map((video) => (
+            {(filteredVideos || []).map((video) => (
               <Card key={video.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
@@ -330,7 +330,7 @@ export default function VideosManager() {
                           </div>
                           {video.tags && (
                             <div className="flex flex-wrap gap-1 mt-2">
-                              {video.tags.split(',').map((tag, idx) => (
+                              {(video.tags || '').split(',').map((tag, idx) => (
                                 <Badge key={idx} variant="secondary" className="text-xs">
                                   {tag.trim()}
                                 </Badge>
@@ -377,6 +377,7 @@ export default function VideosManager() {
     </div>
   );
 }
+
 
 
 

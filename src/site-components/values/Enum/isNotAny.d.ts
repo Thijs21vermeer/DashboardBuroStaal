@@ -1,1 +1,1 @@
-export declare const isNotAny: (allowList: string[]) => (value: string) => boolean;
+export declare const isNotAny: (allowList: string[]) => (value: string | undefined) => boolean;

@@ -47,7 +47,7 @@ export function UnknownComponent3DeligeHeader(
                         button={true}
                         className="button-4 home"
                         options={{
-                            href: "https://deambiventgroep.webflow.io/bruiloft"
+                            href: "https://thijsapps.webflow.io/bruiloft"
                         }}>{"Meer informatie"}</Link></BlockContainer><BlockContainer
                     className="container-69 w-clearfix"
                     data-w-id="2c35c231-e99b-e028-697a-a389def97e21"
@@ -83,7 +83,7 @@ export function UnknownComponent3DeligeHeader(
                         button={true}
                         className="button-4 home"
                         options={{
-                            href: "https://deambiventgroep.webflow.io/zakelijk"
+                            href: "https://thijsapps.webflow.io/zakelijk"
                         }}>{"Meer informatie"}</Link></BlockContainer></Section></_Component>
     );
 }
