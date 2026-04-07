@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -77,7 +74,7 @@ export default function CasesManager() {
     try {
       if (editingItem) {
         const updated = await apiClient.cases.update(editingItem.id, caseData);
-        setCases(cases.map(i => i.id === editingItem.id ? updated : i));
+        setCases(prevCases => prevCases.map(i => i.id === editingItem.id ? updated : i));
       } else {
         const newCase = await apiClient.cases.create(caseData);
         setCases([newCase, ...cases]);
@@ -336,6 +333,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

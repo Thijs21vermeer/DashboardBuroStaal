@@ -62,7 +62,7 @@ export default function NewsManager() {
     try {
       if (editingItem) {
         const updated = await apiClient.nieuws.update(editingItem.id, newsData);
-        setItems(items.map(i => i.id === editingItem.id ? updated : i));
+        setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
       } else {
         const newItem = await apiClient.nieuws.create(newsData);
         setItems([newItem, ...items]);
@@ -304,6 +304,7 @@ export default function NewsManager() {
     </div>
   );
 }
+
 
 
 

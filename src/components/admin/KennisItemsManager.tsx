@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -71,7 +72,7 @@ export default function KennisItemsManager() {
       if (editingItem) {
         // Update existing item
         const updated = await apiClient.kennisitems.update(editingItem.id, itemData);
-        setItems(items.map(i => i.id === editingItem.id ? updated : i));
+        setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
         alert('✅ Item succesvol bijgewerkt!');
       } else {
         // Create new item
@@ -435,6 +436,7 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
 
 
 

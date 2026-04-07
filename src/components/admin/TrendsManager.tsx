@@ -3,7 +3,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -70,7 +69,7 @@ export default function TrendsManager() {
     try {
       if (editingItem) {
         const updated = await apiClient.trends.update(editingItem.id, trendData);
-        setItems(items.map(i => i.id === editingItem.id ? updated : i));
+        setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
       } else {
         const newItem = await apiClient.trends.create(trendData);
         setItems([newItem, ...items]);
@@ -325,6 +324,7 @@ export default function TrendsManager() {
     </div>
   );
 }
+
 
 
 
