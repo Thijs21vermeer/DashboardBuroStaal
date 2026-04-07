@@ -95,11 +95,11 @@ export default function ToolsManager() {
   };
 
   const filteredItems = useMemo(() => {
-    return (items || []).filter(item =>
-      item.naam?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.beschrijving?.toLowerCase().includes(searchTerm.toLowerCase())
+    return (tools || []).filter(tool =>
+      tool.naam?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tool.beschrijving?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [items, searchTerm]);
+  }, [tools, searchTerm]);
 
   if (loading) {
     return <div className="text-center py-8">Laden...</div>;
@@ -283,6 +283,7 @@ export default function ToolsManager() {
     </div>
   );
 }
+
 
 
 

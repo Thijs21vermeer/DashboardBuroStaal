@@ -212,13 +212,6 @@ export default function TeamManager() {
     );
   }
 
-  const filteredItems = useMemo(() => {
-    return (items || []).filter(item =>
-      item.naam?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.functie?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [items, searchTerm]);
-
   return (
     <div className="space-y-6">
       <Tabs defaultValue="team" className="w-full">
@@ -636,6 +629,7 @@ export default function TeamManager() {
     </div>
   );
 }
+
 
 
 
