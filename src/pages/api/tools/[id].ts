@@ -57,6 +57,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       naam: data.naam,
       beschrijving: data.beschrijving || '',
       url: data.url || '',
+      code: data.code || '',
       tags: JSON.stringify(data.tags || []),
       afbeelding: data.afbeelding || null,
     }, locals);
@@ -126,3 +127,4 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+

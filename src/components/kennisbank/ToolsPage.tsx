@@ -24,11 +24,11 @@ import { formatDate } from '../../lib/config';
 
 interface Tool {
   id: number;
-  titel: string;
+  naam: string;
   categorie: string;
   beschrijving: string;
-  code: string;
-  taal: string | null;
+  code?: string;
+  url?: string;
   tags: string | null;
   eigenaar: string;
   datum_toegevoegd: string;
@@ -101,7 +101,7 @@ export default function ToolsPage() {
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
       result = result.filter(tool =>
-        tool.titel.toLowerCase().includes(search) ||
+        tool.naam.toLowerCase().includes(search) ||
         tool.beschrijving.toLowerCase().includes(search) ||
         tool.tags?.toLowerCase().includes(search) ||
         tool.eigenaar.toLowerCase().includes(search)
@@ -271,21 +271,16 @@ export default function ToolsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg sm:text-xl font-bold text-black mb-2">
-                      {tool.titel}
+                      {tool.naam}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {truncateText(tool.omschrijving, 150)}
+                      {truncateText(tool.beschrijving, 150)}
                     </p>
                     
                     <div className="flex items-center gap-2 flex-wrap mb-4">
                       <Badge variant="outline" className="bg-[#280bc4] text-white border-[#280bc4] text-xs">
                         {tool.categorie}
                       </Badge>
-                      {tool.taal && (
-                        <Badge variant="outline" className={`${getLanguageColor(tool.taal)} text-xs`}>
-                          {tool.taal}
-                        </Badge>
-                      )}
                       {tool.tags && tool.tags.split(',').map((tag, idx) => (
                         <Badge key={idx} variant="outline" className="bg-gray-100 text-xs">
                           {tag.trim()}
@@ -293,32 +288,49 @@ export default function ToolsPage() {
                       ))}
                     </div>
 
-                    {/* Code Block */}
-                    <div className="relative bg-gray-900 text-gray-100 rounded-lg p-3 sm:p-4 overflow-x-auto">
-                      <Button
-                        onClick={() => handleCopy(tool.id, tool.code)}
-                        variant="ghost"
-                        size="sm"
-                        className="absolute top-2 right-2 bg-gray-800 hover:bg-gray-700 text-white text-xs"
-                      >
-                        {copiedId === tool.id ? (
-                          <>
-                            <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                            <span className="hidden sm:inline">Gekopieerd</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                            <span className="hidden sm:inline">Kopieer</span>
-                          </>
-                        )}
-                      </Button>
-                      <pre className="text-xs sm:text-sm font-mono whitespace-pre-wrap break-all pr-20 sm:pr-24">
-                        {tool.code}
-                      </pre>
-                    </div>
+                    {/* Code Block - Only show if code exists */}
+                    {tool.code && (
+                      <div className="relative bg-gray-900 text-gray-100 rounded-lg p-3 sm:p-4 overflow-x-auto mb-4">
+                        <Button
+                          onClick={() => handleCopy(tool.id, tool.code!)}
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 bg-gray-800 hover:bg-gray-700 text-white text-xs"
+                        >
+                          {copiedId === tool.id ? (
+                            <>
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                              <span className="hidden sm:inline">Gekopieerd</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                              <span className="hidden sm:inline">Kopieer</span>
+                            </>
+                          )}
+                        </Button>
+                        <pre className="text-xs sm:text-sm font-mono whitespace-pre-wrap break-all pr-20 sm:pr-24">
+                          {tool.code}
+                        </pre>
+                      </div>
+                    )}
 
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-4 text-xs sm:text-sm text-gray-500 gap-2">
+                    {/* URL - Only show if URL exists */}
+                    {tool.url && (
+                      <div className="mb-4">
+                        <a
+                          href={tool.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-sm text-[#280bc4] hover:underline"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Bekijk documentatie
+                        </a>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm text-gray-500 gap-2">
                       <span>Door: <span className="font-semibold text-black">{tool.eigenaar}</span></span>
                       <span>
                         {formatDate(tool.datum_toegevoegd)}
@@ -334,6 +346,7 @@ export default function ToolsPage() {
     </div>
   );
 }
+
 
 
 

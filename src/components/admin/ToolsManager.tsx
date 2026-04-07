@@ -193,6 +193,20 @@ export default function ToolsManager() {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-1">Code</label>
+              <Textarea
+                value={editingTool.code || ''}
+                onChange={(e) => setEditingTool({ ...editingTool, code: e.target.value })}
+                placeholder="Plak hier de volledige code..."
+                rows={10}
+                className="text-sm font-mono"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Plak hier de volledige code van de tool. Deze code wordt beschikbaar gesteld met een kopieerknop.
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Tags (komma gescheiden)</label>
@@ -283,6 +297,7 @@ export default function ToolsManager() {
     </div>
   );
 }
+
 
 
 

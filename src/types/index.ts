@@ -3,6 +3,7 @@
 
 
 
+
 // Types voor het project
 
 export interface KennisItem {
@@ -109,6 +110,7 @@ export interface Tool {
   naam: string;
   categorie: string;
   beschrijving: string;
+  code?: string;
   url?: string;
   licentie_info?: string;
   eigenaar: string;
@@ -223,6 +225,7 @@ export interface ToolRequest {
   naam: string;
   categorie: string;
   beschrijving: string;
+  code?: string;
   url?: string;
   licentie_info?: string;
   eigenaar: string;
@@ -270,6 +273,7 @@ export interface PartnerRequest {
   expertise?: string;
   volgorde?: number;
 }
+
 
 
 
