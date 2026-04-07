@@ -281,9 +281,9 @@ export default function ToolsPage() {
                       <Badge variant="outline" className="bg-[#280bc4] text-white border-[#280bc4] text-xs">
                         {tool.categorie}
                       </Badge>
-                      {tool.tags && tool.tags.split(',').map((tag, idx) => (
+                      {tool.tags && (Array.isArray(tool.tags) ? tool.tags : tool.tags.split(',')).map((tag, idx) => (
                         <Badge key={idx} variant="outline" className="bg-gray-100 text-xs">
-                          {tag.trim()}
+                          {typeof tag === 'string' ? tag.trim() : tag}
                         </Badge>
                       ))}
                     </div>
@@ -346,6 +346,7 @@ export default function ToolsPage() {
     </div>
   );
 }
+
 
 
 

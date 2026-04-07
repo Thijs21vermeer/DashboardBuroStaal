@@ -3,7 +3,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react';
 import { Video, PlayCircle, Filter, RefreshCw, Eye, Calendar, Link2, Check, Sparkles, Search } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -61,11 +60,12 @@ export default function VideosPage() {
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(v => 
-        v.titel.toLowerCase().includes(query) ||
-        (v.beschrijving && v.beschrijving.toLowerCase().includes(query)) ||
-        (v.tags && v.tags.toLowerCase().includes(query))
-      );
+      filtered = filtered.filter(v => {
+        const tags = Array.isArray(v.tags) ? v.tags.join(',') : (v.tags || '');
+        return v.titel.toLowerCase().includes(query) ||
+          (v.beschrijving && v.beschrijving.toLowerCase().includes(query)) ||
+          (tags && tags.toLowerCase().includes(query));
+      });
     }
     
     setFilteredVideos(filtered);
@@ -363,12 +363,12 @@ function VideoCard({ video, onClick, getThumbnail, formatDate }: VideoCardProps)
           
           {video.tags && (
             <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-3 md:mb-4">
-              {video.tags.split(',').slice(0, 2).map((tag, idx) => (
+              {(Array.isArray(video.tags) ? video.tags : video.tags.split(',')).slice(0, 2).map((tag, idx) => (
                 <span 
                   key={idx}
                   className="text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md"
                 >
-                  {tag.trim()}
+                  {typeof tag === 'string' ? tag.trim() : tag}
                 </span>
               ))}
             </div>
@@ -495,9 +495,9 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Tags</h3>
                 <div className="flex flex-wrap gap-2">
-                  {video.tags.split(',').map((tag, idx) => (
+                  {(Array.isArray(video.tags) ? video.tags : video.tags.split(',')).map((tag, idx) => (
                     <Badge key={idx} variant="secondary" className="bg-purple-50 text-[#280bc4] text-xs">
-                      {tag.trim()}
+                      {typeof tag === 'string' ? tag.trim() : tag}
                     </Badge>
                   ))}
                 </div>
@@ -523,6 +523,9 @@ function VideoModal({ video, onClose, extractVideoId }: VideoModalProps) {
     </div>
   );
 }
+
+
+
 
 
 
