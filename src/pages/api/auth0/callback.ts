@@ -1,5 +1,6 @@
 
 
+
 /**
  * Auth0 Callback Endpoint
  * 
@@ -109,12 +110,15 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     console.log('  Redirect to:', `${baseUrl}/`);
     
     // Redirect to dashboard with session cookie
+    // IMPORTANT: Use Headers object to set multiple Set-Cookie headers correctly
+    const headers = new Headers();
+    headers.append('Location', `${baseUrl}/`);
+    headers.append('Set-Cookie', sessionCookie);
+    headers.append('Set-Cookie', clearStateCookie);
+    
     return new Response(null, {
       status: 302,
-      headers: {
-        Location: `${baseUrl}/`,
-        'Set-Cookie': sessionCookie + ', ' + clearStateCookie,
-      },
+      headers,
     });
   } catch (error) {
     console.error('❌ Auth0 callback error:', error);
@@ -128,5 +132,6 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     );
   }
 };
+
 
 
