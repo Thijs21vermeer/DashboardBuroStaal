@@ -1,3 +1,4 @@
+
 #!/usr/bin/env node
 
 /**
@@ -8,7 +9,6 @@
 import { config } from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { readFileSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -165,3 +165,4 @@ if (warningCount === 0 && missingCount === 0) {
 
 console.log('\n');
 process.exit(missingCount > 0 ? 1 : 0);
+
