@@ -49,8 +49,9 @@ export default function Dashboard() {
 
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
+          setUserName(data.user.name || data.user.email || 'Gebruiker');
           setIsAuthenticated(true);
+          setIsLoading(false);
         } else if (response.status === 401) {
           // Not authenticated - redirect to Auth0 login automatically
           console.log('🔐 Not authenticated, redirecting to Auth0...');
@@ -180,6 +181,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 
