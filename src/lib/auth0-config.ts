@@ -1,4 +1,5 @@
 
+
 /**
  * Auth0 Configuration
  * 
@@ -16,6 +17,7 @@ interface Auth0Config {
   postLogoutRedirectUri: string;
   cookieSecret: string;
   cookieName: string;
+  organization?: string; // Add organization support
 }
 
 /**
@@ -60,6 +62,7 @@ export function getAuth0Config(locals?: any): Auth0Config {
     clientId,
     clientSecret,
     audience: getEnvVar('AUTH0_AUDIENCE', locals, false),
+    organization: getEnvVar('AUTH0_ORGANIZATION', locals, false), // Add organization
     scope: 'openid profile email',
     redirectUri: `${appOrigin}/api/auth0/callback`,
     postLogoutRedirectUri: `${appOrigin}/`,
@@ -79,6 +82,7 @@ export function getAuthorizationUrl(config: Auth0Config, state: string): string 
     scope: config.scope,
     state,
     ...(config.audience && { audience: config.audience }),
+    ...(config.organization && { organization: config.organization }), // Add organization to params
   });
 
   return `https://${config.domain}/authorize?${params.toString()}`;
@@ -155,4 +159,5 @@ export async function getUserInfo(
 
   return response.json();
 }
+
 

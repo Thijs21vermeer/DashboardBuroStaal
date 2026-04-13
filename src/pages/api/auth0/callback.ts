@@ -1,4 +1,5 @@
 
+
 /**
  * Auth0 Callback Endpoint
  * 
@@ -101,13 +102,18 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     const clearStateCookie = clearSessionCookie('auth0_state');
     
     console.log('✅ Redirecting to dashboard with session cookie');
+    console.log('🍪 Cookie being set:');
+    console.log('  Name:', config.cookieName);
+    console.log('  Value length:', sessionToken.length);
+    console.log('  Cookie string:', sessionCookie.substring(0, 100) + '...');
+    console.log('  Redirect to:', `${baseUrl}/`);
     
     // Redirect to dashboard with session cookie
     return new Response(null, {
       status: 302,
       headers: {
         Location: `${baseUrl}/`,
-        'Set-Cookie': [sessionCookie, clearStateCookie].join(', '),
+        'Set-Cookie': sessionCookie + ', ' + clearStateCookie,
       },
     });
   } catch (error) {
@@ -122,4 +128,5 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     );
   }
 };
+
 
