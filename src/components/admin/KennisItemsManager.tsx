@@ -1,4 +1,6 @@
 
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -61,10 +63,15 @@ export default function KennisItemsManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🔍 [DEBUG] Current formData state:', formData);
+    console.log('🔍 [DEBUG] Current editingItem:', editingItem);
+    
     const itemData = {
       ...formData,
       tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
     };
+    
+    console.log('🔍 [DEBUG] Prepared itemData:', itemData);
 
     try {
       if (editingItem) {
@@ -77,9 +84,10 @@ export default function KennisItemsManager() {
         console.log('✅ [KennisItemsManager] Update response:', updated);
         
         setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
+        setConnectionStatus('connected');
         
-        // Reload de lijst om zeker te zijn dat we de laatste data hebben
-        await loadItems();
+        resetForm();
+        setIsDialogOpen(false);
         
         alert('✅ Item succesvol bijgewerkt!');
       } else {
@@ -92,18 +100,13 @@ export default function KennisItemsManager() {
         console.log('✅ [KennisItemsManager] Create response:', newItem);
         
         setItems(prevItems => [newItem, ...prevItems]);
+        setConnectionStatus('connected');
         
-        // Reload de lijst
-        await loadItems();
+        resetForm();
+        setIsDialogOpen(false);
         
         alert('✅ Item succesvol toegevoegd!');
       }
-      
-      resetForm();
-      setIsDialogOpen(false);
-      
-      // Update connection status to connected if successful
-      setConnectionStatus('connected');
     } catch (error) {
       console.error('❌ [KennisItemsManager] Error saving item:', error);
       alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
@@ -456,6 +459,8 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
 
 
 
