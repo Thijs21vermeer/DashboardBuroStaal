@@ -12,7 +12,6 @@ import { KennisItemDetail } from './kennisbank/KennisItemDetail';
 import { TrendDetail } from './kennisbank/TrendDetail';
 import { NewsDetail } from './kennisbank/NewsDetail';
 import type { PageType } from '../types';
-import { Auth0LoginForm } from './auth/Auth0LoginForm';
 import KennisKoenWidget from './KennisKoenWidget';
 import { baseUrl } from '../lib/base-url';
 
@@ -38,8 +37,10 @@ export default function Dashboard() {
         
         if (errorParam) {
           setLoginError(decodeURIComponent(errorParam));
+          setIsLoading(false);
           // Clear error from URL without reload
           window.history.replaceState({}, '', window.location.pathname);
+          return;
         }
         
         const response = await fetch(`${baseUrl}/api/auth0/me`, {
@@ -48,15 +49,15 @@ export default function Dashboard() {
 
         if (response.ok) {
           const data = await response.json();
-          if (data.authenticated && data.user) {
-            setIsAuthenticated(true);
-            setUserName(data.user.name || data.user.email);
-          }
+          setUser(data.user);
+          setIsAuthenticated(true);
+        } else {
+          // Not authenticated - redirect to Auth0 login automatically
+          window.location.href = `${baseUrl}/api/auth0/login`;
         }
       } catch (error) {
         console.error('Session validation error:', error);
         setLoginError('Er is een fout opgetreden bij het laden van de sessie');
-      } finally {
         setIsLoading(false);
       }
     };
@@ -71,22 +72,45 @@ export default function Dashboard() {
     window.location.href = `${baseUrl}/api/auth0/logout`;
   };
 
-  // Toon niets tijdens het laden
+  // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#280bc4]"></div>
-          <p className="mt-4 text-gray-600">Laden...</p>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="text-gray-600">Dashboard laden...</p>
         </div>
       </div>
     );
   }
 
-  // Toon login scherm als niet ingelogd
-  if (!isAuthenticated) {
-    return <Auth0LoginForm error={loginError} />;
-  };
+  // Error state (only shown if there's an error from Auth0 callback)
+  if (loginError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 space-y-6">
+          <div className="text-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+              <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Login mislukt</h2>
+            <p className="text-red-600 mb-6">{loginError}</p>
+            <button
+              onClick={() => {
+                setLoginError(null);
+                window.location.href = `${baseUrl}/api/auth0/login`;
+              }}
+              className="w-full bg-purple-600 text-white rounded-lg px-4 py-3 font-semibold hover:bg-purple-700 transition-colors"
+            >
+              Opnieuw proberen
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const renderContent = () => {
     // Check for detail pages
@@ -150,6 +174,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 
