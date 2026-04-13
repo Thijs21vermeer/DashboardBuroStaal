@@ -12,7 +12,25 @@ export const GET: APIRoute = async ({ request, locals }) => {
       orderBy: 'createdAt DESC'
     }, locals);
 
-    return new Response(JSON.stringify(rows), {
+    // Parse JSON fields
+    const parsedRows = rows.map(row => {
+      if (typeof row.tags === 'string') {
+        try {
+          row.tags = JSON.parse(row.tags);
+        } catch {
+          row.tags = [];
+        }
+      }
+      // Map database fields to frontend fields
+      return {
+        ...row,
+        uitdaging: row.beschrijving,
+        oplossing: row.resultaat,
+        resultaten: [],
+      };
+    });
+
+    return new Response(JSON.stringify(parsedRows), {
       status: 200,
       headers: { 
         'Content-Type': 'application/json',
@@ -41,19 +59,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
     
     const newId = await insert('Cases', {
       titel: data.titel,
-      beschrijving: data.beschrijving || '',
-      klant: data.klant || '',
-      resultaat: data.resultaat || '',
+      klant: data.klant,
+      beschrijving: data.uitdaging || data.challenge || data.beschrijving,
+      resultaat: data.oplossing || data.solution || data.resultaat,
       afbeelding: data.afbeelding || null,
       tags: JSON.stringify(data.tags || []),
     }, locals);
 
     const newCase = {
       id: newId,
-      ...data,
+      titel: data.titel,
+      klant: data.klant,
+      uitdaging: data.uitdaging,
+      oplossing: data.oplossing,
+      resultaten: [],
       tags: data.tags || [],
+      afbeelding: data.afbeelding || null,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
     
     return new Response(JSON.stringify(newCase), {
@@ -71,3 +93,5 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
+

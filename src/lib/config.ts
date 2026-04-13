@@ -3,6 +3,7 @@
 
 
 
+
 // Load environment variables from .env in development
 import './load-env.cjs';
 
@@ -108,6 +109,31 @@ export function getAuthSecret(locals?: any): string {
       throw new Error('Unsafe authentication secret detected. Application cannot start.');
     }
     console.warn('⚠️  WARNING: Using unsafe secret in development.');
+  }
+  
+  return secret;
+}
+
+/**
+ * Get JWT_SECRET at runtime (specifically for legacy JWT tokens)
+ * Separate from getAuthSecret to allow gradual migration to Auth0
+ */
+export function getJwtSecret(locals?: any): string {
+  // Try locals.runtime.env first (Netlify/Cloudflare runtime)
+  const secret = 
+    locals?.runtime?.env?.JWT_SECRET || 
+    getEnv('JWT_SECRET');
+  
+  // SECURITY: FAIL CLOSED in production if no secret is configured
+  if (!secret) {
+    if (isProduction) {
+      console.error('🚨 SECURITY ERROR: No JWT_SECRET configured in production!');
+      throw new Error('JWT secret not configured. Application cannot start.');
+    }
+    
+    // In development, allow a default for convenience, but warn loudly
+    console.warn('⚠️  WARNING: Using default JWT secret in development. DO NOT use in production!');
+    return 'dev-only-secret-DO-NOT-USE-IN-PRODUCTION';
   }
   
   return secret;
@@ -463,6 +489,7 @@ export const normalizeTags = (tags: string | string[] | null | undefined): strin
   }
   return [];
 };
+
 
 
 

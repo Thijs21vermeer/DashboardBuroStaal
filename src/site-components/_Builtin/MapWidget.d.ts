@@ -1,3 +1,4 @@
+import React from 'react';
 declare global {
     interface Window {
         google: {
@@ -17,5 +18,5 @@ type MapWidgetProps = {
     enableTouch?: boolean;
 };
 export type { MapWidgetProps };
-declare const MapWidget: any;
+declare const MapWidget: React.ForwardRefExoticComponent<MapWidgetProps & React.RefAttributes<HTMLDivElement>>;
 export default MapWidget;

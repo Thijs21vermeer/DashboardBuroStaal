@@ -1,5 +1,7 @@
 import type { APIContext } from 'astro';
-import { getAuthSecret } from './config';
+import { getAuthSecret, getJwtSecret } from './config';
+import { getAuth0Config } from './auth0-config';
+import { getSession, isSessionExpired } from './auth0-session';
 
 /**
  * API Authentication Middleware
@@ -68,7 +70,8 @@ async function validateToken(token: string, secret: string): Promise<TokenPayloa
 
 /**
  * Middleware function to protect API routes
- * Returns a 401 Unauthorized response if the token is invalid
+ * Supports both Auth0 sessions and legacy JWT tokens
+ * Returns a 401 Unauthorized response if not authenticated
  * 
  * IMPORTANT: This function now takes the full APIContext to access locals
  * 
@@ -88,6 +91,22 @@ export async function requireAuth(
 ): Promise<Response | null> {
   const { request, locals } = context;
   
+  // OPTION 1: Check for Auth0 session first (preferred)
+  try {
+    const config = getAuth0Config(locals);
+    const session = await getSession(request, config.cookieName, config.cookieSecret);
+    
+    if (session && !isSessionExpired(session)) {
+      // Valid Auth0 session - allow access
+      locals.user = session.user;
+      return null;
+    }
+  } catch (error) {
+    // Auth0 not configured or session invalid, try legacy auth
+    console.debug('Auth0 session check failed, trying legacy auth:', error);
+  }
+  
+  // OPTION 2: Check for legacy JWT token (backward compatibility)
   let token: string | null = null;
   
   // 1. Check HttpOnly cookie (most secure)
@@ -111,7 +130,7 @@ export async function requireAuth(
     return new Response(
       JSON.stringify({ 
         error: 'Unauthorized',
-        message: 'Missing or invalid authorization header' 
+        message: 'Missing or invalid authorization. Please log in.' 
       }),
       { 
         status: 401,
@@ -124,9 +143,9 @@ export async function requireAuth(
   // SECURITY: This will throw in production if no secret is configured (fail closed)
   let secret: string;
   try {
-    secret = getAuthSecret(locals);
+    secret = getJwtSecret(locals);
   } catch (error) {
-    // In production, getAuthSecret throws if no secret is configured
+    // In production, getJwtSecret throws if no secret is configured
     console.error('🚨 CRITICAL: Cannot get auth secret:', error);
     return new Response(
       JSON.stringify({ 
@@ -140,14 +159,14 @@ export async function requireAuth(
     );
   }
 
-  // Validate token
+  // Validate legacy token
   const payload = await validateToken(token, secret);
   
   if (!payload || !payload.authenticated) {
     return new Response(
       JSON.stringify({ 
         error: 'Unauthorized',
-        message: 'Invalid or expired token' 
+        message: 'Invalid or expired token. Please log in again.' 
       }),
       { 
         status: 401,
@@ -159,6 +178,7 @@ export async function requireAuth(
   // Token is valid, allow request to proceed
   return null;
 }
+
 
 
 

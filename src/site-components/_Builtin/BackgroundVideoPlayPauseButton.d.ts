@@ -4,5 +4,5 @@ type BackgroundVideoPlayPauseButtonProps = {
     children: React.ReactNode;
 };
 export type { BackgroundVideoPlayPauseButtonProps };
-declare const BackgroundVideoPlayPauseButton: any;
+declare const BackgroundVideoPlayPauseButton: React.ForwardRefExoticComponent<BackgroundVideoPlayPauseButtonProps & React.RefAttributes<HTMLButtonElement>>;
 export default BackgroundVideoPlayPauseButton;

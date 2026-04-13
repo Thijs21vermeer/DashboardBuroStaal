@@ -19,7 +19,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    // Parse tags if string
+    // Parse JSON fields
     if (typeof item.tags === 'string') {
       try {
         item.tags = JSON.parse(item.tags);
@@ -28,7 +28,15 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
       }
     }
 
-    return new Response(JSON.stringify(item), {
+    // Map database fields to frontend fields
+    const mappedItem = {
+      ...item,
+      uitdaging: item.beschrijving,
+      oplossing: item.resultaat,
+      resultaten: [],
+    };
+
+    return new Response(JSON.stringify(mappedItem), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -62,9 +70,9 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const success = await update('Cases', Number(id), {
       titel: data.titel,
-      beschrijving: data.beschrijving || '',
-      klant: data.klant || '',
-      resultaat: data.resultaat || '',
+      klant: data.klant,
+      beschrijving: data.uitdaging || data.challenge || data.beschrijving,
+      resultaat: data.oplossing || data.solution || data.resultaat,
       afbeelding: data.afbeelding || null,
       tags: JSON.stringify(data.tags || []),
     }, locals);
@@ -78,7 +86,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const updatedCase = await getById('Cases', Number(id), locals);
     
-    // Parse tags
+    // Parse JSON fields
     if (typeof updatedCase.tags === 'string') {
       try {
         updatedCase.tags = JSON.parse(updatedCase.tags);
@@ -87,7 +95,15 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       }
     }
 
-    return new Response(JSON.stringify(updatedCase), {
+    // Map database fields to frontend fields
+    const mappedCase = {
+      ...updatedCase,
+      uitdaging: updatedCase.beschrijving,
+      oplossing: updatedCase.resultaat,
+      resultaten: [],
+    };
+
+    return new Response(JSON.stringify(mappedCase), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -141,3 +157,6 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+
+

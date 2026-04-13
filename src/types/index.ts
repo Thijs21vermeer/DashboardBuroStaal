@@ -3,6 +3,7 @@
 
 
 
+
 // Types voor het project
 
 export interface KennisItem {
@@ -103,6 +104,9 @@ export interface TeamMember {
   type: 'intern' | 'extern';
   bedrijf?: string;
 }
+
+// Alias for external partners (same as TeamMember but for clarity)
+export type ExternePartner = Partner;
 
 export interface Tool {
   id: number;
@@ -272,6 +276,7 @@ export interface PartnerRequest {
   expertise?: string;
   volgorde?: number;
 }
+
 
 
 

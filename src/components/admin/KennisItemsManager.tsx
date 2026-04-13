@@ -71,11 +71,15 @@ export default function KennisItemsManager() {
         const updated = await apiClient.kennisitems.update(editingItem.id, itemData);
         setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
         alert('✅ Item succesvol bijgewerkt!');
+        // Reload de lijst om zeker te zijn dat we de laatste data hebben
+        await loadItems();
       } else {
         // Create new item
         const newItem = await apiClient.kennisitems.create(itemData);
         setItems(prevItems => [newItem, ...prevItems]);
         alert('✅ Item succesvol toegevoegd!');
+        // Reload de lijst
+        await loadItems();
       }
       
       resetForm();
@@ -435,6 +439,7 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
 
 
 

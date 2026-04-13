@@ -34,6 +34,9 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
     videoLink: undefined,
     media_type: dbRecord.mediaType || undefined,
     media_url: undefined,
+    datumToegevoegd: dbRecord.createdAt,
+    laatstBijgewerkt: dbRecord.updatedAt,
+    views: 0,
   };
 }
 
@@ -164,3 +167,5 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+

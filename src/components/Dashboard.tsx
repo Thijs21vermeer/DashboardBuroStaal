@@ -12,7 +12,7 @@ import { KennisItemDetail } from './kennisbank/KennisItemDetail';
 import { TrendDetail } from './kennisbank/TrendDetail';
 import { NewsDetail } from './kennisbank/NewsDetail';
 import type { PageType } from '../types';
-import { LoginForm } from './auth/LoginForm';
+import { Auth0LoginForm } from './auth/Auth0LoginForm';
 import KennisKoenWidget from './KennisKoenWidget';
 import { baseUrl } from '../lib/base-url';
 
@@ -26,25 +26,25 @@ export default function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [userName, setUserName] = useState<string>('');
 
-  // Valideer token bij mount - Cookie wordt automatisch meegestuurd
+  // Valideer Auth0 sessie bij mount
   useEffect(() => {
     const validateSession = async () => {
       try {
-        const response = await fetch(`${baseUrl}/api/auth/validate`, {
+        const response = await fetch(`${baseUrl}/api/auth0/me`, {
           credentials: 'include', // Stuurt cookies automatisch mee
         });
 
         if (response.ok) {
-          const data = (await response.json()) as { valid: boolean };
-          if (data.valid) {
+          const data = await response.json();
+          if (data.authenticated && data.user) {
             setIsAuthenticated(true);
+            setUserName(data.user.name || data.user.email);
           }
-        } else {
-          console.error('Token validation error:', response.statusText);
         }
       } catch (error) {
-        console.error('Token validation error:', error);
+        console.error('Session validation error:', error);
       } finally {
         setIsLoading(false);
       }
@@ -53,34 +53,28 @@ export default function Dashboard() {
     validateSession();
   }, []);
 
-  const handleLogin = (status: string) => {
-    if (status) {
-      // Login succesvol - token zit veilig in HttpOnly cookie
-      setIsAuthenticated(true);
-      setLoginError('');
-    } else {
-      setLoginError('Ongeldig wachtwoord');
-    }
-  };
-
   const handleLogout = () => {
     setIsAuthenticated(false);
-    // Verwijder cookie via logout endpoint
-    fetch(`${baseUrl}/api/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    }).catch(console.error);
-    setCurrentPage('overzicht');
+    setUserName('');
+    // Redirect naar Auth0 logout endpoint
+    window.location.href = `${baseUrl}/api/auth0/logout`;
   };
 
   // Toon niets tijdens het laden
   if (isLoading) {
-    return null;
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#280bc4]"></div>
+          <p className="mt-4 text-gray-600">Laden...</p>
+        </div>
+      </div>
+    );
   }
 
   // Toon login scherm als niet ingelogd
   if (!isAuthenticated) {
-    return <LoginForm onLogin={handleLogin} error={loginError} />;
+    return <Auth0LoginForm error={loginError} />;
   };
 
   const renderContent = () => {
@@ -145,6 +139,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 

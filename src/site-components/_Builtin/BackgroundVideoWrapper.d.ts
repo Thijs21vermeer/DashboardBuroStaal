@@ -9,5 +9,5 @@ type BackgroundVideoWrapperProps = {
     children?: React.ReactNode;
 };
 export type { BackgroundVideoWrapperProps };
-declare const BackgroundVideoWrapper: any;
+declare const BackgroundVideoWrapper: React.ForwardRefExoticComponent<BackgroundVideoWrapperProps & React.RefAttributes<HTMLVideoElement>>;
 export default BackgroundVideoWrapper;

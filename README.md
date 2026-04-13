@@ -1,9 +1,11 @@
+
 # Buro Staal Dashboard - Kennisbank & Media Bank
 
 Een moderne kennisbank en mediabank applicatie voor Buro Staal, gebouwd met Astro, React, TypeScript en Azure SQL.
 
 ## 🚀 Features
 
+- **🔐 Auth0 Authenticatie**: Veilige login met OAuth 2.0 en encrypted sessions
 - **Kennisbank**: Doorzoekbare database met kennisitems, tags en filters
 - **Case Studies**: Overzicht van succesvolle klantprojecten
 - **Trends & Insights**: Actuele ontwikkelingen in de maakindustrie
@@ -14,31 +16,31 @@ Een moderne kennisbank en mediabank applicatie voor Buro Staal, gebouwd met Astr
 ## 🛠️ Tech Stack
 
 - **Frontend**: Astro + React + TypeScript
+- **Authentication**: Auth0 (OAuth 2.0)
 - **Styling**: Tailwind CSS + shadcn/ui
 - **Database**: Azure SQL Database
-- **API**: Azure Functions (Node.js)
-- **Deployment**: Netlify / Azure Static Web Apps
+- **Deployment**: Netlify
 
 ## 📦 Project Structure
 
 ```
-├── netlify-app/          # Frontend applicatie (Astro + React)
-│   ├── src/
-│   │   ├── components/   # React componenten
-│   │   ├── pages/        # Astro pagina's
-│   │   ├── lib/          # Utilities en API client
-│   │   └── styles/       # Global styles
-│   └── .env              # Environment variabelen
-├── azure-functions-api/  # Backend API (Azure Functions)
-│   ├── src/
-│   │   ├── cases/        # Cases endpoints
-│   │   ├── kennisitems/  # Kennisitems endpoints
-│   │   ├── nieuws/       # News endpoints
-│   │   └── trends/       # Trends endpoints
-│   └── local.settings.json
-└── db/                   # Database schema en seed data
-    ├── azure-schema.sql
-    └── azure-seed.sql
+├── src/
+│   ├── components/       # React componenten
+│   │   ├── auth/        # Auth0 login componenten
+│   │   ├── dashboard/   # Dashboard componenten
+│   │   └── kennisbank/  # Kennisbank componenten
+│   ├── pages/           # Astro pagina's
+│   │   └── api/         # API endpoints
+│   │       ├── auth0/   # Auth0 OAuth endpoints
+│   │       ├── kennisitems/
+│   │       ├── cases/
+│   │       └── trends/
+│   ├── lib/             # Utilities en API client
+│   │   ├── auth0-config.ts    # Auth0 configuratie
+│   │   └── auth0-session.ts   # Sessie management
+│   └── styles/          # Global styles
+├── db/                  # Database schema en seed data
+└── .env                 # Environment variabelen
 ```
 
 ## 🚦 Getting Started
@@ -47,9 +49,46 @@ Een moderne kennisbank en mediabank applicatie voor Buro Staal, gebouwd met Astr
 
 - Node.js 18+
 - Azure SQL Database
-- Azure Functions Core Tools
+- Auth0 Account (gratis)
 
-### Installation
+### Quick Start (5 minuten)
+
+**1️⃣ Clone en installeer:**
+```bash
+git clone https://github.com/thijs21vermeer/DashboardBuroStaal.git
+cd DashboardBuroStaal
+npm install
+```
+
+**2️⃣ Auth0 Setup:**
+- Volg **[AUTH0_QUICKSTART.md](./AUTH0_QUICKSTART.md)** (5 minuten)
+- Of zie **[AUTH0_SETUP.md](./AUTH0_SETUP.md)** voor uitgebreide setup
+
+**3️⃣ Environment variabelen:**
+```bash
+# .env
+AUTH0_DOMAIN=jouw-tenant.eu.auth0.com
+AUTH0_CLIENT_ID=jouw_client_id
+AUTH0_CLIENT_SECRET=jouw_client_secret
+APP_ORIGIN=http://localhost:3000
+COOKIE_SECRET=genereer_random_string
+JWT_SECRET=genereer_random_string
+
+# Azure SQL
+AZURE_SQL_SERVER=your-server.database.windows.net
+AZURE_SQL_DATABASE=your-database
+AZURE_SQL_USER=your-username
+AZURE_SQL_PASSWORD=your-password
+```
+
+**4️⃣ Start development:**
+```bash
+npm run dev
+```
+
+Ga naar `http://localhost:3000` en log in met Auth0! 🎉
+
+### Installation (uitgebreid)
 
 1. Clone de repository:
 ```bash
@@ -107,6 +146,21 @@ cd azure-functions-api
 npm start
 ```
 
+## 🔐 Authenticatie
+
+Deze applicatie gebruikt **Auth0** voor veilige authenticatie:
+
+- ✅ OAuth 2.0 flow met CSRF protection
+- ✅ Encrypted session cookies (HttpOnly, Secure)
+- ✅ Single Sign-On ondersteuning
+- ✅ Multi-Factor Authentication (MFA) optioneel
+- ✅ Social logins mogelijk (Google, Microsoft, etc.)
+
+**Setup guides:**
+- 🚀 [Quick Start (5 min)](./AUTH0_QUICKSTART.md)
+- 📖 [Volledige Setup Guide](./AUTH0_SETUP.md)
+- 📋 [Implementatie Details](./AUTH0_IMPLEMENTATION_SUMMARY.md)
+
 ## 🎨 Design System
 
 - **Primaire kleur**: Zwart
@@ -117,6 +171,9 @@ npm start
 
 ## 📝 Documentation
 
+- [🚀 Auth0 Quick Start](./AUTH0_QUICKSTART.md) - Start binnen 5 minuten
+- [🔐 Auth0 Setup Guide](./AUTH0_SETUP.md) - Uitgebreide configuratie
+- [📋 Auth0 Implementatie](./AUTH0_IMPLEMENTATION_SUMMARY.md) - Technische details
 - [Azure SQL Setup](./AZURE_SQL_SETUP.md)
 - [Deployment Guide](./DEPLOYMENT.md)
 - [Architecture Overview](./ARCHITECTURE.md)
@@ -141,3 +198,4 @@ Proprietary - Buro Staal
 ---
 
 Made with 💚 by Buro Staal
+

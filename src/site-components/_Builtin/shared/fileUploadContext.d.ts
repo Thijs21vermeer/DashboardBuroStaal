@@ -13,4 +13,4 @@ export type FileUploadContextType = {
     setFiles: React.Dispatch<React.SetStateAction<FileList | null>>;
     setError: React.Dispatch<React.SetStateAction<FileUploadError | null>>;
 };
-export declare const FileUploadContext: any;
+export declare const FileUploadContext: React.Context<FileUploadContextType>;

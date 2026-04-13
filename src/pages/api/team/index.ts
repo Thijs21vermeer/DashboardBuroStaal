@@ -37,18 +37,28 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const data = await request.json();
     
+    // Map frontend fields to database columns
     const newId = await insert('Team', {
       naam: data.naam,
-      rol: data.rol || '',
+      functie: data.rol || data.functie || '',
       email: data.email || '',
       telefoon: data.telefoon || null,
-      beschrijving: data.beschrijving || null,
-      foto: data.foto || null,
+      bio: data.beschrijving || data.bio || null,
+      afbeelding: data.foto || data.afbeelding || null,
+      linkedIn: data.linkedIn || null,
+      specialisaties: data.specialisaties || null,
     }, locals);
 
     const newTeamMember = {
       id: newId,
-      ...data,
+      naam: data.naam,
+      functie: data.rol || data.functie || '',
+      email: data.email || '',
+      telefoon: data.telefoon || null,
+      bio: data.beschrijving || data.bio || null,
+      afbeelding: data.foto || data.afbeelding || null,
+      linkedIn: data.linkedIn || null,
+      specialisaties: data.specialisaties || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -68,3 +78,4 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+

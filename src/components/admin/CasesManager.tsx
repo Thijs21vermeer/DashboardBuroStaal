@@ -75,11 +75,16 @@ export default function CasesManager() {
       if (editingItem) {
         const updated = await apiClient.cases.update(editingItem.id, caseData);
         setCases(prevCases => prevCases.map(i => i.id === editingItem.id ? updated : i));
+        alert('✅ Case succesvol bijgewerkt!');
+        // Reload de lijst om zeker te zijn dat we de laatste data hebben
+        await loadItems();
       } else {
         // Create new case
         const newCase = await apiClient.cases.create(caseData);
         setCases(prevCases => [newCase, ...prevCases]);
         alert('✅ Case succesvol toegevoegd!');
+        // Reload de lijst
+        await loadItems();
       }
       
       resetForm();
@@ -337,6 +342,7 @@ export default function CasesManager() {
     </div>
   );
 }
+
 
 
 

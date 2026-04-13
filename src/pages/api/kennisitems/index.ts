@@ -23,7 +23,7 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
   return {
     id: dbRecord.id,
     titel: dbRecord.titel,
-    type: dbRecord.categorie || 'Algemeen', // SQLite gebruikt 'categorie'
+    type: dbRecord.categorie || 'Algemeen',
     categorie: dbRecord.categorie || 'Algemeen',
     tags,
     gekoppeldProject: dbRecord.gekoppeldProject || undefined,
@@ -37,6 +37,7 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
     featured: false,
     videoLink: undefined,
     afbeelding: dbRecord.afbeelding || undefined,
+    media_type: dbRecord.mediaType || undefined,
   };
 }
 
@@ -154,6 +155,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       type: data.type || 'Algemeen',
       categorie: data.categorie || data.type || 'Algemeen',
       tags: data.tags || [],
+      gekoppeldProject: data.gekoppeldProject,
       eigenaar: data.eigenaar || 'Onbekend',
       auteur: data.eigenaar || 'Onbekend',
       samenvatting: data.samenvatting || '',
@@ -163,6 +165,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       views: 0,
       featured: false,
       afbeelding: data.afbeelding,
+      media_type: data.media_type,
     };
     
     // Stuur Slack notificatie
@@ -188,3 +191,5 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
+

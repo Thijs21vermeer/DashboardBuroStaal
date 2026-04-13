@@ -49,13 +49,16 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const data = await request.json();
 
+    // Map frontend fields to database columns
     const success = await update('Team', Number(id), {
       naam: data.naam,
-      rol: data.rol || '',
+      functie: data.rol || data.functie || '',
       email: data.email || '',
       telefoon: data.telefoon || null,
-      beschrijving: data.beschrijving || null,
-      foto: data.foto || null,
+      bio: data.beschrijving || data.bio || null,
+      afbeelding: data.foto || data.afbeelding || null,
+      linkedIn: data.linkedIn || null,
+      specialisaties: data.specialisaties || null,
     }, locals);
 
     if (!success) {
@@ -120,3 +123,4 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
