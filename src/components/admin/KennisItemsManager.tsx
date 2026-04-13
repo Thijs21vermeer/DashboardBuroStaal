@@ -1,6 +1,8 @@
 
 
 
+
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -220,13 +222,13 @@ export default function KennisItemsManager() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="type">Type *</Label>
+                <Label htmlFor="type">Mediatype *</Label>
                 <Select
                   value={formData.type}
                   onValueChange={(value) => setFormData({ ...formData, type: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecteer type" />
+                    <SelectValue placeholder="Selecteer mediatype" />
                   </SelectTrigger>
                   <SelectContent>
                     {KENNISITEM_TYPES.map((type) => (
@@ -236,6 +238,9 @@ export default function KennisItemsManager() {
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-gray-500">
+                  Type content: Artikel, Video, Guide, etc.
+                </p>
               </div>
 
               <div>
@@ -252,6 +257,9 @@ export default function KennisItemsManager() {
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-gray-500">
+                  Onderwerp categorie: Security, Marketing, etc.
+                </p>
               </div>
 
               {formData.type === 'Video' && (
@@ -424,12 +432,17 @@ export default function KennisItemsManager() {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-lg">{item.titel}</CardTitle>
-                  <div className="flex gap-2 mt-2">
-                    <span className="text-xs px-2 py-1 bg-[#280bc4]/10 text-[#280bc4] rounded">
-                      {item.type}
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    <span className="text-xs px-2 py-1 bg-[#280bc4]/10 text-[#280bc4] rounded font-medium">
+                      📄 {item.type}
                     </span>
+                    {item.categorie && (
+                      <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded font-medium">
+                        🏷️ {item.categorie}
+                      </span>
+                    )}
                     <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
-                      {item.eigenaar}
+                      👤 {item.eigenaar}
                     </span>
                   </div>
                 </div>
@@ -459,6 +472,8 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
+
 
 
 
