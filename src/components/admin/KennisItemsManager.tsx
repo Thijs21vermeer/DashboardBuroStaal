@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -68,18 +69,34 @@ export default function KennisItemsManager() {
     try {
       if (editingItem) {
         // Update existing item
+        console.log('📝 [KennisItemsManager] Updating item:', editingItem.id);
+        console.log('📝 Form data:', itemData);
+        
         const updated = await apiClient.kennisitems.update(editingItem.id, itemData);
+        
+        console.log('✅ [KennisItemsManager] Update response:', updated);
+        
         setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
-        alert('✅ Item succesvol bijgewerkt!');
+        
         // Reload de lijst om zeker te zijn dat we de laatste data hebben
         await loadItems();
+        
+        alert('✅ Item succesvol bijgewerkt!');
       } else {
         // Create new item
+        console.log('➕ [KennisItemsManager] Creating new item');
+        console.log('➕ Form data:', itemData);
+        
         const newItem = await apiClient.kennisitems.create(itemData);
+        
+        console.log('✅ [KennisItemsManager] Create response:', newItem);
+        
         setItems(prevItems => [newItem, ...prevItems]);
-        alert('✅ Item succesvol toegevoegd!');
+        
         // Reload de lijst
         await loadItems();
+        
+        alert('✅ Item succesvol toegevoegd!');
       }
       
       resetForm();
@@ -88,7 +105,7 @@ export default function KennisItemsManager() {
       // Update connection status to connected if successful
       setConnectionStatus('connected');
     } catch (error) {
-      console.error('Error saving item:', error);
+      console.error('❌ [KennisItemsManager] Error saving item:', error);
       alert('Fout bij opslaan: ' + (error instanceof Error ? error.message : 'Onbekende fout'));
     }
   };
@@ -439,6 +456,7 @@ export default function KennisItemsManager() {
     </div>
   );
 }
+
 
 
 

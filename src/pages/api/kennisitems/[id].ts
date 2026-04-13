@@ -91,17 +91,27 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
 
     const data = (await request.json()) as KennisItemRequest;
+    
+    console.log('📝 [PUT /api/kennisitems/:id] Updating kennisitem:', id);
+    console.log('📝 Request data:', JSON.stringify(data, null, 2));
 
-    const success = await update('KennisItems', Number(id), {
+    const updateData = {
       titel: data.titel,
       beschrijving: data.samenvatting || data.inhoud || '',
       categorie: data.categorie || data.type || 'Algemeen',
       tags: JSON.stringify(data.tags || []),
       mediaType: data.media_type || null,
       afbeelding: data.afbeelding || null,
-    }, locals);
+    };
+    
+    console.log('📝 Update data to be saved:', JSON.stringify(updateData, null, 2));
+
+    const success = await update('KennisItems', Number(id), updateData, locals);
+    
+    console.log('📝 Update success:', success);
 
     if (!success) {
+      console.error('❌ [PUT /api/kennisitems/:id] Item not found:', id);
       return new Response(JSON.stringify({ error: 'Kennisitem not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' }
@@ -110,6 +120,8 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     // Fetch updated item
     const updatedItem = await getById('KennisItems', Number(id), locals);
+    console.log('📝 Updated item from DB:', JSON.stringify(updatedItem, null, 2));
+    
     const mappedItem = mapDbToKennisItem(updatedItem);
 
     return new Response(JSON.stringify(mappedItem), {
@@ -117,7 +129,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Error updating kennisitem:', error);
+    console.error('❌ [PUT /api/kennisitems/:id] Error updating kennisitem:', error);
     return new Response(JSON.stringify({ 
       error: 'Database fout',
       details: error instanceof Error ? error.message : 'Unknown error'
@@ -167,5 +179,6 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
 
 

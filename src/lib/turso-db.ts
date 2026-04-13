@@ -1,3 +1,4 @@
+
 /**
  * Turso Database Connection
  * LibSQL client for serverless SQLite database
@@ -189,7 +190,17 @@ export async function update(
     WHERE id = ?
   `;
   
+  console.log('🔧 [turso-db.update] Executing UPDATE query');
+  console.log('🔧 Table:', table);
+  console.log('🔧 ID:', id);
+  console.log('🔧 Data:', JSON.stringify(data, null, 2));
+  console.log('🔧 SQL:', sql.trim());
+  console.log('🔧 Values:', values);
+  
   const result = await executeQuery(sql, values, locals);
+  
+  console.log('🔧 Rows affected:', result.rowsAffected);
+  
   return result.rowsAffected > 0;
 }
 
@@ -313,3 +324,4 @@ export async function getDatabaseInfo(locals?: APIContext['locals']): Promise<an
     };
   }
 }
+
