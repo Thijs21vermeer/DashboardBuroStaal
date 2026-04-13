@@ -51,13 +51,19 @@ export default function Dashboard() {
           const data = await response.json();
           setUser(data.user);
           setIsAuthenticated(true);
-        } else {
+        } else if (response.status === 401) {
           // Not authenticated - redirect to Auth0 login automatically
+          console.log('🔐 Not authenticated, redirecting to Auth0...');
           window.location.href = `${baseUrl}/api/auth0/login`;
+        } else {
+          // Server error (500, etc.)
+          console.error('❌ Server error during session validation:', response.status);
+          setLoginError('Er is een serverfout opgetreden. Probeer het later opnieuw.');
+          setIsLoading(false);
         }
       } catch (error) {
-        console.error('Session validation error:', error);
-        setLoginError('Er is een fout opgetreden bij het laden van de sessie');
+        console.error('❌ Network error during session validation:', error);
+        setLoginError('Kan geen verbinding maken met de server. Controleer je internetverbinding.');
         setIsLoading(false);
       }
     };
@@ -174,6 +180,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 
