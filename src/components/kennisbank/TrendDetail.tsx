@@ -192,19 +192,21 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
       </Card>
 
       {/* Impact */}
-      <Card className="border-2 border-[#280bc4]">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Target className="w-5 h-5 sm:w-6 sm:h-6 text-[#280bc4]" />
-            Impact voor de Maakindustrie
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base lg:text-lg">
-            {trend.impact}
-          </p>
-        </CardContent>
-      </Card>
+      {trend.impact_beschrijving && (
+        <Card className="border-2 border-[#280bc4]">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Target className="w-5 h-5 sm:w-6 sm:h-6 text-[#280bc4]" />
+              Impact voor de Maakindustrie
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base lg:text-lg">
+              {trend.impact_beschrijving}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recommendations */}
       {trend.aanbevelingen && (
@@ -260,6 +262,7 @@ export function TrendDetail({ trendId, onBack }: TrendDetailProps) {
     </div>
   );
 }
+
 
 
 

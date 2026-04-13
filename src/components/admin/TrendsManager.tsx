@@ -3,6 +3,7 @@
 
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -33,6 +34,8 @@ export default function TrendsManager() {
     tags: '',
     eigenaar: '',
     relevantie: 'Middel',
+    impact_beschrijving: '',
+    aanbevelingen: '',
   });
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
@@ -96,6 +99,8 @@ export default function TrendsManager() {
       tags: item.tags || '',
       eigenaar: item.eigenaar || '',
       relevantie: item.relevantie,
+      impact_beschrijving: item.impact_beschrijving || '',
+      aanbevelingen: item.aanbevelingen || '',
     });
     setIsDialogOpen(true);
   };
@@ -124,6 +129,8 @@ export default function TrendsManager() {
       tags: '',
       eigenaar: '',
       relevantie: 'Middel',
+      impact_beschrijving: '',
+      aanbevelingen: '',
     });
   };
 
@@ -262,6 +269,28 @@ export default function TrendsManager() {
                 />
               </div>
 
+              <div>
+                <Label htmlFor="impact_beschrijving">Impact voor de Maakindustrie</Label>
+                <Textarea
+                  id="impact_beschrijving"
+                  value={formData.impact_beschrijving}
+                  onChange={(e) => setFormData({ ...formData, impact_beschrijving: e.target.value })}
+                  rows={3}
+                  placeholder="Beschrijf de impact van deze trend op de maakindustrie..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="aanbevelingen">Aanbevelingen</Label>
+                <Textarea
+                  id="aanbevelingen"
+                  value={formData.aanbevelingen}
+                  onChange={(e) => setFormData({ ...formData, aanbevelingen: e.target.value })}
+                  rows={3}
+                  placeholder="Wat zijn de aanbevelingen op basis van deze trend..."
+                />
+              </div>
+
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Annuleren
@@ -280,11 +309,11 @@ export default function TrendsManager() {
           <Card key={item.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{item.titel}</CardTitle>
-                  <div className="flex gap-2 mt-2">
-                    <span className="text-xs px-2 py-1 bg-[#280bc4]/10 text-[#280bc4] rounded">
-                      {item.categorie}
+                <div className="flex-1">
+                  <CardTitle className="text-lg mb-3">{item.titel}</CardTitle>
+                  <div className="flex gap-2 flex-wrap items-center">
+                    <span className="text-xs px-2 py-1 bg-[#280bc4]/10 text-[#280bc4] rounded font-medium">
+                      🏷️ {item.categorie}
                     </span>
                     {item.relevantie && (
                       <Badge className={getRelevantieLevel(item.relevantie).color}>
@@ -292,13 +321,16 @@ export default function TrendsManager() {
                         {getRelevantieLevel(item.relevantie).label}
                       </Badge>
                     )}
-                    <div className="text-xs text-muted-foreground">
-                      <Calendar className="inline h-3 w-3 mr-1" />
-                      {formatDateShort(item.datum_gepubliceerd)}
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                      {truncateText(item.samenvatting, 100)}
-                    </p>
+                    {item.datum_gepubliceerd && (
+                      <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                        📅 {formatDateShort(item.datum_gepubliceerd)}
+                      </span>
+                    )}
+                    {item.eigenaar && (
+                      <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                        👤 {item.eigenaar}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -312,12 +344,14 @@ export default function TrendsManager() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-2">{item.samenvatting}</p>
-              <p className="text-sm text-gray-600 mb-2">
-                <strong>Inhoud:</strong> {truncateText(item.inhoud, 200)}
-              </p>
+              <p className="text-sm text-gray-600 mb-3">{item.samenvatting}</p>
+              {item.inhoud && (
+                <p className="text-sm text-gray-500 mb-3 italic">
+                  {truncateText(item.inhoud, 200)}
+                </p>
+              )}
               {item.bron && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 flex items-center gap-1">
                   <strong>Bron:</strong> {item.bron}
                 </p>
               )}
@@ -328,6 +362,11 @@ export default function TrendsManager() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

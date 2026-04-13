@@ -77,6 +77,10 @@ export interface Trend {
   datum_gepubliceerd: string;
   relevantie: string;
   impact_score?: number;
+  impact_beschrijving?: string;
+  aanbevelingen?: string;
+  views?: number;
+  sector?: string;
 }
 
 export interface NewsItem {
@@ -199,6 +203,9 @@ export interface TrendRequest {
   relevantie: string;
   impact?: string;
   impact_score?: number;
+  impact_beschrijving?: string;
+  aanbevelingen?: string;
+  sector?: string;
 }
 
 export interface NewsRequest {
@@ -276,6 +283,8 @@ export interface PartnerRequest {
   expertise?: string;
   volgorde?: number;
 }
+
+
 
 
 
