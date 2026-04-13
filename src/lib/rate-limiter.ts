@@ -128,8 +128,6 @@ export function recordFailedAttempt(request: Request): void {
     entry.lastAttempt = now;
     rateLimitStore.set(ip, entry);
   }
-  
-  console.log(`⚠️ Failed login attempt from ${ip} (${entry?.attempts || 1}/${MAX_ATTEMPTS})`);
 }
 
 /**
@@ -138,7 +136,6 @@ export function recordFailedAttempt(request: Request): void {
 export function resetRateLimit(request: Request): void {
   const ip = getClientIP(request);
   rateLimitStore.delete(ip);
-  console.log(`✅ Rate limit reset for ${ip}`);
 }
 
 /**
@@ -148,18 +145,13 @@ export function cleanupOldEntries(): void {
   const now = Date.now();
   let cleaned = 0;
   
-  for (const [ip, entry] of rateLimitStore.entries()) {
-    // Verwijder entries ouder dan window + block duration
-    const maxAge = WINDOW_MS + BLOCK_DURATION_MS;
-    if (now - entry.firstAttempt > maxAge) {
+  for (const [ip, entry] of Array.from(rateLimitStore.entries())) {
+    if (entry.resetAt < now) {
       rateLimitStore.delete(ip);
       cleaned++;
     }
   }
-  
-  if (cleaned > 0) {
-    console.log(`🧹 Cleaned up ${cleaned} old rate limit entries`);
-  }
+  // No logging - keep cleanup silent
 }
 
 /**
@@ -184,5 +176,6 @@ export function getRateLimitStats() {
     },
   };
 }
+
 
 

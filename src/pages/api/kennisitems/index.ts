@@ -44,8 +44,6 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
 // Helper functie om Slack notificatie te sturen
 async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
   try {
-    console.log('🔔 Attempting to send Slack notification...');
-    console.log('📝 Item:', item.titel);
     
     const message = {
       text: `📚 Nieuw kennisitem: ${item.titel}`,
@@ -75,7 +73,6 @@ async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
       ]
     };
 
-    console.log('📤 Sending to Slack...');
     const response = await fetch(slackWebhook, {
       method: 'POST',
       headers: {
@@ -91,7 +88,6 @@ async function sendSlackNotification(item: KennisItem, slackWebhook: string) {
       console.error('Status:', response.status, response.statusText);
       console.error('Response:', responseText);
     } else {
-      console.log('✅ Slack notification sent successfully');
     }
   } catch (error) {
     console.error('❌ Error sending Slack notification:', error);

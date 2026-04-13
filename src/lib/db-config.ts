@@ -34,7 +34,9 @@ export async function getPool(locals?: any): Promise<sql.ConnectionPool> {
       },
     });
 
-    console.log('✅ Database connected successfully');
+    // Test the connection
+    const result = await sql`SELECT 1`;
+    // Connection successful - no logging needed
     return pool;
   } catch (error) {
     console.error('❌ Database connection failed:', error);
@@ -54,3 +56,4 @@ export function handleDbError(error: unknown, context: string) {
     headers: { 'Content-Type': 'application/json' }
   });
 }
+

@@ -54,8 +54,10 @@ export default function Dashboard() {
           setIsLoading(false);
         } else if (response.status === 401) {
           // Not authenticated - redirect to Auth0 login automatically
-          console.log('🔐 Not authenticated, redirecting to Auth0...');
-          window.location.href = `${baseUrl}/api/auth0/login`;
+          if (!isAuthenticated) {
+            window.location.href = `${baseUrl}/api/auth0/login`;
+            return;
+          }
         } else {
           // Server error (500, etc.)
           console.error('❌ Server error during session validation:', response.status);
@@ -181,6 +183,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 

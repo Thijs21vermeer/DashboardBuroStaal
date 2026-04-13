@@ -1,6 +1,7 @@
 
 
 
+
 /**
  * API Client - Centralized API calls with authentication
  * 
@@ -223,25 +224,23 @@ export const partnersApi = {
 /**
  * Unified API Client export
  */
-export const apiClient = {
-  kennisitems: kennisitemsApi,
-  cases: casesApi,
-  trends: trendsApi,
-  nieuws: nieuwsApi,
-  tools: toolsApi,
-  videos: videosApi,
-  team: teamApi,
-  partners: partnersApi,
-};
+export const apiClient = createApiClient();
+
+// No initialization logging - keep configuration private
 
 /**
- * Log welke API wordt gebruikt (client-side only)
+ * Create a single instance of the API client
  */
-if (typeof window !== 'undefined') {
-  console.log(`🔌 API Client initialized`);
-  console.log(`📍 Base URL: ${baseUrl}/api`);
+function createApiClient() {
+  return {
+    kennisitems: kennisitemsApi,
+    cases: casesApi,
+    trends: trendsApi,
+    nieuws: nieuwsApi,
+    tools: toolsApi,
+    videos: videosApi,
+    team: teamApi,
+    partners: partnersApi,
+  };
 }
-
-
-
 

@@ -1,3 +1,4 @@
+
 // Load environment variables in development
 import './env-init';
 
@@ -12,8 +13,8 @@ export const onRequest: MiddlewareHandler = async (ctx, next) => {
   // Auth0 session handling - maak user beschikbaar in locals
   try {
     const config = getAuth0Config(locals);
+    // Check Auth0 session
     const session = await getSession(request, config.cookieName, config.cookieSecret);
-    
     if (session && !isSessionExpired(session)) {
       // Voeg user toe aan locals voor gebruik in pages/components
       locals.user = session.user;
@@ -21,7 +22,7 @@ export const onRequest: MiddlewareHandler = async (ctx, next) => {
     }
   } catch (error) {
     // Session check failed, continue without user
-    console.warn('⚠️ Failed to check Auth0 session:', error);
+    console.warn('⚠️ Failed to check Auth0 session');
   }
 
   if (import.meta.env.DEV && url.pathname === '/-wf/ready') {
@@ -37,5 +38,6 @@ export const onRequest: MiddlewareHandler = async (ctx, next) => {
 
   return next();
 };
+
 
 

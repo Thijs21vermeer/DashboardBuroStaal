@@ -102,8 +102,7 @@ export async function requireAuth(
       return null;
     }
   } catch (error) {
-    // Auth0 not configured or session invalid, try legacy auth
-    console.debug('Auth0 session check failed, trying legacy auth:', error);
+    // Auth0 check failed, try legacy auth
   }
   
   // OPTION 2: Check for legacy JWT token (backward compatibility)
@@ -178,6 +177,7 @@ export async function requireAuth(
   // Token is valid, allow request to proceed
   return null;
 }
+
 
 
 

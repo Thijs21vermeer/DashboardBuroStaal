@@ -44,16 +44,13 @@ export default function KennisItemsManager() {
 
   const loadItems = async () => {
     try {
-      console.log('[KennisItemsManager] Fetching kennisitems...');
       
       const data = await apiClient.kennisitems.getAll();
-      console.log('[KennisItemsManager] Received items:', data.length);
       
       setItems(data);
       setConnectionStatus('connected');
       
       if (data.length === 0) {
-        console.log('[KennisItemsManager] Database is empty - ready to add items');
       }
     } catch (error) {
       console.error('[KennisItemsManager] Error loading items:', error);
@@ -65,25 +62,20 @@ export default function KennisItemsManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('🔍 [DEBUG] Current formData state:', formData);
-    console.log('🔍 [DEBUG] Current editingItem:', editingItem);
     
     const itemData = {
       ...formData,
       tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
     };
     
-    console.log('🔍 [DEBUG] Prepared itemData:', itemData);
 
     try {
       if (editingItem) {
         // Update existing item
-        console.log('📝 [KennisItemsManager] Updating item:', editingItem.id);
         console.log('📝 Form data:', itemData);
         
         const updated = await apiClient.kennisitems.update(editingItem.id, itemData);
         
-        console.log('✅ [KennisItemsManager] Update response:', updated);
         
         setItems(prevItems => prevItems.map(i => i.id === editingItem.id ? updated : i));
         setConnectionStatus('connected');
@@ -94,12 +86,10 @@ export default function KennisItemsManager() {
         alert('✅ Item succesvol bijgewerkt!');
       } else {
         // Create new item
-        console.log('➕ [KennisItemsManager] Creating new item');
         console.log('➕ Form data:', itemData);
         
         const newItem = await apiClient.kennisitems.create(itemData);
         
-        console.log('✅ [KennisItemsManager] Create response:', newItem);
         
         setItems(prevItems => [newItem, ...prevItems]);
         setConnectionStatus('connected');

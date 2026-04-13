@@ -1,3 +1,4 @@
+
 /**
  * JWT-based session management
  * Compatible with api-auth.ts validation
@@ -118,8 +119,7 @@ export async function validateToken(token: string, locals?: any): Promise<boolea
     const expectedSignature = await generateSignature(data, secret);
 
     if (signatureB64 !== expectedSignature) {
-      console.warn('Invalid token signature');
-      return false;
+      return null;
     }
 
     // Decode and check expiration
@@ -129,14 +129,20 @@ export async function validateToken(token: string, locals?: any): Promise<boolea
 
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp && payload.exp < now) {
-      console.warn('Token expired');
-      return false;
+      return null;
     }
 
     return payload.authenticated === true;
   } catch (error) {
-    console.error('Token validation error:', error);
-    return false;
+    if (error instanceof Error) {
+      if (error.message.includes('signature')) {
+        return null;
+      }
+      if (error.message.includes('expired')) {
+        return null;
+      }
+    }
+    throw error;
   }
 }
 
@@ -167,5 +173,6 @@ export function deleteSession(): void {
 export function getActiveSessionCount(): number {
   return 0; // Stateless - we don't track sessions
 }
+
 
 
