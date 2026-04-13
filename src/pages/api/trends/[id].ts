@@ -55,11 +55,16 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const success = await update('Trends', Number(id), {
       titel: data.titel,
-      beschrijving: data.beschrijving || '',
+      beschrijving: data.samenvatting || data.beschrijving || '',
       categorie: data.categorie || 'Algemeen',
       eigenaar: data.eigenaar || '',
       tags: JSON.stringify(data.tags || []),
       afbeelding: data.afbeelding || null,
+      // Additional fields from TrendsManager
+      inhoud: data.inhoud || '',
+      bron: data.bron || '',
+      relevantie: data.relevantie || 'Middel',
+      datum_gepubliceerd: data.datum_gepubliceerd || new Date().toISOString().split('T')[0],
     }, locals);
 
     if (!success) {
@@ -127,3 +132,4 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+

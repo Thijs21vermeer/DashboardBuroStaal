@@ -27,16 +27,26 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
         item.tags = [];
       }
     }
+    
+    // Parse resultaten if it's a string
+    if (typeof item.resultaten === 'string') {
+      try {
+        item.resultaten = JSON.parse(item.resultaten);
+      } catch {
+        item.resultaten = [];
+      }
+    }
+    
+    // Parse referenties if it's a string
+    if (typeof item.referenties === 'string') {
+      try {
+        item.referenties = JSON.parse(item.referenties);
+      } catch {
+        item.referenties = [];
+      }
+    }
 
-    // Map database fields to frontend fields
-    const mappedItem = {
-      ...item,
-      uitdaging: item.beschrijving,
-      oplossing: item.resultaat,
-      resultaten: [],
-    };
-
-    return new Response(JSON.stringify(mappedItem), {
+    return new Response(JSON.stringify(item), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -71,8 +81,16 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const success = await update('Cases', Number(id), {
       titel: data.titel,
       klant: data.klant,
-      beschrijving: data.uitdaging || data.challenge || data.beschrijving,
-      resultaat: data.oplossing || data.solution || data.resultaat,
+      industrie: data.industrie || '',
+      beschrijving: data.beschrijving || '',
+      uitdaging: data.uitdaging || '',
+      oplossing: data.oplossing || '',
+      resultaat: data.resultaat || data.oplossing || '',
+      resultaten: JSON.stringify(data.resultaten || []),
+      referenties: JSON.stringify(data.referenties || []),
+      eigenaar: data.eigenaar || '',
+      datum: data.datum || new Date().toISOString().split('T')[0],
+      featured: data.featured ? 1 : 0,
       afbeelding: data.afbeelding || null,
       tags: JSON.stringify(data.tags || []),
     }, locals);
@@ -94,16 +112,26 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
         updatedCase.tags = [];
       }
     }
+    
+    // Parse resultaten if it's a string
+    if (typeof updatedCase.resultaten === 'string') {
+      try {
+        updatedCase.resultaten = JSON.parse(updatedCase.resultaten);
+      } catch {
+        updatedCase.resultaten = [];
+      }
+    }
+    
+    // Parse referenties if it's a string
+    if (typeof updatedCase.referenties === 'string') {
+      try {
+        updatedCase.referenties = JSON.parse(updatedCase.referenties);
+      } catch {
+        updatedCase.referenties = [];
+      }
+    }
 
-    // Map database fields to frontend fields
-    const mappedCase = {
-      ...updatedCase,
-      uitdaging: updatedCase.beschrijving,
-      oplossing: updatedCase.resultaat,
-      resultaten: [],
-    };
-
-    return new Response(JSON.stringify(mappedCase), {
+    return new Response(JSON.stringify(updatedCase), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -157,6 +185,7 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
 
 
 

@@ -144,6 +144,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
       beschrijving: data.samenvatting || data.inhoud || '',
       categorie: data.categorie || data.type || 'Algemeen',
       tags: JSON.stringify(data.tags || []),
+      eigenaar: data.eigenaar || null,
+      gekoppeldProject: data.gekoppeldProject || null,
+      videoLink: data.videoLink || null,
       mediaType: data.media_type || null,
       afbeelding: data.afbeelding || null,
       referenties: null,
@@ -191,5 +194,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+
 
 

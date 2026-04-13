@@ -41,6 +41,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       titel: data.titel,
       beschrijving: data.beschrijving || '',
       bron: data.bron || '',
+      categorie: data.categorie || null,
       tags: JSON.stringify(data.tags || []),
       afbeelding: data.afbeelding || null,
     }, locals);
@@ -68,3 +69,4 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 };
+

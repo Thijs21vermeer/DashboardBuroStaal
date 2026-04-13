@@ -1,3 +1,7 @@
+
+
+
+
 -- Turso (SQLite) Schema for Buro Staal Dashboard
 -- Converted from Azure SQL Server schema
 
@@ -8,6 +12,9 @@ CREATE TABLE IF NOT EXISTS KennisItems (
     beschrijving TEXT,
     categorie TEXT,
     tags TEXT,
+    eigenaar TEXT,
+    gekoppeldProject TEXT,
+    videoLink TEXT,
     mediaType TEXT,
     afbeelding TEXT,
     referenties TEXT,
@@ -21,7 +28,15 @@ CREATE TABLE IF NOT EXISTS Cases (
     titel TEXT NOT NULL,
     beschrijving TEXT,
     klant TEXT,
+    industrie TEXT,
+    uitdaging TEXT,
+    oplossing TEXT,
     resultaat TEXT,
+    resultaten TEXT,
+    referenties TEXT,
+    eigenaar TEXT,
+    datum TEXT,
+    featured INTEGER DEFAULT 0,
     afbeelding TEXT,
     tags TEXT,
     createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -33,8 +48,13 @@ CREATE TABLE IF NOT EXISTS Trends (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     titel TEXT NOT NULL,
     beschrijving TEXT,
+    samenvatting TEXT,
+    inhoud TEXT,
     categorie TEXT,
     eigenaar TEXT,
+    bron TEXT,
+    relevantie TEXT,
+    datum_gepubliceerd TEXT,
     tags TEXT,
     afbeelding TEXT,
     createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -46,8 +66,12 @@ CREATE TABLE IF NOT EXISTS Nieuws (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     titel TEXT NOT NULL,
     beschrijving TEXT,
+    samenvatting TEXT,
     inhoud TEXT,
     auteur TEXT,
+    categorie TEXT,
+    datum TEXT,
+    belangrijk INTEGER DEFAULT 0,
     afbeelding TEXT,
     tags TEXT,
     createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -117,3 +141,7 @@ CREATE INDEX IF NOT EXISTS idx_nieuws_created ON Nieuws(createdAt);
 CREATE INDEX IF NOT EXISTS idx_tools_categorie ON Tools(categorie);
 CREATE INDEX IF NOT EXISTS idx_videos_categorie ON Videos(categorie);
 CREATE INDEX IF NOT EXISTS idx_team_naam ON Team(naam);
+
+
+
+

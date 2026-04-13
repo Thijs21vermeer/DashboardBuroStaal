@@ -56,7 +56,12 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const success = await update('Nieuws', Number(id), {
       titel: data.titel,
       beschrijving: data.beschrijving || '',
-      bron: data.bron || '',
+      samenvatting: data.samenvatting || data.beschrijving || '',
+      inhoud: data.inhoud || '',
+      auteur: data.auteur || '',
+      categorie: data.categorie || 'Algemeen',
+      datum: data.datum || new Date().toISOString().split('T')[0],
+      belangrijk: data.belangrijk ? 1 : 0,
       tags: JSON.stringify(data.tags || []),
       afbeelding: data.afbeelding || null,
     }, locals);
@@ -126,3 +131,4 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+

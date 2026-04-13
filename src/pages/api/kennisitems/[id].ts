@@ -29,9 +29,9 @@ function mapDbToKennisItem(dbRecord: any): KennisItem {
     datum: dbRecord.createdAt,
     samenvatting: dbRecord.beschrijving || undefined,
     inhoud: dbRecord.beschrijving || undefined,
+    videoLink: dbRecord.videoLink || undefined,
     afbeelding: dbRecord.afbeelding || undefined,
     featured: false,
-    videoLink: undefined,
     media_type: dbRecord.mediaType || undefined,
     media_url: undefined,
     datumToegevoegd: dbRecord.createdAt,
@@ -98,8 +98,11 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     const updateData = {
       titel: data.titel,
       beschrijving: data.samenvatting || data.inhoud || '',
-      categorie: data.categorie || data.type || 'Algemeen',
+      categorie: data.type || data.categorie || 'Algemeen',
       tags: JSON.stringify(data.tags || []),
+      eigenaar: data.eigenaar || null,
+      gekoppeldProject: data.gekoppeldProject || null,
+      videoLink: data.videoLink || null,
       mediaType: data.media_type || null,
       afbeelding: data.afbeelding || null,
     };
@@ -179,6 +182,8 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     });
   }
 };
+
+
 
 
 
