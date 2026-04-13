@@ -1,3 +1,4 @@
+
 /**
  * Auth0 Configuration
  * 
@@ -48,7 +49,7 @@ export function getAuth0Config(locals?: any): Auth0Config {
   const domain = getEnvVar('AUTH0_DOMAIN', locals);
   const clientId = getEnvVar('AUTH0_CLIENT_ID', locals);
   const clientSecret = getEnvVar('AUTH0_CLIENT_SECRET', locals);
-  const appOrigin = getEnvVar('APP_ORIGIN', locals);
+  const appOrigin = getEnvVar('APP_ORIGIN', locals).replace(/\/$/, ''); // Remove trailing slash
   
   // Cookie secret (gebruik JWT_SECRET als fallback)
   const cookieSecret = getEnvVar('COOKIE_SECRET', locals, false) || 
@@ -60,7 +61,7 @@ export function getAuth0Config(locals?: any): Auth0Config {
     clientSecret,
     audience: getEnvVar('AUTH0_AUDIENCE', locals, false),
     scope: 'openid profile email',
-    redirectUri: `${appOrigin}/api/auth/callback`,
+    redirectUri: `${appOrigin}/api/auth0/callback`,
     postLogoutRedirectUri: `${appOrigin}/`,
     cookieSecret,
     cookieName: 'auth0_session',
@@ -154,3 +155,4 @@ export async function getUserInfo(
 
   return response.json();
 }
+
