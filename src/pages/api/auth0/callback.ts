@@ -1,3 +1,4 @@
+
 /**
  * Auth0 Callback Endpoint
  * 
@@ -14,6 +15,11 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     const config = getAuth0Config(locals);
     const url = new URL(request.url);
     
+    // DEBUG: Log all query parameters
+    console.log('🔍 Auth0 Callback Debug:');
+    console.log('  Full URL:', request.url);
+    console.log('  Query params:', Object.fromEntries(url.searchParams));
+    
     // Get authorization code and state from query params
     const code = url.searchParams.get('code');
     const returnedState = url.searchParams.get('state');
@@ -29,11 +35,14 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     // Validate required parameters
     if (!code || !returnedState) {
       console.error('❌ Missing code or state in callback');
+      console.error('  code present:', !!code);
+      console.error('  state present:', !!returnedState);
       return redirect(`${baseUrl}/?error=invalid_callback`);
     }
     
     // Verify state (CSRF protection)
     const cookies = request.headers.get('cookie');
+    console.log('🍪 Cookies received:', cookies);
     const cookieMap = cookies
       ? Object.fromEntries(
           cookies.split('; ').map(c => {
@@ -44,6 +53,10 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
       : {};
     
     const storedState = cookieMap['auth0_state'];
+    console.log('🔐 State validation:');
+    console.log('  Stored state:', storedState?.substring(0, 20) + '...');
+    console.log('  Returned state:', returnedState?.substring(0, 20) + '...');
+    console.log('  Match:', storedState === returnedState);
     
     if (!storedState || storedState !== returnedState) {
       console.error('❌ State mismatch - possible CSRF attack');
@@ -51,10 +64,14 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     }
     
     // Exchange authorization code for tokens
+    console.log('🔄 Exchanging code for tokens...');
     const tokens = await exchangeCodeForTokens(config, code);
+    console.log('✅ Tokens received successfully');
     
     // Get user info
+    console.log('👤 Fetching user info...');
     const userInfo = await getUserInfo(config, tokens.access_token);
+    console.log('✅ User info:', { email: userInfo.email, name: userInfo.name });
     
     // Calculate token expiration (convert seconds to milliseconds)
     const expiresAt = Date.now() + tokens.expires_in * 1000;
@@ -73,13 +90,17 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     };
     
     // Encrypt session into a JWT
+    console.log('🔐 Creating encrypted session...');
     const sessionToken = await encryptSession(session, config.cookieSecret);
+    console.log('✅ Session encrypted successfully');
     
     // Create session cookie
     const sessionCookie = createSessionCookie(config.cookieName, sessionToken);
     
     // Clear state cookie
     const clearStateCookie = clearSessionCookie('auth0_state');
+    
+    console.log('✅ Redirecting to dashboard with session cookie');
     
     // Redirect to dashboard with session cookie
     return new Response(null, {
@@ -91,6 +112,8 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     });
   } catch (error) {
     console.error('❌ Auth0 callback error:', error);
+    console.error('  Error details:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('  Stack:', error instanceof Error ? error.stack : 'No stack trace');
     
     return redirect(
       `${baseUrl}/?error=${encodeURIComponent(
@@ -99,3 +122,4 @@ export const GET: APIRoute = async ({ request, locals, redirect }) => {
     );
   }
 };
+

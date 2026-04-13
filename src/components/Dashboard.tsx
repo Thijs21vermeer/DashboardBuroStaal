@@ -32,6 +32,16 @@ export default function Dashboard() {
   useEffect(() => {
     const validateSession = async () => {
       try {
+        // Check for error in URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const errorParam = params.get('error');
+        
+        if (errorParam) {
+          setLoginError(decodeURIComponent(errorParam));
+          // Clear error from URL without reload
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+        
         const response = await fetch(`${baseUrl}/api/auth0/me`, {
           credentials: 'include', // Stuurt cookies automatisch mee
         });
@@ -45,6 +55,7 @@ export default function Dashboard() {
         }
       } catch (error) {
         console.error('Session validation error:', error);
+        setLoginError('Er is een fout opgetreden bij het laden van de sessie');
       } finally {
         setIsLoading(false);
       }
@@ -139,6 +150,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 
